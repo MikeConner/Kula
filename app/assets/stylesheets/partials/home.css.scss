@@ -1,0 +1,229 @@
+h1, h2, h3, h4 {
+  font-weight: 100;
+  text-transform: capitalize;
+}
+
+body,html {
+  height: 100%;
+  font-size: 16px;
+  font-weight: 300;
+  font-family: Roboto;
+}
+
+.front_intro {
+  background: #EEEEEE;
+  color: #525252;
+  background: image-url("tapheader.png") no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height:500px;
+  width:100%;
+}
+
+.front_hello{
+  background: #EEEEEE;
+  color: #525252;
+  background: image-url("hello.jpeg") no-repeat ;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height:auto;
+  padding:40px;
+}
+
+.lightbg {
+  background: #EEEEEE;
+  padding: 20px;
+  opacity: .9;
+
+}
+.darkbg {
+  background: #616161;
+  padding: 30px;
+  opacity: .9;
+
+}
+.front_howdy{
+  background: #EEEEEE;
+  color: #525252;
+  //background: image-url("howdy.jpeg") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height:auto;
+  padding:40px;
+
+}
+.front_yothere{
+  background: #EEEEEE;
+  color: #525252;
+  background: image-url("yothere.jpeg") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height:auto;
+}
+.front_byenow{
+  background: #EEEEEE;
+  color: #525252;
+  background: image-url("byenow.jpeg") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height:auto;
+}
+.front_apps{
+  background: #EEEEEE;
+  color: #525252;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height:auto;
+}
+
+
+
+#hello {
+  width:100%;
+  margin: 20px auto;
+
+}
+
+
+.front_technology{
+  background: #525252;
+  color: #EEEEEE;
+
+}
+.sec1 {
+  background: #616161;
+}
+.bgrid {
+  padding: 0px;
+
+}
+.touch a{
+  color: #BFC833;
+  font-size: 24px;
+}
+.advocate a{
+  color: #F7A991;  font-size: 24px;
+}
+.play a{
+  color: #E0CD1E;  font-size: 24px;
+}
+
+.front-top {
+  padding: 40px;
+  background: #444444;
+}
+
+.front-left{
+  background: #48979e;
+  padding: 40px;
+
+}
+
+.front-right {
+  background: #909854;
+  padding: 40px;
+}
+
+.front-bottom {
+  background: #2b4358;
+  padding: 40px;
+
+}
+.small-block-grid-3 li {
+  height: 114px;
+  width: 114px;
+  }
+.small-block-grid-3 img{
+  height: inherit;
+  padding: 14px;
+  display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+.museum{
+
+
+  background: #15B0BF;
+}
+.carnival{
+
+}
+
+.light-blue {background: #15B0BF;}
+.yellow {background: #E0CD1E;}
+.green { background: #BFC833;}
+.dark-blue {background: #103754;}
+.pink {background: #F7A991;}
+
+.light-blue {background: #15B0BF;}
+.light-green {background: #E0E442;}
+.grey {background: #525252;}
+
+.small-block-grid-3
+{ margin:0px;}
+
+
+.footer-div {
+  display: none;
+  background:#605461;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: initial;
+  position: fixed;
+  bottom: 0;
+
+  ul li {
+    color: white;
+  }
+
+  ul li a {
+    color: white;
+  }
+
+}
+
+#container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 15%;
+  img {
+    position: relative;
+    z-index: 99;
+  }
+}
+
+.dot {
+  height: 2px;
+  width: 2px;
+  border-radius: 100%;
+  position: absolute;
+  z-index: 0;
+  -webkit-animation: sploosh 3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  background: transparent;
+}
+
+@-webkit-keyframes sploosh {
+  0% {
+    box-shadow: 0 0 0 0px rgba($primary-color,.7);
+    background: rgba($primary-color,.7);
+  }
+  100% {
+    box-shadow: 0 0 0 300px rgba($primary-color,.0);
+    background: rgba($primary-color,.0);
+  }
+}
