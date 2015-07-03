@@ -3,7 +3,7 @@ ruby '2.1.5'
 
 gem 'rails', '4.1.8'
 #gem 'pg', '0.17.1'
-gem 'mysql2'
+gem 'mysql'
 gem 'devise', '3.4.1'
 gem 'devise-async', '0.9.0'
 gem 'nokogiri', '1.6.1'
