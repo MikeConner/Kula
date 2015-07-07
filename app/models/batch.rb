@@ -1,0 +1,23 @@
+# == Schema Information
+#
+# Table name: batches
+#
+#  id          :integer          not null, primary key
+#  partner_id  :integer
+#  user_id     :integer
+#  name        :string(32)
+#  date        :datetime
+#  description :string(255)
+#  created_at  :datetime
+#  updated_at  :datetime
+#
+
+class Batch < ActiveRecord::Base
+  MAX_NAME_LEN = 32
+  
+  belongs_to :partner
+  belongs_to :user
+  
+  has_many :payments, :dependent => :restrict_with_exception
+  has_many :adjustments, :dependent => :restrict_with_exception
+end
