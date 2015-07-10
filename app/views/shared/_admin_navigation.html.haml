@@ -1,0 +1,18 @@
+.section-container.accordion{:data => {:options => 'deep_linking', :section => ''}}
+  %section.section
+    %p.title= link_to 'Dashboard'
+    .content
+      %ul
+        %li= link_to 'Users', root_path
+        %li= link_to 'Partners', root_path
+        %li= link_to 'Causes', root_path
+        %li= link_to 'Reports', root_path
+        %li= link_to 'Payments', root_path
+        %li= link_to 'Settings', root_path
+        %li= link_to 'Batches', root_path
+  - if current_user.super_admin?
+    %section.section
+      %p.title= link_to 'Admin Area'
+      .content
+        %ul
+          %li= link_to 'Sample', root_path

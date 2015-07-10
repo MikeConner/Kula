@@ -1,0 +1,19 @@
+!!!
+%html{:lang => "en"}
+  %head
+    %meta{:charset => "utf-8"}/
+    %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}/
+    %title= content_for?(:title) ? yield(:title) : "Kula"
+    = yield :head
+    = stylesheet_link_tag    "application"
+    = javascript_include_tag "libs/custom.modernizr.js"
+    = favicon_link_tag
+    = csrf_meta_tag
+    = render 'layouts/application/shim'
+  %body
+    = render 'layouts/application/header'
+    = yield
+    = javascript_include_tag "application"
+    = content_for :head
+
+    = render 'layouts/application/footer'

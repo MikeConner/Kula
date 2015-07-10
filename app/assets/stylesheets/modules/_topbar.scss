@@ -1,0 +1,155 @@
+ //  /* <nav> */
+ //  .top-bar { 
+ //    @include filter-gradient($topBarBgGradientTop, $topBarBgGradientTop, vertical); // IE6-8
+ //    $experimental-support-for-svg: true;
+ //    @include background-image(linear-gradient(top,  $topBarBgGradientTop 0%,$topBarBgGradientBottom 100%));
+ //    @include box-shadow(0px 2px 0 rgba(255,255,255,0.10));
+ //    border-top: 5px solid black;
+ //    border-bottom:1px solid black;
+ //    overflow: visible;
+ //    /* First <ul> for branding, title, name, etc */
+ //      &>.title-area { 
+ //        .name {
+ //          h1 { line-height: $topbar-height; margin: 0;
+ //            a { width:245px; 
+ //              img { margin-top: 0px; padding-top:15px; width:175px; vertical-align: middle; }
+ //            }
+ //          }
+          
+ //        }
+ //      }
+ //      &.expanded { height: inherit; }
+ //      section {
+ //        ul {
+ //              margin-left: 0; display: inline; line-height: $topbar-height; list-style: none; min-width:150px; z-index:99;
+ //      /* Main Navigation links style */
+ //      &>li { float: left;
+ //        a:not(.button) { color: $topbar-link-color; display: block; font-size: $topbar-link-font-size; font-weight: $topBarLinkWeight; line-height: 55px; padding: 0 $topBarHeight / 2; 
+ //              [class^="icon-"],
+ //              [class*=" icon-"] {
+ //                margin-right:4px;
+ //            } }
+ //        &:not(.name) {
+ //          &:active, &:focus{ background: darken($topBarBgColor, 15%); border-bottom:5px solid $red;}
+ //          &:hover, &.active, &:focus { background: darken($topBarBgColor, 15%);
+ //            a { color: darken($topbar-link-color, 15%); 
+ //              [class^="icon-"],
+ //              [class*=" icon-"] {
+ //                margin-right:4px;
+ //              } 
+ //            }
+ //          }
+ //        }
+
+ //        /* Dividers between navigation */
+ //        &.divider { height:$topBarHeight; background: darken($topBarBgColor, 15%); @include box-shadow(1px 0 0 rgba(255,255,255,0.10)); height: 100%; margin-right: 1px; width: 1px; }
+
+ //        /* Put a button in an <li> but give is a class */
+ //        &.has-button {
+ //          a.button { margin: 0 $topBarHeight / 4; }
+ //          &:hover, &:focus { background: $topBarBgColor;
+ //            a { color: #fff; }
+ //          }
+ //        }
+
+ //        /* Put a search bar or text input in the bar */
+ //        &.search { padding: 0 $topBarHeight / 3;
+ //          form { display: inline-block; margin-bottom: 0; vertical-align: middle; width: $topBarSearchWidth;
+ //            input[type=text] { @include border-right-radius(0); float: left; font-size: ms(0) - 1; margin-top: -1px; height: $topBarHeight / 2; //28px
+ //                              margin-bottom: 0; width: $topBarSearchWidth - 70px;
+ //              &+.button { border-left: none; @include border-left-radius(0); float: left; font-size: ms(0) - 2; margin-top: -1px; padding: 5px 12px 4px; }
+ //            }
+ //            input[type=search] { font-size: 16px; margin-bottom: 0; }
+ //          }
+ //          &:hover, &:focus { background: $topBarBgColor; }
+ //        }
+
+
+ //        /* Hide the triangle for breakpoint menu */
+ //        &.toggle-topbar { display: none; }
+
+ //        /* li.has-dropdown */
+ //        &.has-dropdown { position: relative;
+ //          &:hover, &:focus { &>.dropdown { display: block; visibility: visible; } }
+ //          // a { padding-right: $topBarHeight * .75;
+ //          //   &:after { @include cssTriangle($topBarDropToggleSize, $topBarDropToggleColor, top); margin-right: $topBarHeight / 3; margin-top: -$topBarDropToggleSize / 2; position: absolute; right: 0; top: 50%; }
+ //          // }
+ //          .dropdown { background: $topBarDropBgColor; left: 0; margin: 0; padding: $topBarHeight / 5 0 0 0; position: absolute; visibility: hidden; z-index: 99;
+ //            li { background: $topBarDropBgColor; line-height: 1; min-width: 100%;
+ //              a { color: $medium-gray; font-weight: normal; height: 100%; line-height: 1; padding: 5px $topBarHeight / 3 + 2 5px $topBarHeight / 3; white-space: nowrap;
+ //                &:after { border: none; }
+ //                &:hover, &:focus { background: lighten($topBarDropBgColor, 10%); }
+ //              }
+ //              label { color: white!important; font-size: ms(0) - 4; font-weight: $topBarLinkWeight; margin: 0; padding-left: $topBarHeight / 3; text-transform: uppercase; padding:0px 10px 10px;
+ //                  color: #555;
+ //                  font-size: 10px;
+ //                  font-weight: bold;
+ //                  margin: 0;
+ //                  padding-left: 18.33333px;
+ //                  text-transform: uppercase;
+ //                  padding: 10px 10px 10px;
+ //                  margin-top: -10px;
+ //                  background-color: black;
+ //              }
+ //              &.divider { border-top: solid 1px darken($topBarDropBgColor, 20%); @include box-shadow(0 1px 0 rgba(255,255,255,.10) inset); height: 10px; padding: 0; width: 100%; }
+ //              &:last-child { padding-bottom: 0px; }
+ //              &.active a { background: darken($topBarBgColor, 15%); }
+ //            }
+ //          }
+
+ //          /* Dropdown Level 2+ */
+ //          .dropdown li.has-dropdown {
+ //            &>a { padding-right: $navBarHeight * .75;
+ //              &:after { border: none; content:"\00bb"; right: 5px; top: 6px; }
+ //            }
+ //            .dropdown { position: absolute; left: 100%; top: 0; }
+ //            &:hover, &:focus {
+ //              &>.dropdown { display: block; }
+ //            }
+ //          }
+ //        }
+ //      }
+
+ //      /* Left Side <ul> */
+ //      &.left { float: left; width: auto; margin-bottom: 0; }
+
+ //      /* Right Side <ul> */
+ //      &.right { float: right; width: auto; margin-bottom: 0;
+ //        /* Dropdown Right Side Alignment */
+ //        .has-dropdown .dropdown { left: auto; right: 0px;
+ //          li.has-dropdown > .dropdown { right: 100%; left: auto; width: 100%; }
+ //        }
+ //      }
+ //        }
+
+ //      }
+ //  }
+
+ //  /* Firefox Fixes */
+ //  @-moz-document url-prefix() {
+ //    .top-bar ul li .button.small { padding-bottom: 6px; }
+ //    .top-bar ul li.search form input[type=search] { font-size: 14px; height: 22px; padding: 3px; }
+ //  }
+
+ //  /* IE8 Fixes */
+ //  .lt-ie9 .top-bar ul li a { color: $topbar-link-color; display: block; font-weight: $topBarLinkWeight; font-size: $topBarLinkSize; height: $topBarHeight; line-height: $topBarHeight; padding: 0 $topBarHeight / 3;
+ //    &.button { height: auto; line-height: 30px; margin-top: 7px; }
+ //    img { margin-top: -5px; vertical-align: middle; }
+ //  }
+ //  .lt-ie9 .top-bar section > ul > li
+ //  {
+ //   a
+ //    {
+ //  &:hover, &:focus {color: darken($topbar-link-color, 20%); }
+	// }
+ //    &:hover, &:focus { background: darken($topBarBgColor, 15%) }
+	// &.search:hover,&.search:focus,&.has-button:hover,&.has-button:focus { background: none }
+ //    &.active { background: darken($topBarBgColor, 15%); color: darken($topbar-link-color, 15%); }
+ //  }
+ //  .lt-ie9 .top-bar ul li.has-dropdown {
+ //    padding-right: $topBarHeight * .75;
+ //    &>ul li { padding-right: 0; }
+ //  }
+
+
+

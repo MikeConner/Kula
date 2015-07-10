@@ -9,10 +9,13 @@
           %span Menu
     %section.top-bar-section
       / Right Nav Section
-      %ul.right
-        %li
-          - if current_user.nil?
-            = link_to 'Login', new_user_session_path
-          - else
-            = link_to 'Log Out', destroy_user_session_path, :method => :delete
+      %ul.menu-right.right
+        - if current_user.nil?
+          %li= link_to 'Login', new_user_session_path
+        - else
+          - if current_user.any_admin?
+            %li= link_to 'Site Admin', site_admin_path
+            - if current_user.super_admin?
+              %li= link_to 'Rails Admin', rails_admin_path              
+          %li= link_to 'Log Out', destroy_user_session_path, :method => :delete
 = render :partial => 'shared/flash_messages'

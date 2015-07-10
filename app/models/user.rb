@@ -56,6 +56,18 @@ class User < ActiveRecord::Base
     CAUSE == self.role
   end
 
+  def admin?
+    KULA_ADMIN == self.role
+  end
+  
+  def super_admin?
+    ADMIN == self.role
+  end
+  
+  def any_admin?
+    admin? or super_admin?
+  end
+  
 private
   def consistent_roles
     if (!partner_id.nil? and !partner?) or (!cause_id.nil? and !cause?)

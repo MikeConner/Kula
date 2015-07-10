@@ -1,0 +1,69 @@
+@import "compass/css3/images";
+@import "sassy-buttons";
+
+//   Sassy Button defaults
+//   These are the base defaults for the buttons, if you are going to use similar buttons on an entire site,
+//   overriding these can save you some time by calling the sassy button mixin with less arguments.
+
+$sb-base-color: rgba(11, 153, 194, 1);
+$sb-second-color: false;
+$sb-border-radius: 5px;
+$sb-padding: 0.8em 1.8em;
+$sb-font-size: 16px;
+$sb-text-color: white;
+$sb-text-style: "inset";
+$sb-gradient-style: "simple";
+$sb-pseudo-states: true;
+$sb-ie-support: true;
+
+//  Mixin that gets included when calling the sassy-button-structure if you need any
+//  styles applied to all your sassy buttons, add it here.
+
+@mixin sassy-button-default-structure {
+  display: inline-block;
+  cursor: pointer;
+}
+
+//  *    Mixin reference
+//  *   -----------------------------------------
+//  *   @include sassy-button(gradient-style, border-radius, font-size, first-color, second-color, text-color, text-style, auto-states, ie-support);
+//  *   @include sassy-button-structure(-border-radius, font-size, padding);
+//  *   @include sassy-button-gradient(gradient-style, first-color, second-color, text-color, text-style, auto-states, ie-support);
+
+
+//	* Button Preferences
+
+$darkred:#C0392B;
+$darkgreen:#27AE60;
+$darkgray:#7F8C8D;
+$mediumgray:#95A5A6;
+$gray:#BDC3C7;
+$lightgray:#ECF0F1;
+$darkblue:#2C3E50;
+$blue:#2980B9;
+
+[class*="btn"] {
+	a {color:white;}
+}
+
+// Red  
+.darkred-btn {@include sassy-button("matte", 8px, 1em, $darkred);}
+
+// Green
+.darkblue-btn { @include sassy-button("matte", 8px, 1em, $darkblue); }
+.blue-btn { @include sassy-button("matte", 8px, 1em, $blue); }
+
+// Green
+.darkgreen-btn { @include sassy-button("matte", 8px, 1em, $darkgreen); }
+
+// Gray
+.darkgray-btn { @include sassy-button("matte", 8px, 1em, $darkgray); font-weight: bold;}
+.mediumgray-btn { @include sassy-button("matte", 8px, 1em, $mediumgray); }
+.gray-btn { @include sassy-button("matte", 8px, 1em, $gray); }
+.lightgray-btn {@include sassy-button("matte", 8px, 1em, $lightgray);}
+
+
+
+
+
+

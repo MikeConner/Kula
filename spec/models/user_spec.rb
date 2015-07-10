@@ -30,6 +30,9 @@ describe User do
     expect(user).to respond_to(:role)
     expect(user).to respond_to(:partner?)
     expect(user).to respond_to(:cause?)
+    expect(user).to respond_to(:any_admin?)
+    expect(user).to respond_to(:admin?)
+    expect(user).to respond_to(:super_admin?)
   end
   
   describe "Partner user" do
@@ -38,11 +41,34 @@ describe User do
     
     it "should be a partner" do
       expect(user.partner?).to be true
+      expect(user.any_admin?).to be false
+      expect(user.admin?).to be false
+      expect(user.super_admin?).to be false
       expect(User.partners.count).to eq(1)
       expect(User.partners.ids.include?(user.id)).to be true
     end
     
     its(:partner) { should be == partner }
+    
+    describe "Kula admin" do
+      let(:user) { FactoryGirl.create(:user, :role => User::KULA_ADMIN) }
+
+      it "should have flags set properly" do
+        expect(user.any_admin?).to be true
+        expect(user.admin?).to be true
+        expect(user.super_admin?).to be false        
+      end
+    end
+
+    describe "Super admin" do
+      let(:user) { FactoryGirl.create(:user, :role => User::ADMIN) }
+
+      it "should have flags set properly" do
+        expect(user.any_admin?).to be true
+        expect(user.admin?).to be false
+        expect(user.super_admin?).to be true        
+      end
+    end
     
     describe "Inconsistent partner role" do
       before { user.role = nil }

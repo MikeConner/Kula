@@ -9,7 +9,7 @@ gem 'devise-async', '0.9.0'
 gem 'nokogiri', '1.6.1'
 
 gem 'haml-rails', '0.6.0'
-gem 'rails_admin', '0.6.5'
+gem 'rails_admin', '0.6.8'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '4.0.5'

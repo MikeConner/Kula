@@ -1,0 +1,103 @@
+
+/**** Isotope styles ****/
+
+/* required for containers to inherit vertical size from window */
+
+
+
+#filter {margin:0px auto; max-width: 1200px;}
+
+
+#container {
+  margin:0px auto;
+  max-width:1200px;
+  overflow: visible!important;
+  // margin-bottom: 60px;
+}
+
+.option-combo{
+	h2 {color:white;}
+}
+
+/**** Isotope Filtering ****/
+.isotope-item {
+  z-index: 2;
+}
+
+.isotope-hidden.isotope-item {
+  pointer-events: none;
+  z-index: 1;
+}
+
+/**** Isotope CSS3 transitions ****/
+.isotope,
+.isotope .isotope-item {
+  -webkit-transition-duration: 0.8s;
+     -moz-transition-duration: 0.8s;
+      -ms-transition-duration: 0.8s;
+       -o-transition-duration: 0.8s;
+          transition-duration: 0.8s;
+}
+
+.isotope {
+  -webkit-transition-property: height, width;
+     -moz-transition-property: height, width;
+      -ms-transition-property: height, width;
+       -o-transition-property: height, width;
+          transition-property: height, width;
+}
+
+.isotope .isotope-item {
+  -webkit-transition-property: -webkit-transform, opacity;
+     -moz-transition-property:    -moz-transform, opacity;
+      -ms-transition-property:     -ms-transform, opacity;
+       -o-transition-property:      -o-transform, opacity;
+          transition-property:         transform, opacity;
+}
+
+/**** disabling Isotope CSS3 transitions ****/
+
+.isotope.no-transition,
+.isotope.no-transition .isotope-item,
+.isotope .isotope-item.no-transition {
+  -webkit-transition-duration: 0s;
+     -moz-transition-duration: 0s;
+      -ms-transition-duration: 0s;
+       -o-transition-duration: 0s;
+          transition-duration: 0s;
+}
+
+
+@media all and (max-width: 1200px) {
+  #filter {margin:0px auto; max-width: 960px!important;}
+
+  #container {
+    margin:0px auto;
+    max-width:960px!important;
+    margin-bottom: 60px;
+  }
+}
+
+@media all and (max-width: 960px) {
+  #filter {margin:0px auto; max-width: 720px!important;}
+
+  #container {
+    margin:0px auto;
+    max-width:720px!important;
+    margin-bottom: 60px;
+  }
+}
+
+@media all and (max-width: 720px) {
+  #filter {margin:0px auto; max-width: 480px!important;}
+
+  #container {
+    margin:0px auto;
+    max-width:480px!important;
+    margin-bottom: 60px;
+  }
+}
+
+
+
+
