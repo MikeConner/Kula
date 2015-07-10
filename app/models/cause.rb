@@ -48,8 +48,8 @@ class Cause < ActiveRecord::Base
   validates_inclusion_of :has_ach_info, :in => [true, false]
   validates_inclusion_of :cause_type, :in => VALID_TYPES
   validates :country, :length => { :maximum => MAX_COUNTRY_LEN }
-  validates :email, :uniqueness => { :case_sensitive => false },
-                    :format => { :with => EMAIL_REGEX },
+  # NOTE: Apparently emails are not unique!
+  validates :email, :format => { :with => EMAIL_REGEX },
                     :allow_blank => true
   validates :postal_code, :mailing_postal_code, :length => { :maximum => MAX_SMALL }, :allow_nil => true
   validates :phone, :fax, :tax_id, :city, :region, :mailing_city, :mailing_state, :length => { :maximum => MAX_MEDIUM }, :allow_nil => true

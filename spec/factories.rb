@@ -126,7 +126,7 @@ FactoryGirl.define do
     cause
     
     year { 2001 + Random.rand(15) }
-    cause_type { CauseBalance::CAUSE_TYPES.sample }
+    balance_type { CauseBalance::BALANCE_TYPES.sample }
   end
   
   factory :batch do

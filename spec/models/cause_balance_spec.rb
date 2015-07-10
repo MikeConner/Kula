@@ -2,26 +2,26 @@
 #
 # Table name: cause_balances
 #
-#  id         :integer          not null, primary key
-#  partner_id :integer
-#  cause_id   :integer
-#  year       :integer          not null
-#  cause_type :string(16)
-#  jan        :decimal(8, 2)    default(0.0), not null
-#  feb        :decimal(8, 2)    default(0.0), not null
-#  mar        :decimal(8, 2)    default(0.0), not null
-#  apr        :decimal(8, 2)    default(0.0), not null
-#  may        :decimal(8, 2)    default(0.0), not null
-#  jun        :decimal(8, 2)    default(0.0), not null
-#  jul        :decimal(8, 2)    default(0.0), not null
-#  aug        :decimal(8, 2)    default(0.0), not null
-#  sep        :decimal(8, 2)    default(0.0), not null
-#  oct        :decimal(8, 2)    default(0.0), not null
-#  nov        :decimal(8, 2)    default(0.0), not null
-#  dec        :decimal(8, 2)    default(0.0), not null
-#  total      :decimal(8, 2)    default(0.0), not null
-#  created_at :datetime
-#  updated_at :datetime
+#  id           :integer          not null, primary key
+#  partner_id   :integer
+#  cause_id     :integer
+#  year         :integer          not null
+#  balance_type :string(16)
+#  jan          :decimal(8, 2)    default(0.0), not null
+#  feb          :decimal(8, 2)    default(0.0), not null
+#  mar          :decimal(8, 2)    default(0.0), not null
+#  apr          :decimal(8, 2)    default(0.0), not null
+#  may          :decimal(8, 2)    default(0.0), not null
+#  jun          :decimal(8, 2)    default(0.0), not null
+#  jul          :decimal(8, 2)    default(0.0), not null
+#  aug          :decimal(8, 2)    default(0.0), not null
+#  sep          :decimal(8, 2)    default(0.0), not null
+#  oct          :decimal(8, 2)    default(0.0), not null
+#  nov          :decimal(8, 2)    default(0.0), not null
+#  dec          :decimal(8, 2)    default(0.0), not null
+#  total        :decimal(8, 2)    default(0.0), not null
+#  created_at   :datetime
+#  updated_at   :datetime
 #
 
 describe CauseBalance do
@@ -35,7 +35,7 @@ describe CauseBalance do
     expect(balance).to respond_to(:partner_id)
     expect(balance).to respond_to(:cause_id)
     expect(balance).to respond_to(:year)
-    expect(balance).to respond_to(:cause_type)
+    expect(balance).to respond_to(:balance_type)
     expect(balance).to respond_to(:jan)
     expect(balance).to respond_to(:feb)
     expect(balance).to respond_to(:mar)
@@ -64,14 +64,14 @@ describe CauseBalance do
     end
   end
   
-  describe "Missing cause_type" do
-    before { balance.cause_type = ' ' }
+  describe "Missing balance_type" do
+    before { balance.balance_type = ' ' }
     
     it { should_not be_valid }
   end
 
-  describe "Invalid cause_type" do
-    before { balance.cause_type = 'Not a type' }
+  describe "Invalid balance_type" do
+    before { balance.balance_type = 'Not a type' }
     
     it { should_not be_valid }
   end

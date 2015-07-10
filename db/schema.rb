@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150707050002) do
+ActiveRecord::Schema.define(version: 20150709052739) do
 
   create_table "adjustments", force: true do |t|
     t.integer  "batch_id"
@@ -35,26 +35,26 @@ ActiveRecord::Schema.define(version: 20150707050002) do
   create_table "cause_balances", force: true do |t|
     t.integer  "partner_id"
     t.integer  "cause_id"
-    t.integer  "year",                                                        null: false
-    t.string   "cause_type", limit: 16
-    t.decimal  "jan",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "feb",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "mar",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "apr",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "may",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "jun",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "jul",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "aug",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "sep",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "oct",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "nov",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "dec",                   precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "total",                 precision: 8, scale: 2, default: 0.0, null: false
+    t.integer  "year",                                                          null: false
+    t.string   "balance_type", limit: 16
+    t.decimal  "jan",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "feb",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "mar",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "apr",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "may",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "jun",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "jul",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "aug",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "sep",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "oct",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "nov",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "dec",                     precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "total",                   precision: 8, scale: 2, default: 0.0, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "cause_balances", ["partner_id", "cause_id", "year", "cause_type"], name: "cause_balances_primary_key", unique: true, using: :btree
+  add_index "cause_balances", ["partner_id", "cause_id", "year", "balance_type"], name: "cause_balances_primary_key", unique: true, using: :btree
 
   create_table "causes", id: false, force: true do |t|
     t.string   "cause_identifier",    limit: 64,                                           null: false
