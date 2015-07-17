@@ -9,10 +9,12 @@
 #  comment    :text
 #  created_at :datetime
 #  updated_at :datetime
+#  cause_id   :integer
 #
 
 class Adjustment < ActiveRecord::Base
   belongs_to :batch
+  belongs_to :cause
   
   validates :amount, :numericality => { :only_integer => false }
 end

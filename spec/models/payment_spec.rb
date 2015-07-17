@@ -13,16 +13,19 @@
 #  comment        :text
 #  created_at     :datetime
 #  updated_at     :datetime
+#  cause_id       :integer
 #
 
 describe Payment do
   let(:batch) { FactoryGirl.create(:batch) }
-  let(:payment) { FactoryGirl.create(:payment, :batch => batch) }
+  let(:cause) { FactoryGirl.create(:cause) }
+  let(:payment) { FactoryGirl.create(:payment, :batch => batch, :cause => cause) }
   
   subject { payment }
   
   it "should respond to everything" do
     expect(payment).to respond_to(:batch_id)
+    expect(payment).to respond_to(:cause_id)
     expect(payment).to respond_to(:status)
     expect(payment).to respond_to(:amount)
     expect(payment).to respond_to(:date)
@@ -33,6 +36,7 @@ describe Payment do
   end
   
   its(:batch) { should be == batch }
+  its(:cause) { should be == cause }
   
   it { should be_valid }
   

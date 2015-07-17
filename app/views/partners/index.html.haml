@@ -1,0 +1,25 @@
+- if @partners.empty?
+  %h1 No Partners
+- else
+  %h1 Partners
+  %table.table.zebra-striped
+    %col{:width => "125"}/
+    %col{:width => "100"}/
+    %col{:width => "50"}/
+    %col{:width => "50"}/
+    %col{:width => "50"}/
+    %thead
+      %tr
+        %th Name
+        %th Domain
+        %th Currency
+        %th Current Fee
+        %th # Payments
+    %tbody
+      - @partners.each do |partner|
+        %tr
+          %td= partner.display_name
+          %td= partner.domain
+          %td= partner.currency
+          %td= number_to_percentage(partner.current_rate * 10)
+          %td= partner.payments.count

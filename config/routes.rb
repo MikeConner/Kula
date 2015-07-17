@@ -7,6 +7,10 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root :to => 'static_pages#home'
 
+  resources :payments, :only => [:index]
+  resources :batches, :only => [:new, :create]
+  resources :partners, :only => [:index]
+  
   # Static pages
   get "/site_admin" => "static_pages#admin_index"
 end

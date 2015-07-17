@@ -30,17 +30,19 @@ class CauseBalance < ActiveRecord::Base
   GROSS = 'Gross'
   DISCOUNT = 'Discount'
   NET = 'Net'
-  FEES = 'Fees'
-  ADJUSTMENTS = 'Adjustments'
+  FEE = 'Fee'
+  ADJUSTMENT = 'Adjustment'
   DONEE_AMOUNT = 'Donee Amount'
   
-  BALANCE_TYPES = [PAYABLE, PAYMENT, GROSS, DISCOUNT, NET, FEES, ADJUSTMENTS, DONEE_AMOUNT]
+  BALANCE_TYPES = [PAYABLE, PAYMENT, GROSS, DISCOUNT, NET, FEE, ADJUSTMENT, DONEE_AMOUNT]
   MAX_TYPE_LEN = 16
-  
+    
   belongs_to :partner
   belongs_to :cause
   
   validates :year, :numericality => { :only_integer => true, :greater_than => 2000 }
   validates_inclusion_of :balance_type, :in => BALANCE_TYPES
   validates :jan, :feb, :mar, :apr, :may, :jun, :jul, :aug, :sep, :oct, :nov, :dec, :total, :numericality => { :greater_than_or_equal_to => 0.0 }
+  
+  scope :payments, -> { where("balance_type = ?", PAYMENT).group(:year, :partner_id) }
 end

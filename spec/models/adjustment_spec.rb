@@ -9,22 +9,26 @@
 #  comment    :text
 #  created_at :datetime
 #  updated_at :datetime
+#  cause_id   :integer
 #
 
 describe Adjustment do
   let(:batch) { FactoryGirl.create(:batch) }
-  let(:adjustment) { FactoryGirl.create(:adjustment, :batch => batch) }
+  let(:cause) { FactoryGirl.create(:cause) }
+  let(:adjustment) { FactoryGirl.create(:adjustment, :batch => batch, :cause => cause) }
   
   subject { adjustment }
   
   it "should respond to everything" do
     expect(adjustment).to respond_to(:batch_id)
+    expect(adjustment).to respond_to(:cause_id)
     expect(adjustment).to respond_to(:amount)
     expect(adjustment).to respond_to(:date)
     expect(adjustment).to respond_to(:comment)
   end
   
   its(:batch) { should be == batch }
+  its(:cause) { should be == cause }
   
   it { should be_valid }
   

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150709052739) do
+ActiveRecord::Schema.define(version: 20150717030636) do
 
   create_table "adjustments", force: true do |t|
     t.integer  "batch_id"
@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 20150709052739) do
     t.text     "comment"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "cause_id"
   end
 
   create_table "batches", force: true do |t|
@@ -116,6 +117,7 @@ ActiveRecord::Schema.define(version: 20150709052739) do
     t.text     "comment"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "cause_id"
   end
 
   create_table "stripe_accounts", force: true do |t|

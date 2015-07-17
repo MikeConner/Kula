@@ -44,6 +44,8 @@ class Cause < ActiveRecord::Base
   MAX_MEDIUM = 64
   MAX_LARGE = 128
   
+  has_many :cause_balances, :dependent => :restrict_with_exception
+
   validates_presence_of :name, :cause_type, :country
   validates_inclusion_of :has_ach_info, :in => [true, false]
   validates_inclusion_of :cause_type, :in => VALID_TYPES

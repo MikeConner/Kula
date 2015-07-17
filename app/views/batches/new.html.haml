@@ -1,0 +1,17 @@
+.container
+  .row
+    .span12
+      = render :partial => 'shared/error_messages', :locals => { :errors => @batch.errors, :name => 'Batch' }
+  .row
+    .span8.offset2
+      .content-block
+        %h2 New Batch
+        .bd
+          .row
+            .span6
+              = form_for @batch do |f|
+                -#= f.hidden_field :user, :value => current_user
+                -#= f.hidden_field :partner
+                = render :partial => 'batch_fields', :locals => { :f => f }
+                .actions
+                  = f.submit 'Create Batch'

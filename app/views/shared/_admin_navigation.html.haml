@@ -4,10 +4,10 @@
     .content
       %ul
         %li= link_to 'Users', root_path
-        %li= link_to 'Partners', root_path
+        %li= link_to 'Partners', partners_path
         %li= link_to 'Causes', root_path
         %li= link_to 'Reports', root_path
-        %li= link_to 'Payments', root_path
+        %li= link_to 'Payments', payments_path
         %li= link_to 'Settings', root_path
         %li= link_to 'Batches', root_path
   - if current_user.super_admin?

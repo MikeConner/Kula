@@ -20,4 +20,6 @@ class Batch < ActiveRecord::Base
   
   has_many :payments, :dependent => :restrict_with_exception
   has_many :adjustments, :dependent => :restrict_with_exception
+
+  accepts_nested_attributes_for :payments, :allow_destroy => true, :reject_if => :all_blank
 end

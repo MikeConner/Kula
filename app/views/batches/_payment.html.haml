@@ -1,0 +1,28 @@
+.payment.row
+  .large-2.columns
+    = f.hidden_field :_destroy
+    = content_tag(:a, 'X', :href => '#', :class => "close", :onclick => "if (confirm('Delete this payment?')) remove_payment(this)")
+  .large-2.columns
+    = f.label :cause_id
+    = f.select :cause_id, options_from_collection_for_select(Cause.order(:name), 'cause_identifier', 'name', f.object.cause_id), :prompt => 'Select a Cause'
+  .large-2.columns
+    = f.label :date
+    = f.date_select :date
+  .large-2.columns
+    = f.label :amount
+    = f.text_field :amount
+  .large-2.columns
+    = f.label :status
+    = f.select :status, options_for_select(Payment::VALID_STATUSES, f.object.status)
+  .large-2.columns
+    = f.label :payment_method
+    = f.select :payment_method, options_for_select(Payment::VALID_METHODS, f.object.payment_method)
+  .large-2.columns
+    = f.label :confirmation
+    = f.text_field :confirmation
+  .large-2.columns
+    = f.label :address
+    = f.text_field :address
+  .large-2.columns
+    = f.label :comment
+    = f.text_area :comment, :size => '40x3'

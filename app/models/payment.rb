@@ -13,6 +13,7 @@
 #  comment        :text
 #  created_at     :datetime
 #  updated_at     :datetime
+#  cause_id       :integer
 #
 
 class Payment < ActiveRecord::Base
@@ -23,6 +24,7 @@ class Payment < ActiveRecord::Base
   VALID_METHODS = ['ACH', 'Check']
   
   belongs_to :batch
+  belongs_to :cause
   
   validates_inclusion_of :status, :in => VALID_STATUSES
   validates :amount, :numericality => { :greater_than => 0 }

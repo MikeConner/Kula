@@ -1,0 +1,15 @@
+= f.hidden_field :partner_id, :value => f.object.partner_id
+= f.hidden_field :user_id, :value => f.object.user_id
+.field
+  = f.label :name
+  = f.text_field :name, :maxlength => Batch::MAX_NAME_LEN
+.field
+  = f.label :date
+  = f.date_select :date
+.field
+  = f.label :description
+  = f.text_area :description, :size => '40x3', :maxlength => 255
+= f.fields_for :payments do |payment_form|
+  = render :partial => 'payment', :locals => { :f => payment_form }
+= add_payment(@batch, f)
+  
