@@ -1,0 +1,52 @@
+- if @balances.empty?
+  %h1 No balances for this cause
+- else
+  %table.table.zebra-striped
+    %caption= @cause.nil? ? nil : @cause.name
+    %col{:width => "100"}/
+    %col{:width => "100"}/
+    %col{:width => "50"}/
+    %col{:width => "50"}/
+    %col{:width => "50"}/
+    %thead
+      %tr
+        %th Year
+        %th Partner
+        %th Type
+        %th Jan
+        %th Feb
+        %th Mar
+        %th Apr
+        %th May
+        %th Jun
+        %th Jul
+        %th Aug
+        %th Sep
+        %th Oct
+        %th Nov
+        %th Dec
+        %th Total
+    %tbody
+      - @balances.each do |balance|
+        %tr
+          %td= balance.year
+          - partner = balance.partner
+          %td= partner.nil? ? nil : partner.name
+          %td= balance.balance_type
+          %td= number_to_currency(balance.jan)
+          %td= number_to_currency(balance.feb)
+          %td= number_to_currency(balance.mar)
+          %td= number_to_currency(balance.apr)
+          %td= number_to_currency(balance.may)
+          %td= number_to_currency(balance.jun)
+          %td= number_to_currency(balance.jul)
+          %td= number_to_currency(balance.aug)
+          %td= number_to_currency(balance.sep)
+          %td= number_to_currency(balance.oct)
+          %td= number_to_currency(balance.nov)
+          %td= number_to_currency(balance.dec)
+          %td= number_to_currency(balance.total)
+%br
+%br
+= link_to 'Back', causes_path
+

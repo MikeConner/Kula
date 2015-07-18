@@ -1,0 +1,38 @@
+- if @balances.empty?
+  %h1 No Causes with balances
+- else
+  - last_cause = nil
+  .center
+    = will_paginate @balances
+  %table.table.zebra-striped
+    %caption Cause balances
+    %col{:width => "100"}/
+    %col{:width => "100"}/
+    %col{:width => "50"}/
+    %col{:width => "50"}/
+    %col{:width => "50"}/
+    %thead
+      %tr
+        %th Cause
+        %th Partner
+        %th Year
+        %th Type
+        %th Total
+    %tbody
+      - @balances.each do |balance|
+        %tr
+          - if balance.cause_id == last_cause
+            - cause_display = nil
+          - else
+            - cause = balance.cause
+            - last_cause = balance.cause_id
+          - partner = balance.partner
+          - if cause.nil?
+            %td
+          - else
+            %td= link_to cause.name, cause_path(cause)
+          %td= partner.nil? ? nil : partner.name
+          %td= balance.year
+          %td= balance.balance_type
+          %td= number_to_currency(balance.total)
+  %center= will_paginate @balances

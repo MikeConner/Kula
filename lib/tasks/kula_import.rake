@@ -1,8 +1,13 @@
 namespace :db do
-  desc "Read from kula_data to our db"
-  task :kula_import, [:fname] => :environment do |t, args|
+  desc "Read from kula_data to our db [fname, after date yyyy-mm-dd; ignores day]"
+  task :kula_import, [:fname, :after_date] => :environment do |t, args|
     fname = args.has_key?(:fname) ? args[:fname] : '/Users/jeff/Documents/KulaTransactions.csv'
-    
+    if args.has_key?(:after_date)
+      dt = Date.parse(args[:after_date])
+      month = dt.month
+      year = dt.year      
+    end
+        
     admin = User.where("role = ?", User::ADMIN).first
     first = true
     cnt = 1
@@ -14,6 +19,9 @@ namespace :db do
           first = false
           next
         end
+        
+        # Filter by month/year, if given
+        next unless year.nil? or ((year == line[2].to_i) and (month == line[1].to_i))
         
         partner_id = line[0].to_i
         if Partner.find_by_partner_identifier(partner_id).nil?
