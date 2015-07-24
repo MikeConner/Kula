@@ -4,5 +4,6 @@ class PaymentsController < ApplicationController
   def index
     @partner = Partner.find_by_partner_identifier(params[:partner])
     @payments = @partner.nil? ? nil : @partner.payments.order(:batch_id, :date)
-  end  
+        render :layout => 'admin'
+  end
 end

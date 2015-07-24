@@ -2,11 +2,10 @@
   %h1 No Causes with balances
 - else
   - last_cause = nil
-  .center
-    = will_paginate @balances
+
   %table.table.zebra-striped
     %caption Cause balances
-    %col{:width => "100"}/
+    %col /
     %col{:width => "100"}/
     %col{:width => "50"}/
     %col{:width => "50"}/
@@ -35,4 +34,5 @@
           %td= balance.year
           %td= balance.balance_type
           %td= number_to_currency(balance.total)
-  %center= will_paginate @balances
+
+  %center= foundation_paginate @balances

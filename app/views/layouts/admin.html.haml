@@ -12,7 +12,11 @@
     = render 'layouts/application/shim'
   %body
     = render 'layouts/application/header'
-    = yield
+    .admin-page-container
+      .admin-nav.large-2.columns
+        = render :partial => 'shared/admin_navigation'
+      .large-10.columns
+        = yield
     = javascript_include_tag "application"
     = content_for :head
 

@@ -1,6 +1,40 @@
-.section-container.accordion{:data => {:options => 'deep_linking', :section => ''}}
-  %section.section
-    %p.title= link_to 'Dashboard'
+.icon-bar.seven-up.vertical
+  %a.item{:href => "#{site_admin_path}"}
+    %i.fa.fa-home.fa-5
+    %label Dashboard
+  %a.item{:href => "#{causes_path}"}
+    %i.fa.fa-heart.fa-5
+    %label Causes
+  %a.item{:href => "#{payments_path}"}
+    %i.fa.fa-money.fa-5
+    %label Payments
+  %a.item{:href => "#{payments_path}"}
+    %i.fa.fa-tasks.fa-5
+    %label  Batches
+  %a.item{:href => "#{site_admin_path}"}
+    %i.fa.fa-bar-chart.fa-5
+    %label Reports
+  %a.item{:href => "#{partners_path}"}
+    %i.fa.fa-bank.fa-5
+    %label Partners
+  %a.item{:href => "#"}
+    %i.fa.fa-user.fa-5
+    %label Users
+
+  -# if current_user.super_admin?
+    %span.item
+      %label Admin Area
+    %a.item{:href => "#"}
+      %i.fa.fa-user.fa-5
+      %label Sample
+
+    %a.item{:href => "#{root_path}"}
+      %i.fa.fa-cogs.fa-5
+      %label Settings
+
+
+-#
+  .section-container.accordion{:data => {:options => 'deep_linking', :section => ''}}
     .content
       %ul
         %li= link_to 'Users', root_path

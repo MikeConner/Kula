@@ -12,8 +12,8 @@
     = render 'layouts/application/shim'
   %body
     = render 'layouts/application/header'
-    = yield
+    .large-12.columns
+      = yield
     = javascript_include_tag "application"
     = content_for :head
-
     = render 'layouts/application/footer'

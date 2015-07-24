@@ -3,11 +3,15 @@
 
   img {
     width: 135px;
-    padding: 8px 12px;
+
+  //  padding: 8px 12px;
   }
 }
 
 .top-bar-section li:not(.has-form) a:not(.button):hover {
   transition: all 0.25s ease-in-out;
-  box-shadow: inset 0px -200px 0px -197px $lime;
+  box-shadow: inset 0px -200px 0px -197px red;
+}
+.admin-nav {
+  padding-left: 0;
 }

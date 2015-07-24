@@ -8,16 +8,16 @@ gem 'devise', '3.4.1'
 gem 'devise-async', '0.9.0'
 gem 'nokogiri', '1.6.1'
 
-gem 'haml-rails', '0.6.0'
+gem 'haml-rails', "~> 0.9"
 gem 'rails_admin', '0.6.8'
 
 # Use SCSS for stylesheets
-gem 'sass-rails', '4.0.5'
+gem 'sass-rails', '5.0.3'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '2.6.0'
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '4.0.1'
-gem 'foundation-rails', '5.4.5.0'
+gem 'foundation-rails', '5.5.2.1'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails', '3.1.3'
@@ -35,7 +35,7 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 #gem 'spring',        group: :development
 
 gem 'will_paginate', '3.0.7'
-gem 'bootstrap-will_paginate', '0.0.10'
+gem 'foundation-will_paginate'
 
 group :development, :test do
   gem 'rspec-rails', '3.1.0'
