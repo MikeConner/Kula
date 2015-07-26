@@ -1,11 +1,28 @@
+- last_cause = nil
+%br
+= form_tag causes_path, :method => :get, :enforce_utf8 => false do
+  .large-9.columns
+    .callout-panel.radius
+      .large-3.columns
+        %p
+          Cause Name
+          = text_field_tag :cause_name, @cause_name, :title => I18n.t('cause_filter_instructions')
+      .large-3.columns
+        %p 
+          Partner
+          = select_tag 'partner', options_from_collection_for_select(Partner.order(:display_name), 'partner_identifier', 'display_name', @partner_id), :prompt => 'Select a Partner'
+      .large-3.columns
+        %p 
+          Balance Due
+          = number_field_tag :min_balance, @min_balance, :min => 0
+      = submit_tag 'Filter', :class => "btn btn-large btn-primary"
+      %br
 - if @balances.empty?
-  %h1 No Causes with balances
+  %h1.newline No Causes with balances
 - else
-  - last_cause = nil
-
   %table.table.zebra-striped
     %caption Cause balances
-    %col /
+    %col{:width => "300"}/
     %col{:width => "100"}/
     %col{:width => "50"}/
     %col{:width => "50"}/
@@ -34,5 +51,5 @@
           %td= balance.year
           %td= balance.balance_type
           %td= number_to_currency(balance.total)
-
+  
   %center= foundation_paginate @balances

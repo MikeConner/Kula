@@ -28,7 +28,7 @@ class CauseBalance < ActiveRecord::Base
   PAYABLE = 'Payable'
   PAYMENT = 'Payment'
   GROSS = 'Gross'
-  DISCOUNT = 'Discount'
+  DISCOUNT = 'Discount' # Discount fee
   NET = 'Net'
   FEE = 'Fee'
   ADJUSTMENT = 'Adjustment'

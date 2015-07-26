@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150717030636) do
+ActiveRecord::Schema.define(version: 20150726162414) do
 
   create_table "adjustments", force: true do |t|
     t.integer  "batch_id"
@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(version: 20150717030636) do
     t.datetime "updated_at"
   end
 
+  add_index "cause_balances", ["cause_id"], name: "index_cause_balances_on_cause_id", using: :btree
   add_index "cause_balances", ["partner_id", "cause_id", "year", "balance_type"], name: "cause_balances_primary_key", unique: true, using: :btree
 
   create_table "causes", id: false, force: true do |t|

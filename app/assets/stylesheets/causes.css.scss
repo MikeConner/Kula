@@ -1,0 +1,9 @@
+.callout-panel { 
+  @include panel(#ecfaff, 50px); 
+  
+  border-radius: 20px;
+}
+
+.newline {
+  clear: both;
+}
