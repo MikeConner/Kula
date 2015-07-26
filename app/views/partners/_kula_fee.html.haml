@@ -1,0 +1,16 @@
+.kula_fee.row
+  .field
+    = f.hidden_field :_destroy
+    = content_tag(:a, 'X', :href => '#', :class => "close", :onclick => "if (confirm('Delete this fee?')) remove_kula_fee(this)")
+  .field
+    = f.label :kula_rate
+    = f.text_field :kula_rate
+  .field
+    = f.label :discount_rate
+    = f.text_field :discount_rate
+  .field
+    = f.label :effective_date
+    = f.date_select :effective_date
+  .field
+    = f.label :expiration_date
+    = f.date_select :expiration_date

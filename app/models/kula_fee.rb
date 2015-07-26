@@ -4,18 +4,21 @@
 #
 #  id              :integer          not null, primary key
 #  partner_id      :integer
-#  rate            :decimal(6, 3)    not null
+#  kula_rate       :decimal(6, 3)    not null
 #  effective_date  :date
 #  expiration_date :date
 #  created_at      :datetime
 #  updated_at      :datetime
+#  discount_rate   :decimal(6, 3)    not null
 #
 
 class KulaFee < ActiveRecord::Base
   belongs_to :partner
   
-  validates :rate, :presence => true,
-                   :numericality => { :greater_than => 0.0 }
+  validates :kula_rate, :presence => true,
+                        :numericality => { :greater_than_or_equal_to => 0.0 }
+  validates :discount_rate, :presence => true,
+                            :numericality => { :greater_than_or_equal_to => 0.0 }
                    
   def universal?
     self.effective_date.nil? and self.expiration_date.nil?

@@ -1,0 +1,12 @@
+.field
+  = f.label :display_name
+  = f.text_field :display_name, :maxlength => 64
+.field
+  = f.label :domain
+  = f.text_field :domain, :maxlength => 64
+.field
+  = f.label :currency
+  = f.text_field :currency, :maxlength => 3
+= f.fields_for :kula_fees do |fee_form|
+  = render :partial => 'kula_fee', :locals => { :f => fee_form }
+= add_kula_fee(@partner, f)

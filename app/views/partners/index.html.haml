@@ -8,18 +8,21 @@
     %col{:width => "50"}/
     %col{:width => "50"}/
     %col{:width => "50"}/
+    %col{:width => "50"}/
     %thead
       %tr
         %th Name
         %th Domain
         %th Currency
-        %th Current Fee
+        %th Current Kula Fee
+        %th Current Discount Fee
         %th # Payments
     %tbody
       - @partners.each do |partner|
         %tr
-          %td= partner.display_name
+          %td= link_to partner.display_name, edit_partner_path(partner)
           %td= partner.domain
           %td= partner.currency
-          %td= number_to_percentage(partner.current_rate * 10)
+          %td= number_to_percentage(partner.current_kula_rate * 100)
+          %td= number_to_percentage(partner.current_discount_rate * 100)
           %td= partner.payments.count

@@ -22,6 +22,8 @@ class Partner < ActiveRecord::Base
   has_many :batches, :dependent => :restrict_with_exception
   has_many :payments, :through => :batches
   
+  accepts_nested_attributes_for :kula_fees, :allow_destroy => true, :reject_if => :all_blank
+  
   validates_presence_of :name, :display_name, :domain, :partner_identifier
   validates_uniqueness_of :partner_identifier
   validates_length_of :name, :display_name, :domain, :maximum => MAX_NAME_LEN
@@ -29,11 +31,21 @@ class Partner < ActiveRecord::Base
   
   validate :non_conflicting_rates
                    
-  def current_rate(date = nil)
+  def current_kula_rate(date = nil)
     test_date = date || Date.today
     
     self.kula_fees.each do |fee|
-      return fee.rate if fee.valid_on?(test_date)
+      return fee.kula_rate if fee.valid_on?(test_date)
+    end
+    
+    return nil
+  end
+
+  def current_discount_rate(date = nil)
+    test_date = date || Date.today
+    
+    self.kula_fees.each do |fee|
+      return fee.discount_rate if fee.valid_on?(test_date)
     end
     
     return nil

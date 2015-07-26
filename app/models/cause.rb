@@ -23,9 +23,9 @@
 #  mailing_postal_code :string(16)
 #  site_url            :string(255)
 #  logo_url            :string(255)
-#  latitude            :integer
-#  longitude           :integer
-#  mission             :text
+#  latitude            :decimal(10, )
+#  longitude           :decimal(10, )
+#  mission             :text(65535)
 #  created_at          :datetime
 #  updated_at          :datetime
 #

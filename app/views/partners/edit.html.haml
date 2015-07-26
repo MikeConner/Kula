@@ -1,0 +1,9 @@
+%h1
+  = @partner.display_name
+  - unless @partner.name == @partner.display_name
+    == (#{@partner.name})
+= form_for @partner do |f|
+  = render :partial => 'shared/error_messages', :locals => { :errors => @partner.errors, :name => 'Partner' }
+  = render :partial => 'partner_fields', :locals => { :f => f }
+  %br
+  = f.submit 'Update Partner'

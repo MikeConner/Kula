@@ -4,11 +4,12 @@
 #
 #  id              :integer          not null, primary key
 #  partner_id      :integer
-#  rate            :decimal(6, 3)    not null
+#  kula_rate       :decimal(6, 3)    not null
 #  effective_date  :date
 #  expiration_date :date
 #  created_at      :datetime
 #  updated_at      :datetime
+#  discount_rate   :decimal(6, 3)    not null
 #
 
 describe KulaFee do

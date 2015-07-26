@@ -6,7 +6,7 @@
 #  batch_id   :integer
 #  amount     :decimal(8, 2)    not null
 #  date       :datetime
-#  comment    :text
+#  comment    :text(65535)
 #  created_at :datetime
 #  updated_at :datetime
 #  cause_id   :integer

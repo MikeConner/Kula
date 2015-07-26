@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   resources :payments, :only => [:index]
   resources :batches, :only => [:new, :create]
-  resources :partners, :only => [:index]
+  resources :partners, :only => [:index, :edit, :update]
   resources :causes, :only => [:index, :show]
   
   # Static pages
