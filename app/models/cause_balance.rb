@@ -30,7 +30,7 @@ class CauseBalance < ActiveRecord::Base
   GROSS = 'Gross'
   DISCOUNT = 'Discount' # Discount fee
   NET = 'Net'
-  FEE = 'Fee'
+  FEE = 'Fees'
   ADJUSTMENT = 'Adjustment'
   DONEE_AMOUNT = 'Donee Amount'
   

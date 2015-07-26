@@ -1,52 +1,50 @@
-- if @balances.empty?
+- if @partner_balances.empty?
   %h1 No balances for this cause
 - else
-  %table.table.zebra-striped
-    %caption= @cause.nil? ? nil : @cause.name
-    %col{:width => "100"}/
-    %col{:width => "100"}/
-    %col{:width => "50"}/
-    %col{:width => "50"}/
-    %col{:width => "50"}/
-    %thead
-      %tr
-        %th Year
-        %th Partner
-        %th Type
-        %th Jan
-        %th Feb
-        %th Mar
-        %th Apr
-        %th May
-        %th Jun
-        %th Jul
-        %th Aug
-        %th Sep
-        %th Oct
-        %th Nov
-        %th Dec
-        %th Total
-    %tbody
-      - @balances.each do |balance|
+  %h1= @cause.nil? ? nil : @cause.name
+  - @partner_balances.each do |partner_id, balance_data|
+    %table.table.zebra-striped
+      %caption= Partner.find_by_partner_identifier(partner_id).name
+      %col{:width => "50"}/
+      %col{:width => "100"}/
+      %col{:width => "50"}/
+      %col{:width => "50"}/
+      %col{:width => "50"}/
+      %col{:width => "50"}/
+      %col{:width => "50"}/
+      %col{:width => "50"}/
+      %col{:width => "50"}/
+      %col{:width => "100"}/
+      %thead
         %tr
-          %td= balance.year
-          - partner = balance.partner
-          %td= partner.nil? ? nil : partner.name
-          %td= balance.balance_type
-          %td= number_to_currency(balance.jan)
-          %td= number_to_currency(balance.feb)
-          %td= number_to_currency(balance.mar)
-          %td= number_to_currency(balance.apr)
-          %td= number_to_currency(balance.may)
-          %td= number_to_currency(balance.jun)
-          %td= number_to_currency(balance.jul)
-          %td= number_to_currency(balance.aug)
-          %td= number_to_currency(balance.sep)
-          %td= number_to_currency(balance.oct)
-          %td= number_to_currency(balance.nov)
-          %td= number_to_currency(balance.dec)
-          %td= number_to_currency(balance.total)
+          %th Year
+          %th Amount Due
+          %th Payable
+          %th Payments 
+          %th Donee Amount
+          %th Kula Fees
+          %th Net 
+          %th Discount 
+          %th Gross
+          %th
+      %tbody
+        - balance_data.each do |year, balances|
+          %tr
+            %td= year
+            %td= number_to_currency(balances[:amount_due])
+            %td= number_to_currency(balances[:payable])
+            %td= number_to_currency(balances[:payments])
+            %td= number_to_currency(balances[:donee])
+            %td= number_to_currency(balances[:fees])
+            %td= number_to_currency(balances[:net])
+            %td= number_to_currency(balances[:discount])
+            %td= number_to_currency(balances[:gross])
+            - if balances[:amount_due] != 0
+              %td 
+                -# TODO: Make payment
+                = button_to 'PAY', causes_path
+            - else
+              %td
 %br
 %br
 = link_to 'Back', causes_path
-
