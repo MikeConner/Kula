@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150726230029) do
+ActiveRecord::Schema.define(version: 20150727051827) do
 
   create_table "adjustments", force: :cascade do |t|
     t.integer  "batch_id",   limit: 4
@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(version: 20150726230029) do
   create_table "batches", force: :cascade do |t|
     t.integer  "partner_id",  limit: 4
     t.integer  "user_id",     limit: 4
-    t.string   "name",        limit: 32
+    t.string   "name",        limit: 64
     t.datetime "date"
     t.string   "description", limit: 255
     t.datetime "created_at"

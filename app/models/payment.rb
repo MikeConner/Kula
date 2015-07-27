@@ -19,9 +19,12 @@
 class Payment < ActiveRecord::Base
   MAX_METHOD_LEN = 8
   MAX_STATUS_LEN = 16
+  PENDING = 'Pending'
+  ACH = 'ACH'
+  CHECK = 'Check'
   
-  VALID_STATUSES = ['Pending', 'Approved', 'Sent', 'Cleared', 'Hold']
-  VALID_METHODS = ['ACH', 'Check']
+  VALID_STATUSES = [PENDING, 'Approved', 'Sent', 'Cleared', 'Hold']
+  VALID_METHODS = [ACH, CHECK]
   
   belongs_to :batch
   belongs_to :cause

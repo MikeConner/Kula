@@ -5,7 +5,7 @@
 #  id          :integer          not null, primary key
 #  partner_id  :integer
 #  user_id     :integer
-#  name        :string(32)
+#  name        :string(64)
 #  date        :datetime
 #  description :string(255)
 #  created_at  :datetime

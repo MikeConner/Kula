@@ -9,6 +9,7 @@
     %col{:width => "50"}/
     %col{:width => "50"}/
     %col{:width => "50"}/
+    %col{:width => "100"}/
     %thead
       %tr
         %th Name
@@ -17,6 +18,7 @@
         %th Current Kula Fee
         %th Current Discount Fee
         %th # Payments
+        %th 
     %tbody
       - @partners.each do |partner|
         %tr
@@ -26,3 +28,4 @@
           %td= number_to_percentage(partner.current_kula_rate * 100)
           %td= number_to_percentage(partner.current_discount_rate * 100)
           %td= partner.payments.count
+          %td= link_to 'Review Debt', debt_partner_path(partner)

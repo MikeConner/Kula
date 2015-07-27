@@ -9,7 +9,12 @@ Rails.application.routes.draw do
 
   resources :payments, :only => [:index]
   resources :batches, :only => [:index, :show, :new, :create]
-  resources :partners, :only => [:index, :edit, :update]
+  resources :partners, :only => [:index, :edit, :update] do
+    member do
+      get 'debt'
+      post 'make_batch'
+    end
+  end
   resources :causes, :only => [:index, :show]
   resources :adjustments, :only => [:new, :create]
   resources :users, :except => [:create]

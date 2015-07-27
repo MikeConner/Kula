@@ -1,0 +1,23 @@
+%h1== Debt statement for #{@partner.name}
+%table.table.zebra-striped
+  %col{:width => "125"}/
+  %col{:width => "100"}/
+  %thead
+    %tr
+      %th Cause
+      %th Amount Owed
+  %tbody
+    - @owed.each do |cause_id, amount|
+      %tr
+        %td= @causes[cause_id]
+        %td= number_to_currency(amount)
+= form_tag make_batch_partner_path(@partner) do
+  = label_tag :minimum_ach, 'Minimum ACH'
+  = number_field_tag :minimum_ach, 25, :min => 0
+  = label_tag :minimum_check
+  = number_field_tag :minimum_check, 10, :min => 0
+  = label_tag :batch_name
+  = text_field_tag :batch_name
+  = label_tag :batch_description
+  = text_field_tag :batch_description
+  = submit_tag 'Create Batch Payment'
