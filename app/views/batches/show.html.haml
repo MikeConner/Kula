@@ -1,0 +1,61 @@
+.container
+  .row
+    .span12
+      .content-block
+        %h2= @batch.name
+        .bd
+          .row
+            %table.table.zebra-striped
+              %caption Payments
+              %col{:width => "100"}/
+              %col{:width => "75"}/
+              %col{:width => "75"}/
+              %col{:width => "50"}/
+              %col{:width => "75"}/
+              %col{:width => "100"}/
+              %col{:width => "75"}/
+              %col{:width => "150"}/
+              %thead
+                %tr
+                  %th Cause
+                  %th Date
+                  %th Amount
+                  %th Method
+                  %th Status
+                  %th Address
+                  %th Confirmation
+                  %th Comment
+              %tbody
+                - @payments.each do |payment|
+                  %tr
+                    %td= payment.cause.name
+                    %td= payment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
+                    %td= number_to_currency(payment.amount)
+                    %td= payment.payment_method
+                    %td= payment.status
+                    %td= payment.address
+                    %td= payment.confirmation
+                    %td= payment.comment
+          - unless @adjustments.empty?
+            .row
+              %table.table.zebra-striped
+                %caption Adjustments
+                %col{:width => "100"}/
+                %col{:width => "75"}/
+                %col{:width => "75"}/
+                %col{:width => "150"}/
+                %thead
+                  %tr
+                    %th Cause
+                    %th Date
+                    %th Amount
+                    %th Comment
+                %tbody
+                  - @adjustments.each do |adjustment|
+                    %tr
+                      %td= adjustment.cause.name
+                      %td= adjustment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
+                      %td= number_to_currency(adjustment.amount)
+                      %td= adjustment.comment
+          .row
+            = link_to 'Add Adjustment', new_adjustment_path(:batch_id => @batch.id)

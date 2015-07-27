@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150726202814) do
+ActiveRecord::Schema.define(version: 20150726230029) do
 
   create_table "adjustments", force: :cascade do |t|
     t.integer  "batch_id",   limit: 4
@@ -22,6 +22,8 @@ ActiveRecord::Schema.define(version: 20150726202814) do
     t.datetime "updated_at"
     t.integer  "cause_id",   limit: 4
   end
+
+  add_index "adjustments", ["batch_id"], name: "index_adjustments_on_batch_id", using: :btree
 
   create_table "batches", force: :cascade do |t|
     t.integer  "partner_id",  limit: 4
@@ -121,6 +123,8 @@ ActiveRecord::Schema.define(version: 20150726202814) do
     t.datetime "updated_at"
     t.integer  "cause_id",       limit: 4
   end
+
+  add_index "payments", ["batch_id"], name: "index_payments_on_batch_id", using: :btree
 
   create_table "stripe_accounts", force: :cascade do |t|
     t.integer  "cause_id",   limit: 4

@@ -1,0 +1,16 @@
+.container
+  .row
+    .span12
+      = render :partial => 'shared/error_messages', :locals => { :errors => @adjustment.errors, :name => 'Adjustment' }
+  .row
+    .span8.offset2
+      .content-block
+        %h2 New Adjustment
+        .bd
+          .row
+            .span6
+              = form_for @adjustment do |f|
+                = f.hidden_field :batch_id, :value => @adjustment.batch_id
+                = render :partial => 'adjustment_fields', :locals => { :f => f }
+                .actions
+                  = f.submit 'Create Adjustment'

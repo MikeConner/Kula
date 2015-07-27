@@ -1,0 +1,12 @@
+.field
+  = f.label :cause_id
+  = f.select :cause_id, options_from_collection_for_select(Cause.order(:name), 'cause_identifier', 'name', f.object.cause_id), :prompt => 'Select a Cause'
+.field
+  = f.label :date
+  = f.date_select :date
+.field
+  = f.label :amount
+  = f.text_field :amount
+.field 
+  = f.label :comment
+  = f.text_area :comment, :size => '40x3', :maxlength => 255

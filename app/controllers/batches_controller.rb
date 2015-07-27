@@ -1,11 +1,28 @@
 class BatchesController < ApplicationController
   before_filter :authenticate_user!
 
+  # GET /batches
+  def index
+    @batches = Batch.order('created_at DESC')
+    
+    render :layout => 'admin'
+  end
+  
+  # GET /batches/:id
+  def show
+    @batch = Batch.find(params[:id])
+    @payments = @batch.payments.group(:cause_id, :status).order('amount DESC')
+    @adjustments = @batch.adjustments.group(:cause_id).order('amount DESC')
+
+    render :layout => 'admin'
+  end
+  
   # GET /batches/new
   def new
     @partner = Partner.find_by_partner_identifier(params[:partner])
     @batch = @partner.batches.build(:user => current_user)
-        render :layout => 'admin'
+    
+    render :layout => 'admin'
   end
 
   # POST /batches
@@ -57,7 +74,7 @@ class BatchesController < ApplicationController
 
       redirect_to payments_path(:partner => @batch.partner_id), :notice => 'Batch was successfully created.'
     else
-      render 'new'
+      render 'new', :layout => 'admin'
     end
   end
 

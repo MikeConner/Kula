@@ -8,9 +8,10 @@ Rails.application.routes.draw do
   root :to => 'static_pages#home'
 
   resources :payments, :only => [:index]
-  resources :batches, :only => [:new, :create]
+  resources :batches, :only => [:index, :show, :new, :create]
   resources :partners, :only => [:index, :edit, :update]
   resources :causes, :only => [:index, :show]
+  resources :adjustments, :only => [:new, :create]
   
   # Static pages
   get "/site_admin" => "static_pages#admin_index"

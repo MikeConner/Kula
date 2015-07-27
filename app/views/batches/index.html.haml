@@ -1,0 +1,32 @@
+.container
+  .row
+    .span12
+      .content-block
+        %h2 Batches
+        .bd
+          .row
+            %table.table.zebra-striped
+              %col{:width => "100"}/
+              %col{:width => "100"}/
+              %col{:width => "100"}/
+              %col{:width => "200"}/
+              %col{:width => "75"}/
+              %thead
+                %tr
+                  %th Date
+                  %th Partner
+                  %th Name
+                  %th Description
+                  %th # Payments
+                  %th # Adjustments
+                  %th User
+              %tbody
+                - @batches.each do |batch|
+                  %tr
+                    %td= batch.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
+                    %td= batch.partner.display_name
+                    %td= link_to batch.name, batch_path(batch)
+                    %td= batch.description
+                    %td= number_with_delimiter(batch.payments.count)
+                    %td= batch.adjustments.count
+                    %td== #{batch.user.email} (#{batch.user.role})
