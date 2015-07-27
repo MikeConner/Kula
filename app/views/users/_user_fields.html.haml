@@ -1,0 +1,13 @@
+.field
+  = f.label :email
+  = f.text_field :email
+.field
+  = f.label :role
+  = f.select :role, options_for_select(User::VALID_ROLES, f.object.role), {}, :onchange => "update_affiliation();"
+.field#partner_section{:style => 'display:none'}
+  = f.label :partner_id
+  = f.select :partner_id, options_from_collection_for_select(Partner.order(:display_name), 'partner_identifier', 'display_name', f.object.partner_id), :prompt => 'Select a Partner'
+.field#cause_section{:style => 'display:none'}
+  = f.label :cause_id
+  = f.select :cause_id, options_from_collection_for_select(Cause.order(:name), 'cause_identifier', 'name', f.object.cause_id), :prompt => 'Select a Cause'
+#editing_user

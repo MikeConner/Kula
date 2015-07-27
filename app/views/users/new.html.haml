@@ -1,0 +1,6 @@
+%h1 New User
+= form_for @user do |f|
+  = render :partial => 'shared/error_messages', :locals => { :errors => @user.errors, :name => 'User' }
+  = render :partial => 'user_fields', :locals => { :f => f }
+  %br
+  = f.submit 'Create User'

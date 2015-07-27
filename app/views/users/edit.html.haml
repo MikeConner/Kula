@@ -1,0 +1,8 @@
+%h1= @user.email
+= form_for @user do |f|
+  = render :partial => 'shared/error_messages', :locals => { :errors => @user.errors, :name => 'User' }
+  = render :partial => 'user_fields', :locals => { :f => f }
+  %br
+  = f.submit 'Update User'
+%br
+= link_to 'Back', users_path

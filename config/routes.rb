@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :partners, :only => [:index, :edit, :update]
   resources :causes, :only => [:index, :show]
   resources :adjustments, :only => [:new, :create]
+  resources :users, :except => [:create]
   
   # Static pages
   get "/site_admin" => "static_pages#admin_index"

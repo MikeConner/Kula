@@ -20,4 +20,5 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
+  admins_only: 'This function restricted to adminstrators.'
   cause_filter_instructions: "e.g., Kiva* will search for any cause that starts with Kiva (case-insensitive)"

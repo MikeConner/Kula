@@ -1,0 +1,30 @@
+- if @users.empty?
+  %h1 No Users
+- else
+  %h1 Users
+  %table.table.zebra-striped
+    %col{:width => "100"}/
+    %col{:width => "75"}/
+    %col{:width => "100"}/
+    %thead
+      %tr
+        %th Email
+        %th Role
+        %th Affiliation
+        %th
+    %tbody
+      - @users.each do |user|
+        %tr
+          %td= link_to user.email, edit_user_path(user)
+          %td= user.role
+          - if user.partner?
+            %td= user.partner.name
+          - elsif user.cause?
+            %td= user.cause.name
+          - else
+            %td
+          - if user.id == current_user.id
+            %td
+          - else
+            %td= link_to 'Delete', user, method: :delete, :class => 'btn tiny', data: { confirm: 'Are you sure?' }
+= link_to 'Add User', new_user_path
