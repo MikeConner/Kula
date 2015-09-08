@@ -7,49 +7,41 @@
         %p
           Cause Name
           = text_field_tag :cause_name, @cause_name, :title => I18n.t('cause_filter_instructions')
-      .large-3.columns
-        %p 
-          Partner
-          = select_tag 'partner', options_from_collection_for_select(Partner.order(:display_name), 'partner_identifier', 'display_name', @partner_id), :prompt => 'Select a Partner'
+      -# 
+        .large-3.columns
+          %p 
+            Partner
+            = select_tag 'partner', options_from_collection_for_select(Partner.order(:display_name), 'partner_identifier', 'display_name', @partner_id), :prompt => 'Select a Partner'
       .large-3.columns
         %p 
           Balance Due
           = number_field_tag :min_balance, @min_balance, :min => 0
       = submit_tag 'Filter', :class => "btn btn-large btn-primary"
       %br
-- if @balances.empty?
+- if @causes.empty?
   %h1.newline No Causes with balances
 - else
   %table.table.zebra-striped
     %caption Cause balances
     %col{:width => "300"}/
-    %col{:width => "100"}/
-    %col{:width => "50"}/
-    %col{:width => "50"}/
-    %col{:width => "50"}/
+    %col{:width => "75"}/
+    %col{:width => "75"}/
+    %col{:width => "75"}/
+    %col{:width => "75"}/
     %thead
       %tr
         %th Cause
-        %th Partner
-        %th Year
-        %th Type
-        %th Total
+        %th Due
+        %th Donated
+        %th Payments
+        %th Adjustments
     %tbody
-      - @balances.each do |balance|
+      - @causes.each do |cause|
         %tr
-          - if balance.cause_id == last_cause
-            - cause_display = nil
-          - else
-            - cause = balance.cause
-            - last_cause = balance.cause_id
-          - partner = balance.partner
-          - if cause.nil?
-            %td
-          - else
-            %td= link_to cause.name, cause_path(cause)
-          %td= partner.nil? ? nil : partner.name
-          %td= balance.year
-          %td= balance.balance_type
-          %td= number_to_currency(balance.total)
+          %td= link_to cause[:name], cause[:path]
+          %td= number_to_currency(cause[:due])
+          %td= number_to_currency(cause[:donated])
+          %td= number_to_currency(cause[:payments])
+          %td= number_to_currency(cause[:adjustments])
   
-  %center= foundation_paginate @balances
+  %center= foundation_paginate @causes

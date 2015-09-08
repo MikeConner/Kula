@@ -1,28 +1,101 @@
 namespace :db do
+  desc "Import payments"
+  task :import_payments => :environment do
+    sql = "SELECT *, partner_id,  MONTH(payments.date), YEAR(payments.date)  FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.payments" + 
+          " join #{Rails.configuration.database_configuration[Rails.env]['database']}.batches on  batches.id = payments.batch_id ;"
+    
+    records = ActiveRecord::Base.connection.execute(sql)
+    records.each do |line|
+      begin                
+        row += 1
+        if 0 == row % 100
+          puts row
+        end       
+       
+        partner_id = line[13].to_i        
+        cause_id = line[11].to_i
+        month = line[21].to_i
+        payment = line[3].to_f
+
+        if payment > 0    
+          balance = CauseBalance.where(:partner_id => partner_id, :cause_id => cause_id, :year => line[22].to_i, :balance_type => CauseBalance::PAYMENT).first
+          if balance.nil?
+            balance = CauseBalance.create(:partner_id => partner_id, :cause_id => cause_id, :year => line[22].to_i, :balance_type => CauseBalance::PAYMENT)
+          end
+          
+          # Put in payments as negative
+          update_balance(balance, month, -1 * payment)
+        end
+      rescue Exception => ex
+        puts ex.inspect  
+      end
+    end  
+  end
+  
   desc "Read from kula_data to our db [fname, after date yyyy-mm-dd; ignores day]"
-  task :kula_import, [:fname, :after_date] => :environment do |t, args|
-    fname = args.has_key?(:fname) ? args[:fname] : '/Users/jeff/Documents/KulaTransactions.csv'
-    if args.has_key?(:after_date)
-      dt = Date.parse(args[:after_date])
-      month = dt.month
-      year = dt.year      
-    end
-        
-    admin = User.where("role = ?", User::ADMIN).first
-    first = true
+  task :kula_import, [:partner, :year, :month] => :environment do |t, args|
+    # fname = args.has_key?(:fname) ? args[:fname] : '/Users/jeff/Documents/KulaTransactions.csv'
     cnt = 1
     row = 1
     
-    CSV.foreach(fname, :col_sep => ';') do |line|
+    base = "SELECT * FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.transactions_by_cause"
+    delete = "DELETE FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.transactions_by_cause"
+    
+    where_clause = 0 == args.count ? "" : " WHERE"
+    previous = false
+    
+    if args.has_key?(:partner)
+      where_clause += " (partner_id = #{args[:partner]})"
+      previous = true
+    end
+    
+    if args.has_key?(:year)
+      where_clause += " AND " if previous   
+      where_clause += " (year = #{args[:year]})"
+      previous = true
+    end
+    
+    if args.has_key?(:month)
+      where_clause += " AND " if previous   
+      where_clause += " (month = #{args[:month]})"
+      previous = true      
+    end
+=begin
+0 partner_id
+1 month
+2 year
+3 Gross_Contribution_Amount
+4 Discounts_Amount
+5 Net_amount
+6 Kula_And_Foundation_fees
+7 Donee_amount
+8 Organization_name
+9 Organization_name_for_address
+10 Address1_2_3
+11 City_State_Zip
+12 Country
+13 Type
+14 Organization_Contact_First_Name
+15 Organization_Contact_Last_Name
+16 Organization_Contact_Email
+17 Organization_Email
+18 Tax_ID
+19 Has_ACH_Information
+20 Cause_ID         
+=end
+    #CSV.foreach(fname, :col_sep => ';') do |line|
+
+    # This is somewhat dangerous -- if it doesn't check for a where_clause it would delete the whole table (reconstructable, at least)
+    ActiveRecord::Base.connection.execute(delete + where_clause) unless where_clause.blank?
+    
+    records = ActiveRecord::Base.connection.execute(sql + where_clause)
+    records.each do |line|
       begin
-        if first
-          first = false
-          next
-        end
-        
-        # Filter by month/year, if given
-        next unless year.nil? or ((year == line[2].to_i) and (month == line[1].to_i))
-        
+        #if first
+        #  first = false
+        #  next
+        #end
+                
         partner_id = line[0].to_i
         if Partner.find_by_partner_identifier(partner_id).nil?
           Partner.create!(:partner_id => line[0], :name => "Partner #{partner_id}", :display_name => "Partner #{partner_id}", :domain => 'unknown.com')
@@ -108,9 +181,9 @@ namespace :db do
         end
 
         if fees > 0    
-          balance = CauseBalance.where(:partner_id => partner_id, :cause_id => cause_id, :year => line[2].to_i, :balance_type => CauseBalance::FEES).first
+          balance = CauseBalance.where(:partner_id => partner_id, :cause_id => cause_id, :year => line[2].to_i, :balance_type => CauseBalance::FEE).first
           if balance.nil?
-            balance = CauseBalance.create(:partner_id => partner_id, :cause_id => cause_id, :year => line[2].to_i, :balance_type => CauseBalance::FEES)
+            balance = CauseBalance.create(:partner_id => partner_id, :cause_id => cause_id, :year => line[2].to_i, :balance_type => CauseBalance::FEE)
           end
           
           update_balance(balance, line[1].to_i, fees)

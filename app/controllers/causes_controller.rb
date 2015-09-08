@@ -3,23 +3,33 @@ class CausesController < ApplicationController
 
   def index
     @cause_name = (params[:cause_name] || "").gsub('*', '%')
-    @partner_id = params[:partner].to_i
-    @min_balance = params[:min_balance]
+    @min_balance = params[:min_balance].to_f
+    
+    where_clause = @cause_name.blank? ? '' : "WHERE name LIKE '%#{@cause_name}%'"
 
-    base = CauseBalance.joins(:cause)
-    unless 0 == @partner_id
-      base = base.where(:partner_id => @partner_id)
-    end
+    sql = 'SELECT *,' +
+          "(SELECT sum(total) FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER  and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
+          "(SELECT sum(total) FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER  and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
+          "(SELECT sum(total) FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER  and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
+          "(SELECT sum(total) FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER  and balance_type in('#{CauseBalance::ADJUSTMENT}')) as adj_balance" +
+          " FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.causes #{where_clause} ORDER BY name;"
+
+    @cause_data = []
     
-    unless @min_balance.blank?
-      base = base.where('total >= ?', @min_balance)
+    records = ActiveRecord::Base.connection.execute(sql)
+    records.each do |line|
+      due = line[line.length - 4].to_f
+      donated = line[line.length - 3].to_f
+      payments = line[line.length - 2].to_f
+      adjustments = line[line.length - 1].to_f
+      
+      next if due.nil? and donated.nil? and payments.nil? and adjustments.nil?
+      next unless (0 == @min_balance) or (due >= @min_balance)
+      
+      @cause_data.push({:name => line[1], :path => cause_path(line[0]), :due => due, :donated => donated, :payments => payments, :adjustments => adjustments})
     end
-    
-    unless @cause_name.blank?
-      base = base.where("name LIKE '#{@cause_name}'")
-    end
-    
-    @balances = base.order("name asc").group(:cause_id).paginate(:page => params[:page])
+ 
+    @causes = @cause_data.paginate(:page => params[:page])
     
     render :layout => 'admin'
   end
