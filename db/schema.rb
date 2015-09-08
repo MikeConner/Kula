@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150727051827) do
+ActiveRecord::Schema.define(version: 20150908003732) do
 
   create_table "adjustments", force: :cascade do |t|
     t.integer  "batch_id",   limit: 4
@@ -93,12 +93,12 @@ ActiveRecord::Schema.define(version: 20150727051827) do
 
   create_table "kula_fees", force: :cascade do |t|
     t.integer  "partner_id",      limit: 4
-    t.decimal  "kula_rate",                 precision: 6, scale: 3, null: false
+    t.decimal  "kula_rate",                 precision: 6, scale: 4, null: false
     t.date     "effective_date"
     t.date     "expiration_date"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.decimal  "discount_rate",             precision: 6, scale: 3, null: false
+    t.decimal  "discount_rate",             precision: 6, scale: 4, null: false
   end
 
   create_table "partners", primary_key: "partner_identifier", force: :cascade do |t|
