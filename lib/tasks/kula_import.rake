@@ -4,6 +4,7 @@ namespace :db do
     sql = "SELECT *, partner_id,  MONTH(payments.date), YEAR(payments.date)  FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.payments" + 
           " join #{Rails.configuration.database_configuration[Rails.env]['database']}.batches on  batches.id = payments.batch_id ;"
     
+    row = 0
     records = ActiveRecord::Base.connection.execute(sql)
     records.each do |line|
       begin                
