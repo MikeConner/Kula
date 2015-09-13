@@ -2,14 +2,15 @@
 #
 # Table name: kula_fees
 #
-#  id              :integer          not null, primary key
-#  partner_id      :integer
-#  kula_rate       :decimal(6, 4)    not null
-#  effective_date  :date
-#  expiration_date :date
-#  created_at      :datetime
-#  updated_at      :datetime
-#  discount_rate   :decimal(6, 4)    not null
+#  id                :integer          not null, primary key
+#  partner_id        :integer
+#  effective_date    :date
+#  expiration_date   :date
+#  created_at        :datetime
+#  updated_at        :datetime
+#  us_school_rate    :decimal(6, 4)
+#  us_charity_rate   :decimal(6, 4)
+#  intl_charity_rate :decimal(6, 4)
 #
 
 describe KulaFee do
@@ -23,7 +24,9 @@ describe KulaFee do
   
   it "should respond to everything" do
     expect(fee).to respond_to(:partner)
-    expect(fee).to respond_to(:rate)
+    expect(fee).to respond_to(:us_school_rate)
+    expect(fee).to respond_to(:us_charity_rate)
+    expect(fee).to respond_to(:intl_charity_rate)
     expect(fee).to respond_to(:effective_date)
     expect(fee).to respond_to(:expiration_date)
     expect(fee).to respond_to(:universal?)

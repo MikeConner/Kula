@@ -17,7 +17,9 @@ FactoryGirl.define do
   sequence(:random_longitude) { |n| Faker::Address.longitude }
 
   factory :kula_fee do
-    rate { Random.rand * 100 + 0.01 }
+    us_school_rate { Random.rand * 100 + 0.01 }
+    us_charity_rate { Random.rand * 100 + 0.01 }
+    intl_charity_rate { Random.rand * 100 + 0.01 }
     effective_date { 1.week.ago }
     expiration_date { 1.year.from_now }
     
