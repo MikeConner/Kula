@@ -24,6 +24,20 @@ test:
   <<: *default
   database: kula_test
 
+replica:
+  <<: *default
+  host: prod-3-read-replica-for-prod-operations.cx7mhivmut45.us-east-1.rds.amazonaws.com
+  username: operations
+  password: vwxcwe3G5gcN83bT
+  database: kula
+  port: 3306
+  sslca: /Users/jeff/Kula/config/rds-ca.pem #Rails.root.join("config", "rds-ca-2015-root.pem")
+    
 production:
   <<: *default
-  database: kula_prod
+  adapter: postgresql
+  username: captain
+  password: MonkeY1984
+  host: kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
+  port: 5432
+  database: kula_pg_dev
