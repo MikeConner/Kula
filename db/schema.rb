@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150913040942) do
+ActiveRecord::Schema.define(version: 20150913050000) do
 
   create_table "adjustments", force: :cascade do |t|
     t.integer  "batch_id",   limit: 4
@@ -91,6 +91,14 @@ ActiveRecord::Schema.define(version: 20150913040942) do
 
   add_index "causes", ["cause_identifier"], name: "index_causes_on_cause_identifier", unique: true, using: :btree
 
+  create_table "distributors", force: :cascade do |t|
+    t.integer  "partner_id",   limit: 4
+    t.string   "name",         limit: 64, null: false
+    t.string   "display_name", limit: 64
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
   create_table "kula_fees", force: :cascade do |t|
     t.integer  "partner_id",           limit: 4
     t.date     "effective_date"
@@ -103,6 +111,9 @@ ActiveRecord::Schema.define(version: 20150913040942) do
     t.decimal  "us_school_kf_rate",              precision: 6, scale: 4
     t.decimal  "us_charity_kf_rate",             precision: 6, scale: 4
     t.decimal  "intl_charity_kf_rate",           precision: 6, scale: 4
+    t.decimal  "distributor_rate",               precision: 6, scale: 4
+    t.decimal  "distributor_kf_rate",            precision: 6, scale: 4
+    t.integer  "distributor_id",       limit: 4
   end
 
   create_table "partners", primary_key: "partner_identifier", force: :cascade do |t|

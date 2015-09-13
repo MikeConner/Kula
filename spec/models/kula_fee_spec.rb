@@ -14,6 +14,9 @@
 #  us_school_kf_rate    :decimal(6, 4)
 #  us_charity_kf_rate   :decimal(6, 4)
 #  intl_charity_kf_rate :decimal(6, 4)
+#  distributor_rate     :decimal(6, 4)
+#  distributor_kf_rate  :decimal(6, 4)
+#  distributor_id       :integer
 #
 
 describe KulaFee do

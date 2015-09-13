@@ -17,6 +17,7 @@ class Partner < ActiveRecord::Base
   
   self.primary_key = 'partner_identifier'
   
+  has_one :distributor, :dependent => :nullify
   has_many :kula_fees, :dependent => :destroy
   has_many :cause_balances, :dependent => :restrict_with_exception
   has_many :batches, :dependent => :restrict_with_exception

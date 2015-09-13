@@ -16,6 +16,11 @@ FactoryGirl.define do
   sequence(:random_latitude) { |n| Faker::Address.latitude }
   sequence(:random_longitude) { |n| Faker::Address.longitude }
 
+  factory :distributor do
+    name { generate(:random_name) }
+    display_name { generate(:random_name) }
+  end
+  
   factory :kula_fee do
     us_school_rate { Random.rand * 100 + 0.01 }
     us_charity_rate { Random.rand * 100 + 0.01 }
@@ -38,6 +43,13 @@ FactoryGirl.define do
     
     factory :unbounded_right_fee do
       expiration_date nil
+    end
+    
+    factory :distributor_fee do
+      distributor
+      
+      distributor_rate { Random.rand * 50 + 0.01 }
+      distributor_kf_rate { Random.rand * 23 + 0.03 }
     end
   end
   
