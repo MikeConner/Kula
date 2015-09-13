@@ -20,6 +20,10 @@ FactoryGirl.define do
     us_school_rate { Random.rand * 100 + 0.01 }
     us_charity_rate { Random.rand * 100 + 0.01 }
     intl_charity_rate { Random.rand * 100 + 0.01 }
+    us_school_kf_rate { Random.rand * 10 + 0.01 }
+    us_charity_kf_rate { Random.rand * 10 + 0.01 }
+    intl_charity_kf_rate { Random.rand * 10 + 0.01 }
+    
     effective_date { 1.week.ago }
     expiration_date { 1.year.from_now }
     

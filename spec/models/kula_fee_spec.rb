@@ -2,15 +2,18 @@
 #
 # Table name: kula_fees
 #
-#  id                :integer          not null, primary key
-#  partner_id        :integer
-#  effective_date    :date
-#  expiration_date   :date
-#  created_at        :datetime
-#  updated_at        :datetime
-#  us_school_rate    :decimal(6, 4)
-#  us_charity_rate   :decimal(6, 4)
-#  intl_charity_rate :decimal(6, 4)
+#  id                   :integer          not null, primary key
+#  partner_id           :integer
+#  effective_date       :date
+#  expiration_date      :date
+#  created_at           :datetime
+#  updated_at           :datetime
+#  us_school_rate       :decimal(6, 4)
+#  us_charity_rate      :decimal(6, 4)
+#  intl_charity_rate    :decimal(6, 4)
+#  us_school_kf_rate    :decimal(6, 4)
+#  us_charity_kf_rate   :decimal(6, 4)
+#  intl_charity_kf_rate :decimal(6, 4)
 #
 
 describe KulaFee do
@@ -27,6 +30,9 @@ describe KulaFee do
     expect(fee).to respond_to(:us_school_rate)
     expect(fee).to respond_to(:us_charity_rate)
     expect(fee).to respond_to(:intl_charity_rate)
+    expect(fee).to respond_to(:us_school_kf_rate)
+    expect(fee).to respond_to(:us_charity_kf_rate)
+    expect(fee).to respond_to(:intl_charity_kf_rate)
     expect(fee).to respond_to(:effective_date)
     expect(fee).to respond_to(:expiration_date)
     expect(fee).to respond_to(:universal?)
