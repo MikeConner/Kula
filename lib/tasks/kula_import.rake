@@ -218,6 +218,62 @@ namespace :db do
       end
     end
   end
+
+  desc "Download Causes from replica"
+  task :download_causes => :environment do 
+    unless 'replica' == Rails.env
+      puts "Must run in replica"
+      next
+    end
+    
+    sql = 'select * from causes where cause_id in (select distinct cause_id from balance_transactions)'
+    records = ActiveRecord::Base.connection.execute(sql)
+    cnt = 1
+    CSV.open('fish.csv', 'w') do |writer|
+      records.each do |row|
+        puts cnt if 0 == cnt % 100
+        cnt += 1
+        # Lat/Long are a blob; just encode for now to avoid string conversion errors
+        row[95] = Base64.encode64(row[95]) unless row[95].nil?
+        writer << row
+      end
+    end
+    
+    puts "Wrote #{cnt} records"
+  end
+   
+  desc "Upload Causes from Replica"
+  task :upload_causes => :environment do
+    unless Rails.env.production?
+      puts "Must run in production"
+      next
+    end
+
+    CSV.foreach('fish.csv', headers: false) do |row|
+      Cause.create!(:cause_identifier => row[0],
+                    :name => row[10],
+                    :cause_type => row[7],
+                    :has_ach_info => 1 == row[8].to_i,
+                    :email => row[20],
+                    :phone => row[21],
+                    :fax => row[23],
+                    :tax_id => row[6],
+                    :address_1 => row[27],
+                    :address_2 => row[29],
+                    :address_3 => row[30],
+                    :city => row[33],
+                    :region => row[35],
+                    :country => row[37],
+                    :postal_code => row[38],
+                    :mailing_address => row[40],
+                    :mailing_city => row[41],
+                    :mailing_state => row[42],
+                    :mailing_postal_code => row[43],
+                    :site_url => row[44],
+                    :logo_url => row[46],
+                    :mission => row[24])
+    end
+  end
 end
 
 def update_balance(balance, month, amount)
@@ -250,11 +306,3 @@ def update_balance(balance, month, amount)
     raise "Invalid month #{line[1]}"
   end                          
 end
-=begin
-0             1      2       3                          4                   5             6                          7
-partner_id;"month";"year";"Gross_Contribution_Amount";"Discounts_Amount";"Net_amount";"Kula_And_Foundation_fees";"Donee_amount";
-8                      9                              10              11              12       13      14   
-"Organization_name";"Organization_name_for_address";"Address1_2_3";"City_State_Zip";"Country";"Type";"Organization_Contact_First_Name";
-15                                 16                           17                    18      19                    20
-"Organization_Contact_Last_Name";"Organization_Contact_Email";"Organization_Email";"Tax_ID";"Has_ACH_Information";"Cause_ID"         
-=end
