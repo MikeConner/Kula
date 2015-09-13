@@ -17,8 +17,7 @@ class Partner < ActiveRecord::Base
   
   self.primary_key = 'partner_identifier'
   
-  has_one :distributor, :dependent => :nullify
-  has_many :kula_fees, :dependent => :destroy
+  has_many :kula_fees, :dependent => :destroy, :foreign_key => 'partner_identifier'
   has_many :cause_balances, :dependent => :restrict_with_exception
   has_many :batches, :dependent => :restrict_with_exception
   has_many :payments, :through => :batches
@@ -31,27 +30,20 @@ class Partner < ActiveRecord::Base
   validates_length_of :currency, :maximum => MAX_CURRENCY_LEN 
   
   validate :non_conflicting_rates
-                   
-  def current_kula_rate(date = nil)
+         
+  # Return entire object, since there are potentially 7 rates                 
+  def current_kula_rate(distributor_id = nil, date = nil)
     test_date = date || Date.today
     
-    self.kula_fees.each do |fee|
-      return fee.kula_rate if fee.valid_on?(test_date)
+    self.kula_fees.where(:distributor_identifier => distributor_id).each do |fee|
+      if fee.valid_on?(test_date)
+        return fee
+      end
     end
     
     return nil
   end
 
-  def current_discount_rate(date = nil)
-    test_date = date || Date.today
-    
-    self.kula_fees.each do |fee|
-      return fee.discount_rate if fee.valid_on?(test_date)
-    end
-    
-    return nil
-  end
-  
 private
   def non_conflicting_rates
     fees = self.kula_fees

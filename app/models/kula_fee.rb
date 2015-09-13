@@ -2,21 +2,20 @@
 #
 # Table name: kula_fees
 #
-#  id                   :integer          not null, primary key
-#  partner_id           :integer
-#  effective_date       :date
-#  expiration_date      :date
-#  created_at           :datetime
-#  updated_at           :datetime
-#  us_school_rate       :decimal(6, 4)
-#  us_charity_rate      :decimal(6, 4)
-#  intl_charity_rate    :decimal(6, 4)
-#  us_school_kf_rate    :decimal(6, 4)
-#  us_charity_kf_rate   :decimal(6, 4)
-#  intl_charity_kf_rate :decimal(6, 4)
-#  distributor_rate     :decimal(6, 4)
-#  distributor_kf_rate  :decimal(6, 4)
-#  distributor_id       :integer
+#  id                     :integer          not null, primary key
+#  partner_identifier     :integer
+#  effective_date         :date
+#  expiration_date        :date
+#  created_at             :datetime
+#  updated_at             :datetime
+#  us_school_rate         :decimal(6, 4)
+#  us_charity_rate        :decimal(6, 4)
+#  intl_charity_rate      :decimal(6, 4)
+#  us_school_kf_rate      :decimal(6, 4)
+#  us_charity_kf_rate     :decimal(6, 4)
+#  intl_charity_kf_rate   :decimal(6, 4)
+#  distributor_rate       :decimal(6, 4)
+#  distributor_identifier :integer
 #
 
 # CHARTER
@@ -30,19 +29,18 @@
 # distributor_(kf_)rate), and the original fees as well
 #
 class KulaFee < ActiveRecord::Base
-  belongs_to :partner
-  belongs_to :distributor
+  belongs_to :partner, :foreign_key => 'partner_identifier'
+  belongs_to :distributor, :foreign_key => 'distributor_identifier'
   
-  validates :us_school_rate, :numericality => { :greater_than_or_equal_to => 0.0 }
-  validates :us_charity_rate, :numericality => { :greater_than_or_equal_to => 0.0 }
-  validates :intl_charity_rate, :numericality => { :greater_than_or_equal_to => 0.0 }
+  validates :us_school_rate, :numericality => { :greater_than_or_equal_to => 0.0 }, :allow_nil => true  
+  validates :us_charity_rate, :numericality => { :greater_than_or_equal_to => 0.0 }, :allow_nil => true  
+  validates :intl_charity_rate, :numericality => { :greater_than_or_equal_to => 0.0 }, :allow_nil => true  
   
-  validates :us_school_kf_rate, :numericality => { :greater_than_or_equal_to => 0.0 }
-  validates :us_charity_kf_rate, :numericality => { :greater_than_or_equal_to => 0.0 }
-  validates :intl_charity_kf_rate, :numericality => { :greater_than_or_equal_to => 0.0 }
+  validates :us_school_kf_rate, :numericality => { :greater_than_or_equal_to => 0.0 }, :allow_nil => true  
+  validates :us_charity_kf_rate, :numericality => { :greater_than_or_equal_to => 0.0 }, :allow_nil => true  
+  validates :intl_charity_kf_rate, :numericality => { :greater_than_or_equal_to => 0.0 }, :allow_nil => true  
 
-  validates :distributor_rate, :numericality => { :greater_than_or_equal_to => 0.0 }  
-  validates :distributor_kf_rate, :numericality => { :greater_than_or_equal_to => 0.0 }
+  validates :distributor_rate, :numericality => { :greater_than_or_equal_to => 0.0 }, :allow_nil => true  
                    
   def universal?
     self.effective_date.nil? and self.expiration_date.nil?

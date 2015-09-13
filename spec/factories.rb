@@ -49,7 +49,6 @@ FactoryGirl.define do
       distributor
       
       distributor_rate { Random.rand * 50 + 0.01 }
-      distributor_kf_rate { Random.rand * 23 + 0.03 }
     end
   end
   

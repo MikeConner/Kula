@@ -2,12 +2,11 @@
 #
 # Table name: distributors
 #
-#  id           :integer          not null, primary key
-#  partner_id   :integer
-#  name         :string(64)       not null
-#  display_name :string(64)
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  distributor_identifier :integer          not null, primary key
+#  name                   :string(64)       not null
+#  display_name           :string(64)
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
 #
 
 describe Distributor do
