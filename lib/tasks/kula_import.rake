@@ -35,8 +35,8 @@ namespace :db do
   
   desc "Import transactions"
   task :import_transactions, [:month, :year] => :environment do |t, args|
-    unless args.has_key?(:year) and args.has_key?(:month)
-      puts "Must filter by numeric month and year: e.g., import_transactions[9,2015]"
+    unless args.has_key?(:year)
+      puts "Must filter by numeric year (and optional month): e.g., import_transactions[2015,9]"
       
       next
     end
@@ -90,10 +90,15 @@ namespace :db do
 =end
     
     sql = IO.read(resolved_fname)
-    dt = Date.parse("#{args[:year]}-#{args[:month]}-01")
-    start_date = dt.to_s
-    end_date = dt.end_of_month.to_s
-  
+    if args.has_key?(:month)
+      dt = Date.parse("#{args[:year]}-#{args[:month]}-01")
+      start_date = dt.to_s
+      end_date = dt.end_of_month.to_s
+    else
+      start_date = "#{args[:year]}-01-01"
+      end_date = "#{args[:year]}-12-31"
+    end
+    
     ActiveRecord::Base.establish_connection(:test_dev).connection unless Rails.env.test_dev?
 
     # fill in dates
