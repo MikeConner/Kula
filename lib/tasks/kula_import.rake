@@ -33,6 +33,165 @@ namespace :db do
     end  
   end
   
+  desc "Import transactions"
+  task :import_transactions, [:month, :year] => :environment do |t, args|
+    unless args.has_key?(:year) and args.has_key?(:month)
+      puts "Must filter by numeric month and year: e.g., import_transactions[9,2015]"
+      
+      next
+    end
+    
+    # Read from read-only replica (or our ghetto writeable copy), copy data to postgres reporting db
+    #  In the process: calculate fees and write those alongside Kula's calculations              
+    asset = Rails.application.assets.find_asset('transaction-query.sql')
+    resolved_fname = asset.pathname.to_s unless asset.nil?
+    
+    unless !asset.nil? and File.exists?(resolved_fname)
+      puts "Cannot find transaction query file: transaction-query.sql"
+      
+      next
+    end
+
+=begin
+0  distributor 
+1  transaction_id  
+2  partner_id  
+3  month( bt.created)  
+4  year( bt.created) 
+5  Gross contribution Amount 
+6  Discounts Amount  
+7  Net amount ($)  
+8  Kula/Foundation fees ($)  
+9  Donee amount ($)  
+10 name  
+11 address1  
+12 address2  
+13 address3  
+14 city  
+15 region  
+16 postal_code 
+17 Country 
+18 Mailing Address 
+19 Mailing City  
+20 Mailing State 
+21 Mailing Postal Code 
+22 Cause type  
+23 Organization email  
+24 Organization phone  
+25 Organization fax  
+26 Tax ID  
+27 Has ACH Information 
+28 site_url  
+29 logo_url  
+30 latitude  
+31 longitude 
+32 mission 
+33 Cause ID
+=end
+    
+    sql = IO.read(resolved_fname)
+    dt = Date.parse("#{args[:year]}-#{args[:month]}-01")
+    start_date = dt.to_s
+    end_date = dt.end_of_month.to_s
+  
+    ActiveRecord::Base.establish_connection(:test_dev).connection unless Rails.env.test_dev?
+
+    # fill in dates
+    sql.gsub!('##START_DATE', "'#{start_date}'")
+    sql.gsub!('##END_DATE', "'#{end_date}'")
+    
+    puts "Reading transactions from test_dev..."
+    transactions = ActiveRecord::Base.connection.execute(sql)
+    
+    # Now point to postgres
+    ActiveRecord::Base.establish_connection(:production).connection
+    existing_causes = Cause.all.map(&:id)
+    puts "#{existing_causes.count} causes"
+    
+    puts "Processing transactions..."
+    
+    idx = 1
+    transactions.each do |tx|
+      puts idx if 0 == idx % 100
+      idx += 1
+      
+      # create Cause if not present
+      if existing_causes.include?(tx[33])
+        cause = Cause.find(tx[33].to_i)
+      else
+        puts "Creating cause #{tx[33]}: #{tx[10]}"
+        
+        cause = Cause.create!(:cause_identifier => tx[33],
+                               :name => tx[10],
+                               :cause_type => tx[22].to_i,
+                               :has_ach_info => 1 == tx[27].to_i,
+                               :email => tx[23],
+                               :phone => tx[24],
+                               :fax => tx[25],
+                               :tax_id => tx[26],
+                               :address_1 => tx[11],
+                               :address_2 => tx[12],
+                               :address_3 => tx[13],
+                               :city => tx[14],
+                               :region => tx[15],
+                               :country => tx[17],
+                               :postal_code => tx[16],
+                               :mailing_address => tx[18],
+                               :mailing_city => tx[19],
+                               :mailing_state => tx[20],
+                               :mailing_postal_code => tx[21],
+                               :site_url => tx[28],
+                               :logo_url => tx[29],
+                               :latitude => tx[30].to_f,
+                               :longitude => tx[31].to_f,
+                               :mission => tx[32])
+      end
+      
+      partner_id = tx[2].to_i
+      dist_id = tx[0].to_i
+      dist_id = nil if 0 == dist_id
+      
+      month = tx[3].to_i
+      year = tx[4].to_i
+      
+      partner = Partner.find(partner_id)
+      if partner.nil?
+        puts "Could not find partner #{partner_id}"
+      else
+        fee = partner.current_kula_rate(dist_id, Date.parse("#{year}-#{month}-01"))
+        
+        if fee.nil?
+          puts "Could not find fee for P=#{partner_id} D=#{dist_id}, C=#{cause.name} School? #{cause.school?} Intl? #{cause.international?} Date:#{month}/#{year}"
+        else
+          gross = tx[5].to_f
+          
+          if cause.school?
+            kula_fee = fee.us_school_rate * gross
+            foundation_fee = fee.us_school_kf_rate * gross
+          else
+            kula_fee = (cause.international? ? fee.intl_charity_rate : fee.us_charity_rate) * gross
+            foundation_fee = (cause.international? ? fee.intl_charity_kf_rate : fee.us_charity_kf_rate) * gross
+          end
+          
+          distributor_fee = dist_id.nil? ? 0 : fee.distributor_rate * gross
+                    
+          Transaction.create(:transaction_identifier => tx[1].to_i,
+                             :partner_identifier => tx[2].to_i,
+                             :month => month,
+                             :year => year,
+                             :gross_amount => gross,
+                             :net_amount => tx[7].to_f,
+                             :donee_amount => tx[9].to_f,
+                             :discounts_amount => tx[6].to_f,
+                             :fees_amount => tx[8].to_f,
+                             :calc_kula_fee => kula_fee,
+                             :calc_foundation_fee => foundation_fee,
+                             :calc_distributor_fee => distributor_fee)      
+        end
+      end
+    end
+  end
+  
   desc "Read from kula_data to our db [fname, after date yyyy-mm-dd; ignores day]"
   task :kula_import, [:partner, :year, :month] => :environment do |t, args|
     # fname = args.has_key?(:fname) ? args[:fname] : '/Users/jeff/Documents/KulaTransactions.csv'
@@ -221,8 +380,8 @@ namespace :db do
 
   desc "Download Causes from replica"
   task :download_causes => :environment do 
-    unless 'replica' == Rails.env
-      puts "Must run in replica"
+    unless 'test_dev' == Rails.env
+      puts "Must run in test_dev"
       next
     end
     
@@ -249,6 +408,7 @@ namespace :db do
       next
     end
 
+    cnt = 1
     CSV.foreach('fish.csv', headers: false) do |row|
       Cause.create!(:cause_identifier => row[0],
                     :name => row[10],
@@ -272,6 +432,8 @@ namespace :db do
                     :site_url => row[44],
                     :logo_url => row[46],
                     :mission => row[24])
+      puts cnt if 0 == cnt % 100
+      cnt += 1
     end
   end
 end

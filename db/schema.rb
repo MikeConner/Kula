@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150913163047) do
+ActiveRecord::Schema.define(version: 20150914025205) do
 
   create_table "adjustments", force: :cascade do |t|
     t.integer  "batch_id",   limit: 4
@@ -150,6 +150,27 @@ ActiveRecord::Schema.define(version: 20150913163047) do
   end
 
   add_index "stripe_accounts", ["token"], name: "index_stripe_accounts_on_token", unique: true, using: :btree
+
+  create_table "transactions", id: false, force: :cascade do |t|
+    t.integer  "transaction_identifier", limit: 4,                         null: false
+    t.integer  "partner_identifier",     limit: 4
+    t.integer  "month",                  limit: 4,                         null: false
+    t.integer  "year",                   limit: 4,                         null: false
+    t.decimal  "gross_amount",                     precision: 8, scale: 2
+    t.decimal  "net_amount",                       precision: 8, scale: 2
+    t.decimal  "donee_amount",                     precision: 8, scale: 2
+    t.decimal  "discounts_amount",                 precision: 6, scale: 2
+    t.decimal  "fees_amount",                      precision: 6, scale: 2
+    t.decimal  "calc_kula_fee",                    precision: 6, scale: 2
+    t.decimal  "calc_foundation_fee",              precision: 6, scale: 2
+    t.decimal  "calc_distributor_fee",             precision: 6, scale: 2
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
+  end
+
+  add_index "transactions", ["month", "year"], name: "index_transactions_on_month_and_year", using: :btree
+  add_index "transactions", ["partner_identifier"], name: "index_transactions_on_partner_identifier", using: :btree
+  add_index "transactions", ["transaction_identifier"], name: "index_transactions_on_transaction_identifier", unique: true, using: :btree
 
   create_table "transactions_by_cause", id: false, force: :cascade do |t|
     t.integer "partner_id",                      limit: 4

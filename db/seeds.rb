@@ -11,8 +11,8 @@ if User.where("role = ?", User::ADMIN).empty?
   User.create!(:email => 'jeff@tapdatapp.co', :password => 'MonkeY1984', :password_confirmation => 'MonkeY1984', :role => User::ADMIN)
   User.create!(:email => 'arash@tapdatapp.co', :password => 'MonkeY1984', :password_confirmation => 'MonkeY1984', :role => User::ADMIN)
   User.create!(:email => 'john@kula.com', :password => 'KulaKulaKula', :password_confirmation => 'KulaKulaKula', :role => User::KULA_ADMIN)
-  User.create!(:email => 'head@sewickley-academy.com', :cause_id => Cause.first.id, :password => 'MoMoney1984', :password_confirmation => 'MoMoney1984', :role => User::CAUSE)
-  User.create!(:email => 'bird@redrobin.com', :partner_id => Partner.first.id, :password => 'BeakBeakBeak', :password_confirmation => 'BeakBeakBeak', :role => User::PARTNER)
+  User.create!(:email => 'head@sewickley-academy.com', :cause_id => Cause.first.partner_identifier, :password => 'MoMoney1984', :password_confirmation => 'MoMoney1984', :role => User::CAUSE)
+  User.create!(:email => 'bird@redrobin.com', :partner_id => Partner.first.partner_identifier, :password => 'BeakBeakBeak', :password_confirmation => 'BeakBeakBeak', :role => User::PARTNER)
   User.create!(:email => 'joe@user.com', :password => 'MonkeY1984', :password_confirmation => 'MonkeY1984')
 end
 
@@ -44,3 +44,4 @@ kula.kula_fees.create(:distributor_identifier => 17, :distributor_rate => 0, :us
 kula.kula_fees.create(:distributor_identifier => 20, :distributor_rate => 0.1, :us_charity_rate => 0.1, :us_charity_kf_rate => 0.025, :us_school_rate => 0.1, :us_school_kf_rate => 0.025, :intl_charity_rate => 0.1, :intl_charity_kf_rate => 0.025)
 kula.kula_fees.create(:distributor_identifier => 23, :distributor_rate => 0, :us_charity_rate => 0.1, :us_charity_kf_rate => 0.025, :us_school_rate => 0.1, :us_school_kf_rate => 0.025, :intl_charity_rate => 0.1, :intl_charity_kf_rate => 0.025)
 kula.kula_fees.create(:distributor_identifier => 25, :distributor_rate => 0, :us_charity_rate => 0.1, :us_charity_kf_rate => 0.025, :us_school_rate => 0.1, :us_school_kf_rate => 0.025, :intl_charity_rate => 0.1, :intl_charity_kf_rate => 0.025)
+coke.kula_fees.create!(:us_school_rate => 0, :us_school_kf_rate => 0, :us_charity_rate => 0, :us_charity_kf_rate => 0, :intl_charity_rate => 0, :intl_charity_kf_rate => 0)
