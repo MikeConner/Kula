@@ -45,4 +45,5 @@ class CauseBalance < ActiveRecord::Base
   validates :jan, :feb, :mar, :apr, :may, :jun, :jul, :aug, :sep, :oct, :nov, :dec, :total, :numericality => { :greater_than_or_equal_to => 0.0 }
   
   scope :payments, -> { where("balance_type = ?", PAYMENT).group(:year, :partner_id) }
+  scope :transactional, -> { where("balance_type in (?)", [PAYABLE, GROSS, DISCOUNT, NET, FEE, DONEE_AMOUNT]) }
 end

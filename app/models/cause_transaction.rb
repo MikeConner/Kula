@@ -18,7 +18,7 @@
 #  updated_at             :datetime         not null
 #
 
-class Transaction < ActiveRecord::Base
+class CauseTransaction < ActiveRecord::Base
   self.primary_key = 'transaction_identifier'
   
   validates :partner_identifier, :numericality => { :only_integer => true, :greater_than => 0 }

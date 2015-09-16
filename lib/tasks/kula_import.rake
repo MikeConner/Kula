@@ -31,16 +31,13 @@ namespace :db do
         puts ex.inspect  
       end
     end  
+    
+    # Total Cause Balances
+    Rake::Task["db:total_cause_balances"].invoke   
   end
   
   desc "Import transactions"
-  task :import_transactions, [:month, :year] => :environment do |t, args|
-    unless args.has_key?(:year)
-      puts "Must filter by numeric year (and optional month): e.g., import_transactions[2015,9]"
-      
-      next
-    end
-    
+  task :import_transactions => :environment do |t, args|
     # Read from read-only replica (or our ghetto writeable copy), copy data to postgres reporting db
     #  In the process: calculate fees and write those alongside Kula's calculations              
     asset = Rails.application.assets.find_asset('transaction-query.sql')
@@ -51,7 +48,6 @@ namespace :db do
       
       next
     end
-
 =begin
 0  distributor 
 1  transaction_id  
@@ -89,112 +85,204 @@ namespace :db do
 33 Cause ID
 =end
     
-    sql = IO.read(resolved_fname)
-    if args.has_key?(:month)
-      dt = Date.parse("#{args[:year]}-#{args[:month]}-01")
-      start_date = dt.to_s
-      end_date = dt.end_of_month.to_s
-    else
-      start_date = "#{args[:year]}-01-01"
-      end_date = "#{args[:year]}-12-31"
-    end
+    sql_base = IO.read(resolved_fname)
     
     ActiveRecord::Base.establish_connection(:test_dev).connection unless Rails.env.test_dev?
 
-    # fill in dates
-    sql.gsub!('##START_DATE', "'#{start_date}'")
-    sql.gsub!('##END_DATE', "'#{end_date}'")
+    current_date = ActiveRecord::Base.connection.execute('SELECT DISTINCT DATE(created) FROM balance_transactions ORDER BY created LIMIT 1').first[0].beginning_of_month
+    latest_date = ActiveRecord::Base.connection.execute('SELECT DISTINCT DATE(created) FROM balance_transactions ORDER BY created DESC LIMIT 1').first[0].beginning_of_month
     
-    puts "Reading transactions from test_dev..."
-    transactions = ActiveRecord::Base.connection.execute(sql)
+    puts "Reading transactions from #{current_date.to_s} to #{latest_date.to_s}"
+    BATCH_SIZE = 100
     
-    # Now point to postgres
     ActiveRecord::Base.establish_connection(:production).connection
-    existing_causes = Cause.all.map(&:id)
-    puts "#{existing_causes.count} causes"
+    CauseTransaction.delete_all
     
-    puts "Processing transactions..."
-    
-    idx = 1
-    transactions.each do |tx|
-      puts idx if 0 == idx % 100
-      idx += 1
+    while current_date <= latest_date do
+      start_date = current_date.to_s
+      end_date = current_date.end_of_month.to_s
       
-      # create Cause if not present
-      if existing_causes.include?(tx[33])
-        cause = Cause.find(tx[33].to_i)
-      else
-        puts "Creating cause #{tx[33]}: #{tx[10]}"
-        
-        cause = Cause.create!(:cause_identifier => tx[33],
-                               :name => tx[10],
-                               :cause_type => tx[22].to_i,
-                               :has_ach_info => 1 == tx[27].to_i,
-                               :email => tx[23],
-                               :phone => tx[24],
-                               :fax => tx[25],
-                               :tax_id => tx[26],
-                               :address_1 => tx[11],
-                               :address_2 => tx[12],
-                               :address_3 => tx[13],
-                               :city => tx[14],
-                               :region => tx[15],
-                               :country => tx[17],
-                               :postal_code => tx[16],
-                               :mailing_address => tx[18],
-                               :mailing_city => tx[19],
-                               :mailing_state => tx[20],
-                               :mailing_postal_code => tx[21],
-                               :site_url => tx[28],
-                               :logo_url => tx[29],
-                               :latitude => tx[30].to_f,
-                               :longitude => tx[31].to_f,
-                               :mission => tx[32])
+      puts "Processing #{start_date}"
+      
+      # fill in dates
+      sql = sql_base.gsub('##START_DATE', "'#{start_date}'").gsub('##END_DATE', "'#{end_date}'")
+      
+      ActiveRecord::Base.establish_connection(:test_dev).connection unless Rails.env.test_dev?
+      
+      puts "Reading transactions from test_dev..."
+      transactions = ActiveRecord::Base.connection.execute(sql)
+      puts "Read #{transactions.count} transactions"
+
+      # Now point to postgres
+      ActiveRecord::Base.establish_connection(:production).connection
+      existing_causes = Cause.all.map(&:id) if existing_causes.nil?
+      puts "#{existing_causes.count} causes"
+
+      puts "Clearing balances"
+      balances = CauseBalance.transactional.where(:year => current_date.year)
+      case current_date.month
+      when 1
+        balances.update_all(:jan => 0.0)
+      when 2
+        balances.update_all(:feb => 0.0)
+      when 3
+        balances.update_all(:mar => 0.0)
+      when 4
+        balances.update_all(:apr => 0.0)
+      when 5
+        balances.update_all(:may => 0.0)
+      when 6
+        balances.update_all(:jun => 0.0)
+      when 7
+        balances.update_all(:jul => 0.0)
+      when 8
+        balances.update_all(:aug => 0.0)
+      when 9
+        balances.update_all(:sep => 0.0)
+      when 10
+        balances.update_all(:oct => 0.0)
+      when 11
+        balances.update_all(:nov => 0.0)
+      when 12
+        balances.update_all(:dec => 0.0)
       end
+            
+      puts "Processing transactions..."
       
-      partner_id = tx[2].to_i
-      dist_id = tx[0].to_i
-      dist_id = nil if 0 == dist_id
+      idx = 1
+      records = []
       
-      month = tx[3].to_i
-      year = tx[4].to_i
-      
-      partner = Partner.find(partner_id)
-      if partner.nil?
-        puts "Could not find partner #{partner_id}"
-      else
-        fee = partner.current_kula_rate(dist_id, Date.parse("#{year}-#{month}-01"))
+      transactions.each do |tx|
+        if 0 == idx % BATCH_SIZE
+          puts "Committing batch #{idx}"
+          ActiveRecord::Base.transaction do  
+            records.each do |r|
+              CauseTransaction.create!(r)
+              
+              update_cause_balances(r)
+            end
+            
+            records = []
+          end        
+        end
         
-        if fee.nil?
-          puts "Could not find fee for P=#{partner_id} D=#{dist_id}, C=#{cause.name} School? #{cause.school?} Intl? #{cause.international?} Date:#{month}/#{year}"
+        idx += 1
+        
+        # create Cause if not present
+        if existing_causes.include?(tx[33])
+          cause = Cause.find(tx[33].to_i)
         else
-          gross = tx[5].to_f
+          puts "Creating cause #{tx[33]}: #{tx[10]}"
           
-          if cause.school?
-            kula_fee = fee.us_school_rate * gross
-            foundation_fee = fee.us_school_kf_rate * gross
-          else
-            kula_fee = (cause.international? ? fee.intl_charity_rate : fee.us_charity_rate) * gross
-            foundation_fee = (cause.international? ? fee.intl_charity_kf_rate : fee.us_charity_kf_rate) * gross
+          # Not transactional, because this should be very infrequent
+          cause = Cause.create!(:cause_identifier => tx[33],
+                                :name => tx[10],
+                                :cause_type => tx[22].to_i,
+                                :has_ach_info => 1 == tx[27].to_i,
+                                :email => tx[23],
+                                :phone => tx[24],
+                                :fax => tx[25],
+                                :tax_id => tx[26],
+                                :address_1 => tx[11],
+                                :address_2 => tx[12],
+                                :address_3 => tx[13],
+                                :city => tx[14],
+                                :region => tx[15],
+                                :country => tx[17],
+                                :postal_code => tx[16],
+                                :mailing_address => tx[18],
+                                :mailing_city => tx[19],
+                                :mailing_state => tx[20],
+                                :mailing_postal_code => tx[21],
+                                :site_url => tx[28],
+                                :logo_url => tx[29],
+                                :latitude => tx[30].to_f,
+                                :longitude => tx[31].to_f,
+                                :mission => tx[32])
+        end
+        
+        partner_id = tx[2].to_i
+        dist_id = tx[0].to_i
+        dist_id = nil if 0 == dist_id
+        
+        month = tx[3].to_i
+        year = tx[4].to_i
+        
+        partner = Partner.find(partner_id)
+        if partner.nil?
+          puts "Could not find partner #{partner_id}"
+        else
+          fee = partner.current_kula_rate(dist_id, Date.parse("#{year}-#{month}-01"))
+          if fee.nil? and !dist_id.nil?
+            # If unknown distributor, add in a 0 fee entry
+            fee = partner.kula_fees.create(:distributor_identifier => dist_id, 
+                                           :distributor_rate => 0, 
+                                           :us_charity_rate => 0.1, 
+                                           :us_charity_kf_rate => 0.025, 
+                                           :us_school_rate => 0.1, 
+                                           :us_school_kf_rate => 0.025, 
+                                           :intl_charity_rate => 0.1, 
+                                           :intl_charity_kf_rate => 0.025)
+            puts "Added previously unknown distributor: #{dist_id}"
           end
           
-          distributor_fee = dist_id.nil? ? 0 : fee.distributor_rate * gross
-                    
-          Transaction.create(:transaction_identifier => tx[1].to_i,
-                             :partner_identifier => tx[2].to_i,
-                             :month => month,
-                             :year => year,
-                             :gross_amount => gross,
-                             :net_amount => tx[7].to_f,
-                             :donee_amount => tx[9].to_f,
-                             :discounts_amount => tx[6].to_f,
-                             :fees_amount => tx[8].to_f,
-                             :calc_kula_fee => kula_fee,
-                             :calc_foundation_fee => foundation_fee,
-                             :calc_distributor_fee => distributor_fee)      
+          if fee.nil?
+            puts "Could not find fee for cause #{cause.cause_identifier} P=#{partner_id} D=#{dist_id}, C=#{cause.name} School? #{cause.school?} Intl? #{cause.international?} Date:#{month}/#{year}"
+          else
+            gross = tx[5].to_f
+            
+            if cause.school?
+              total_rate = fee.us_school_rate + fee.us_school_kf_rate
+              total_fee = total_rate * gross
+              
+              kula_fee = fee.us_school_rate / total_rate * total_fee
+              foundation_fee = total_fee - kula_fee
+            else
+              total_rate = cause.international? ? fee.intl_charity_rate + fee.intl_charity_kf_rate : fee.us_charity_rate + fee.us_charity_kf_rate
+              total_fee = total_rate * gross
+              
+              kula_fee = (cause.international? ? fee.intl_charity_rate / total_rate : fee.us_charity_rate / total_rate) * total_fee 
+              foundation_fee = total_fee - kula_fee
+            end
+            
+            distributor_fee = dist_id.nil? ? 0 : fee.distributor_rate * gross
+            
+            records.push({:transaction_identifier => tx[1].to_i,
+                          :partner_identifier => tx[2].to_i,
+                          :month => month,
+                          :year => year,
+                          :gross_amount => gross,
+                          :net_amount => tx[7].to_f,
+                          :donee_amount => tx[9].to_f,
+                          :discounts_amount => tx[6].to_f,
+                          :fees_amount => tx[8].to_f,
+                          :calc_kula_fee => kula_fee,
+                          :calc_foundation_fee => foundation_fee,
+                          :calc_distributor_fee => distributor_fee})          
+          end
         end
       end
+      
+      puts "Committing last batch of #{records.count}"
+      ActiveRecord::Base.transaction do  
+        records.each do |r|
+          CauseTransaction.create!(r)
+          
+          update_cause_balances(r)
+        end
+      end
+      
+      current_date += 1.month
     end
+    
+    # Total Cause Balances
+    Rake::Task["db:total_cause_balances"].invoke   
+  end
+  
+  task :total_cause_balances => :environment do
+    ActiveRecord::Base.establish_connection(:production).connection unless Rails.env.production?
+    
+    ActiveRecord::Base.connection.execute('UPDATE cause_balances SET total=jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov+dec')
   end
   
   desc "Read from kula_data to our db [fname, after date yyyy-mm-dd; ignores day]"
@@ -441,6 +529,38 @@ namespace :db do
       cnt += 1
     end
   end
+end
+
+def update_cause_balances(r)
+  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
+                                           :cause_id => r[:cause_identifier], 
+                                           :year => r[:year], 
+                                           :balance_type => CauseBalance::GROSS)
+  update_balance(balance, r[:month], r[:gross_amount])
+
+  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
+                                           :cause_id => r[:cause_identifier], 
+                                           :year => r[:year], 
+                                           :balance_type => CauseBalance::DISCOUNT)
+  update_balance(balance, r[:month], r[:discounts_amount].to_f)
+
+  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
+                                           :cause_id => r[:cause_identifier], 
+                                           :year => r[:year], 
+                                           :balance_type => CauseBalance::NET)
+  update_balance(balance, r[:month], r[:net_amount].to_f)
+
+  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
+                                           :cause_id => r[:cause_identifier], 
+                                           :year => r[:year], 
+                                           :balance_type => CauseBalance::FEE)
+  update_balance(balance, r[:month], r[:calc_kula_fee] + r[:calc_foundation_fee] + r[:calc_distributor_fee])
+
+  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
+                                           :cause_id => r[:cause_identifier], 
+                                           :year => r[:year], 
+                                           :balance_type => CauseBalance::DONEE_AMOUNT)
+  update_balance(balance, r[:month], r[:donee_amount].to_f)  
 end
 
 def update_balance(balance, month, amount)
