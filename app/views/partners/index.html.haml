@@ -15,9 +15,8 @@
         %th Name
         %th Domain
         %th Currency
-        %th Current Kula Fee
-        %th Current Discount Fee
         %th # Payments
+        %th Fees
         %th 
     %tbody
       - @partners.each do |partner|
@@ -25,7 +24,6 @@
           %td= link_to partner.display_name, edit_partner_path(partner)
           %td= partner.domain
           %td= partner.currency
-          %td= number_to_percentage(partner.current_kula_rate * 100)
-          %td= number_to_percentage(partner.current_discount_rate * 100)
           %td= partner.payments.count
+          %td= link_to 'Detail', fees_partner_path(partner)
           %td= link_to 'Review Debt', debt_partner_path(partner)

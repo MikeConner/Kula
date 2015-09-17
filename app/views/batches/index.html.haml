@@ -23,8 +23,9 @@
               %tbody
                 - @batches.each do |batch|
                   %tr
+                    - partner_name = batch.partner.nil? ? '-' : batch.partner.display_name
                     %td= batch.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
-                    %td= batch.partner.display_name
+                    %td= partner_name
                     %td= link_to batch.name, batch_path(batch)
                     %td= batch.description
                     %td= number_with_delimiter(batch.payments.count)

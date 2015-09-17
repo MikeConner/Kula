@@ -8,5 +8,5 @@
   = f.label :currency
   = f.text_field :currency, :maxlength => 3
 = f.fields_for :kula_fees do |fee_form|
-  = render :partial => 'kula_fee', :locals => { :f => fee_form }
+  = render :partial => 'kula_fee_fields', :locals => { :f => fee_form }
 = add_kula_fee(@partner, f)

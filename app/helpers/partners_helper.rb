@@ -8,7 +8,7 @@ module PartnersHelper
     # Use #license elements as the unique key instead of "new Date().getTime()" so that I can predict it with RSpec
     #  
     form_builder.fields_for :kula_fees, partner.kula_fees.build, :child_index => 'NEW_RECORD' do |fee_form|
-      html = render(:partial => 'kula_fee', :locals => { :f => fee_form })
+      html = render(:partial => 'kula_fee_fields', :locals => { :f => fee_form })
       onclick = "$('#{escape_javascript(html)}'.replace(/NEW_RECORD/g, $('.kula_fee').length)).insertBefore('#add_kula_fee'); return false;"
       
       content_tag(:a, 'Add Fee', :href => '#', :onclick => onclick, :id => 'add_kula_fee')

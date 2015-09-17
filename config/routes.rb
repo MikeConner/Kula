@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :partners, :only => [:index, :edit, :update] do
     member do
       get 'debt'
+      get 'fees'
       post 'make_batch'
     end
   end

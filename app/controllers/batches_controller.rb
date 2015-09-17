@@ -11,8 +11,8 @@ class BatchesController < ApplicationController
   # GET /batches/:id
   def show
     @batch = Batch.find(params[:id])
-    @payments = @batch.payments.group(:cause_id, :status).order('amount DESC')
-    @adjustments = @batch.adjustments.group(:cause_id).order('amount DESC')
+    @payments = @batch.payments.group('payments.id', :cause_id, :status).order('amount DESC')
+    @adjustments = @batch.adjustments.group('adjustments.id', :cause_id).order('amount DESC')
 
     render :layout => 'admin'
   end

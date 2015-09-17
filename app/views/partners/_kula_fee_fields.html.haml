@@ -1,0 +1,34 @@
+.kula_fee.row
+  .field
+    = f.hidden_field :_destroy
+    = content_tag(:a, 'X', :href => '#', :class => "close", :onclick => "if (confirm('Delete this fee?')) remove_kula_fee(this)")
+  .field
+    = f.label :us_school_rate
+    = f.text_field :us_school_rate
+  .field
+    = f.label :us_school_kf_rate, "US School Foundation Rate"
+    = f.text_field :us_school_kf_rate
+  .field
+    = f.label :us_charity_rate
+    = f.text_field :us_charity_rate
+  .field
+    = f.label :us_charity_kf_rate, "US Charity Foundation Rate"
+    = f.text_field :us_charity_kf_rate
+  .field
+    = f.label :intl_charity_rate, 'International Charity Rate'
+    = f.text_field :intl_charity_rate
+  .field
+    = f.label :intl_charity_kf_rate, "Intl Charity Foundation Rate"
+    = f.text_field :intl_charity_kf_rate
+  .field
+    = f.label :distributor_identifier
+    = f.text_field :distributor_identifier
+  .field
+    = f.label :distributor_rate
+    = f.text_field :distributor_rate
+  .field
+    = f.label :effective_date
+    = f.date_select :effective_date
+  .field
+    = f.label :expiration_date
+    = f.date_select :expiration_date

@@ -25,10 +25,18 @@ class PartnersController < ApplicationController
   def debt
     @partner = Partner.find_by_partner_identifier(params[:id])
 
-    @causes = CauseBalance.where(:partner_id => @partner.partner_identifier).pluck(:cause_id).uniq.inject({}) { |s, n| s.merge(n => Cause.find_by_cause_identifier(n).name) }
+    @causes = CauseBalance.where(:partner_id => @partner.partner_identifier).pluck(:cause_id).uniq.inject({}) { |s, n| s.merge(n => (Cause.find_by_cause_identifier(n) || Cause.new(:name => '?')).name) }
     @owed = calculate_debt
     
     render :layout => 'admin'    
+  end
+  
+  def fees
+    @partner = Partner.find_by_partner_identifier(params[:id])
+    
+    @fees = @partner.kula_fees
+    
+    render :layout => 'admin'
   end
   
   def make_batch

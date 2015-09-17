@@ -65,4 +65,16 @@ class KulaFee < ActiveRecord::Base
       (date >= self.effective_date) and (date <= self.expiration_date)
     end
   end
+  
+  def date_display
+    if universal?
+      "All time"
+    elsif unbounded_left?
+      "Until #{self.expiration_date.try(:strftime, ApplicationHelper::DATE_FORMAT)}"
+    elsif unbounded_right?
+      "After #{self.effective_date.try(:strftime, ApplicationHelper::DATE_FORMAT)}"
+    else
+      "Between #{self.effective_date.try(:strftime, ApplicationHelper::DATE_FORMAT)} and #{self.expiration_date.try(:strftime, ApplicationHelper::DATE_FORMAT)}"
+    end
+  end
 end

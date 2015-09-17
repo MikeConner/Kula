@@ -1,0 +1,36 @@
+%h1
+  = @partner.display_name
+  - unless @partner.name == @partner.display_name
+    == (#{@partner.name})
+  Fees
+%table.table.zebra-striped
+  %thead
+    %tr
+      %th US School
+      %th US Charity
+      %th Intl Charity
+      %th Distributor
+      %th Discount
+      %th Dates
+  %tbody
+    - @fees.each do |fee|
+      %tr
+        - if fee.us_school_rate.nil?
+          %td N/A
+        - else
+          %td== (#{fee.us_school_rate * 100}% / #{fee.us_school_kf_rate * 100}%)
+        - if fee.us_charity_rate.nil?
+          %td N/A
+        - else
+          %td== (#{fee.us_charity_rate * 100}% / #{fee.us_charity_kf_rate * 100}%)
+        - if fee.intl_charity_rate.nil?
+          %td N/A
+        - else
+          %td== (#{fee.intl_charity_rate * 100}% / #{fee.intl_charity_kf_rate * 100}%)
+        - if fee.distributor.nil?
+          %td N/A
+          %td N/A
+        - else
+          %td= fee.distributor.name
+          %td== #{fee.distributor_rate * 100}%
+        %td= fee.date_display
