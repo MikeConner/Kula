@@ -1,27 +1,24 @@
 namespace :db do
   desc "Import payments"
   task :import_payments => :environment do
-    sql = "SELECT *, partner_id,  MONTH(payments.date), YEAR(payments.date)  FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.payments" + 
-          " join #{Rails.configuration.database_configuration[Rails.env]['database']}.batches on  batches.id = payments.batch_id ;"
-    
     row = 0
-    records = ActiveRecord::Base.connection.execute(sql)
-    records.each do |line|
+    Payment.joins(:batch).each do |payment|
       begin                
         row += 1
         if 0 == row % 100
           puts row
         end       
        
-        partner_id = line[13].to_i        
-        cause_id = line[11].to_i
-        month = line[21].to_i
-        payment = line[3].to_f
+        partner_id = payment.batch.partner_id       
+        cause_id = payment.cause_id 
+        month = payment.date.month 
+        year = payment.date.year
+        payment = payment.amount.to_f 
 
         if payment > 0    
-          balance = CauseBalance.where(:partner_id => partner_id, :cause_id => cause_id, :year => line[22].to_i, :balance_type => CauseBalance::PAYMENT).first
+          balance = CauseBalance.where(:partner_id => partner_id, :cause_id => cause_id, :year => year, :balance_type => CauseBalance::PAYMENT).first
           if balance.nil?
-            balance = CauseBalance.create(:partner_id => partner_id, :cause_id => cause_id, :year => line[22].to_i, :balance_type => CauseBalance::PAYMENT)
+            balance = CauseBalance.create(:partner_id => partner_id, :cause_id => cause_id, :year => year, :balance_type => CauseBalance::PAYMENT)
           end
           
           # Put in payments as negative

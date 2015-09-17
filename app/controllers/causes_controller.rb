@@ -6,27 +6,26 @@ class CausesController < ApplicationController
     @min_balance = params[:min_balance].to_f
     
     where_clause = @cause_name.blank? ? '' : "WHERE name LIKE '%#{@cause_name}%'"
-
     sql = 'SELECT *,' +
-          "(SELECT sum(total) FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER  and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
-          "(SELECT sum(total) FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER  and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
-          "(SELECT sum(total) FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER  and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
-          "(SELECT sum(total) FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER  and balance_type in('#{CauseBalance::ADJUSTMENT}')) as adj_balance" +
-          " FROM #{Rails.configuration.database_configuration[Rails.env]['database']}.causes #{where_clause} ORDER BY name;"
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER::integer and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER::integer  and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER::integer  and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER::integer  and balance_type in('#{CauseBalance::ADJUSTMENT}')) as adj_balance" +
+          " FROM causes #{where_clause} ORDER BY name;"
 
     @cause_data = []
     
     records = ActiveRecord::Base.connection.execute(sql)
     records.each do |line|
-      due = line[line.length - 4].to_f
-      donated = line[line.length - 3].to_f
-      payments = line[line.length - 2].to_f
-      adjustments = line[line.length - 1].to_f
+      due = line['balance_due'].to_f
+      donated = line['donated_balance'].to_f
+      payments = line['payments_balance'].to_f
+      adjustments = line['adj_balance'].to_f
       
       next if due.nil? and donated.nil? and payments.nil? and adjustments.nil?
       next unless (0 == @min_balance) or (due >= @min_balance)
       
-      @cause_data.push({:name => line[1], :path => cause_path(line[0]), :due => due, :donated => donated, :payments => payments, :adjustments => adjustments})
+      @cause_data.push({:name => line['name'], :path => cause_path(line['cause_identifier']), :due => due, :donated => donated, :payments => payments, :adjustments => adjustments})
     end
  
     @causes = @cause_data.paginate(:page => params[:page])
