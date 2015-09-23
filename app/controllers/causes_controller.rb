@@ -37,7 +37,7 @@ class CausesController < ApplicationController
     @cause = Cause.find_by_cause_identifier(params[:id])
     @partner_balances = Hash.new
     current_partner = nil
-    CauseBalance.where(:cause_id => params[:id]).group(:partner_id, :year, :balance_type).each do |balance|
+    CauseBalance.where(:cause_id => params[:id]).group(:partner_id, :year, :balance_type, :id).each do |balance|
       if current_partner != balance.partner_id
         current_partner = balance.partner_id
         @partner_balances[current_partner] = Hash.new

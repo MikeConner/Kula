@@ -3,8 +3,8 @@
 # Table name: cause_balances
 #
 #  id           :integer          not null, primary key
-#  partner_id   :integer
-#  cause_id     :integer
+#  partner_id   :integer          not null
+#  cause_id     :integer          not null
 #  year         :integer          not null
 #  balance_type :string(16)
 #  jan          :decimal(8, 2)    default(0.0), not null

@@ -16,10 +16,7 @@ namespace :db do
         payment = payment.amount.to_f 
 
         if payment > 0    
-          balance = CauseBalance.where(:partner_id => partner_id, :cause_id => cause_id, :year => year, :balance_type => CauseBalance::PAYMENT).first
-          if balance.nil?
-            balance = CauseBalance.create(:partner_id => partner_id, :cause_id => cause_id, :year => year, :balance_type => CauseBalance::PAYMENT)
-          end
+          balance = CauseBalance.find_or_create_by(:partner_id => partner_id, :cause_id => cause_id, :year => year, :balance_type => CauseBalance::PAYMENT)
           
           # Put in payments as negative
           update_balance(balance, month, -1 * payment)
@@ -33,8 +30,24 @@ namespace :db do
     Rake::Task["db:total_cause_balances"].invoke   
   end
   
+  # After import transactions, reconstruct CauseBalances by going through the table
+  desc "Cause balances from transactions"
+  task :cause_balances_from_tx => :environment do
+    ActiveRecord::Base.establish_connection(:production).connection unless Rails.env.production?
+    puts "Connection established; #{CauseTransaction.count} transactions"
+  
+    CauseTransaction.find_in_batches(:batch_size => 100) do |group|
+      group.each do |tx|
+        next if tx[:cause_id].nil? or tx[:partner_id].nil?
+        
+        puts "Updating #{tx.inspect}"
+        update_cause_balances(tx.attributes.with_indifferent_access)
+      end
+    end  
+  end
+  
   desc "Import transactions"
-  task :import_transactions => :environment do |t, args|
+  task :import_transactions => :environment do
     # Read from read-only replica (or our ghetto writeable copy), copy data to postgres reporting db
     #  In the process: calculate fees and write those alongside Kula's calculations              
     asset = Rails.application.assets.find_asset('transaction-query.sql')
@@ -94,7 +107,10 @@ namespace :db do
     
     ActiveRecord::Base.establish_connection(:production).connection
     CauseTransaction.delete_all
-    
+    Payment.delete_all
+    Adjustment.delete_all
+    CauseBalance.delete_all
+        
     while current_date <= latest_date do
       start_date = current_date.to_s
       end_date = current_date.end_of_month.to_s
@@ -112,9 +128,11 @@ namespace :db do
 
       # Now point to postgres
       ActiveRecord::Base.establish_connection(:production).connection
+      
       existing_causes = Cause.all.map(&:id) if existing_causes.nil?
       puts "#{existing_causes.count} causes"
 
+=begin
       puts "Clearing balances"
       balances = CauseBalance.transactional.where(:year => current_date.year)
       case current_date.month
@@ -143,14 +161,14 @@ namespace :db do
       when 12
         balances.update_all(:dec => 0.0)
       end
-            
+=end            
       puts "Processing transactions..."
       
-      idx = 1
+      idx = 0
       records = []
       
       transactions.each do |tx|
-        if 0 == idx % BATCH_SIZE
+        if (idx > 0) and (0 == idx % BATCH_SIZE)
           puts "Committing batch #{idx}"
           ActiveRecord::Base.transaction do  
             records.each do |r|
@@ -166,13 +184,15 @@ namespace :db do
         idx += 1
         
         # create Cause if not present
-        if existing_causes.include?(tx[33])
-          cause = Cause.find(tx[33].to_i)
+        cid = tx[33].to_i
+        
+        if existing_causes.include?(cid)
+          cause = Cause.find(cid)
         else
-          puts "Creating cause #{tx[33]}: #{tx[10]}"
+          puts "Creating cause #{cid}: #{tx[10]}"
           
           # Not transactional, because this should be very infrequent
-          cause = Cause.create!(:cause_identifier => tx[33],
+          cause = Cause.create!(:cause_identifier => cid,
                                 :name => tx[10],
                                 :cause_type => tx[22].to_i,
                                 :has_ach_info => 1 == tx[27].to_i,
@@ -196,6 +216,7 @@ namespace :db do
                                 :latitude => tx[30].to_f,
                                 :longitude => tx[31].to_f,
                                 :mission => tx[32])
+          existing_causes.push(cid)
         end
         
         partner_id = tx[2].to_i
@@ -246,6 +267,7 @@ namespace :db do
             
             records.push({:transaction_identifier => tx[1].to_i,
                           :partner_identifier => tx[2].to_i,
+                          :cause_identifier => cause.cause_identifier,
                           :month => month,
                           :year => year,
                           :gross_amount => gross,
@@ -468,27 +490,84 @@ namespace :db do
     end
   end
 
-  desc "Download Causes from replica"
-  task :download_causes => :environment do 
-    unless 'test_dev' == Rails.env
-      puts "Must run in test_dev"
-      next
-    end
+  desc "Migrate Causes from replica to production"
+  task :migrate_causes => :environment do 
+    ActiveRecord::Base.establish_connection(:test_dev).connection unless Rails.env.test_dev?
     
+    puts "Fetching records"
     sql = 'select * from causes where cause_id in (select distinct cause_id from balance_transactions)'
     records = ActiveRecord::Base.connection.execute(sql)
+ 
+    puts "Got #{records.count} records"
+    ActiveRecord::Base.establish_connection(:production).connection
+    existing = Cause.all.map(&:cause_identifier)
+    
     cnt = 1
-    CSV.open('fish.csv', 'w') do |writer|
-      records.each do |row|
-        puts cnt if 0 == cnt % 100
-        cnt += 1
-        # Lat/Long are a blob; just encode for now to avoid string conversion errors
-        row[95] = Base64.encode64(row[95]) unless row[95].nil?
-        writer << row
+    causes = []
+    records.each do |row|
+      if 0 == cnt % 100
+        puts "#{cnt} Uploading..."
+        ActiveRecord::Base.transaction do
+          begin
+            causes.each do |params|
+              Cause.create!(params) 
+            end
+            
+            puts "#{causes.count} successfully uploaded"
+            
+            causes = []
+          rescue ActiveRecord::Rollback => ex
+            puts "Rollback! #{ex.inspect}"
+          end
+        end
+      end
+      
+      cnt += 1
+      
+      next if existing.include?(row[0].to_i)
+      
+      causes.push({ :cause_identifier => row[0].to_i,
+                    :name => row[10],
+                    :cause_type => row[7],
+                    :has_ach_info => 1 == row[8].to_i,
+                    :email => row[20],
+                    :phone => row[21],
+                    :fax => row[23],
+                    :tax_id => row[6],
+                    :address_1 => row[27],
+                    :address_2 => row[29],
+                    :address_3 => row[30],
+                    :city => row[33],
+                    :region => row[35],
+                    :country => row[37],
+                    :postal_code => row[38],
+                    :mailing_address => row[40],
+                    :mailing_city => row[41],
+                    :mailing_state => row[42],
+                    :mailing_postal_code => row[43],
+                    :site_url => row[44],
+                    :logo_url => row[46],
+                    :mission => row[24] })
+    end
+
+    unless causes.empty?   
+      puts "Writing remainder (#{causes.count})"
+      ActiveRecord::Base.transaction do
+        begin
+          causes.each do |params|
+            Cause.create!(params) 
+          end
+          
+          puts "#{causes.count} successfully uploaded"
+          
+          causes = []
+        rescue ActiveRecord::Rollback => ex
+          puts "Rollback! #{ex.inspect}"
+        end
       end
     end
     
-    puts "Wrote #{cnt} records"
+    puts "Wrote #{cnt - 1} records"
   end
    
   desc "Upload Causes from Replica"
@@ -529,38 +608,49 @@ namespace :db do
 end
 
 def update_cause_balances(r)
-  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
-                                           :cause_id => r[:cause_identifier], 
-                                           :year => r[:year], 
-                                           :balance_type => CauseBalance::GROSS)
-  update_balance(balance, r[:month], r[:gross_amount])
-
-  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
-                                           :cause_id => r[:cause_identifier], 
-                                           :year => r[:year], 
-                                           :balance_type => CauseBalance::DISCOUNT)
-  update_balance(balance, r[:month], r[:discounts_amount].to_f)
-
-  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
-                                           :cause_id => r[:cause_identifier], 
-                                           :year => r[:year], 
-                                           :balance_type => CauseBalance::NET)
-  update_balance(balance, r[:month], r[:net_amount].to_f)
-
-  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
-                                           :cause_id => r[:cause_identifier], 
-                                           :year => r[:year], 
-                                           :balance_type => CauseBalance::FEE)
-  update_balance(balance, r[:month], r[:calc_kula_fee] + r[:calc_foundation_fee] + r[:calc_distributor_fee])
-
-  balance = CauseBalance.find_or_create_by(:partner_id => r[:partner_identifier], 
-                                           :cause_id => r[:cause_identifier], 
-                                           :year => r[:year], 
-                                           :balance_type => CauseBalance::DONEE_AMOUNT)
-  update_balance(balance, r[:month], r[:donee_amount].to_f)  
+  unless 0.0 == r[:gross_amount].to_f
+    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
+                                             :cause_id => r[:cause_identifier], 
+                                             :year => r[:year], 
+                                             :balance_type => CauseBalance::GROSS)
+    update_balance(balance, r[:month], r[:gross_amount])
+  end
+  
+  unless 0.0 == r[:discounts_amount].to_f
+    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
+                                             :cause_id => r[:cause_identifier], 
+                                             :year => r[:year], 
+                                             :balance_type => CauseBalance::DISCOUNT)
+    update_balance(balance, r[:month], r[:discounts_amount].to_f)
+  end
+  
+  unless 0.0 == r[:net_amount].to_f
+    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
+                                             :cause_id => r[:cause_identifier], 
+                                             :year => r[:year], 
+                                             :balance_type => CauseBalance::NET)
+    update_balance(balance, r[:month], r[:net_amount].to_f)
+  end
+  
+  unless 0.0 == r[:calc_kula_fee].to_f +  r[:calc_foundation_fee].to_f + r[:calc_distributor_fee].to_f
+    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
+                                             :cause_id => r[:cause_identifier], 
+                                             :year => r[:year], 
+                                             :balance_type => CauseBalance::FEE)
+    update_balance(balance, r[:month], r[:calc_kula_fee] + r[:calc_foundation_fee] + r[:calc_distributor_fee])
+  end
+  
+  unless 0.0 == r[:donee_amount]
+    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
+                                             :cause_id => r[:cause_identifier], 
+                                             :year => r[:year], 
+                                             :balance_type => CauseBalance::DONEE_AMOUNT)
+    update_balance(balance, r[:month], r[:donee_amount].to_f)  
+  end
 end
 
 def update_balance(balance, month, amount)
+  #puts "Updating #{balance.inspect} on #{month} for #{amount}"
   case month
   when 1
     balance.update_attribute(:jan, balance.jan + amount)
@@ -587,6 +677,6 @@ def update_balance(balance, month, amount)
   when 12
     balance.update_attribute(:dec, balance.dec + amount)
   else
-    raise "Invalid month #{line[1]}"
+    raise "Invalid month #{month}"
   end                          
 end

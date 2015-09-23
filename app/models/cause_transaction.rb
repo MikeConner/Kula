@@ -1,9 +1,9 @@
 # == Schema Information
 #
-# Table name: transactions
+# Table name: cause_transactions
 #
-#  transaction_identifier :integer          not null
-#  partner_identifier     :integer
+#  transaction_identifier :integer          not null, primary key
+#  partner_identifier     :integer          not null
 #  month                  :integer          not null
 #  year                   :integer          not null
 #  gross_amount           :decimal(8, 2)
@@ -16,6 +16,7 @@
 #  calc_distributor_fee   :decimal(6, 2)
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  cause_identifier       :integer          not null
 #
 
 class CauseTransaction < ActiveRecord::Base

@@ -11,23 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150915035757) do
+ActiveRecord::Schema.define(version: 20150919215930) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "adjustments", force: :cascade do |t|
-    t.integer  "batch_id",   limit: 4
-    t.decimal  "amount",                   precision: 8, scale: 2, null: false
+    t.integer  "batch_id"
+    t.decimal  "amount",     precision: 8, scale: 2, null: false
     t.datetime "date"
-    t.text     "comment",    limit: 65535
+    t.text     "comment"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "cause_id",   limit: 4
+    t.integer  "cause_id"
   end
 
   add_index "adjustments", ["batch_id"], name: "index_adjustments_on_batch_id", using: :btree
 
   create_table "batches", force: :cascade do |t|
-    t.integer  "partner_id",  limit: 4
-    t.integer  "user_id",     limit: 4
+    t.integer  "partner_id"
+    t.integer  "user_id"
     t.string   "name",        limit: 64
     t.datetime "date"
     t.string   "description", limit: 255
@@ -36,9 +39,9 @@ ActiveRecord::Schema.define(version: 20150915035757) do
   end
 
   create_table "cause_balances", force: :cascade do |t|
-    t.integer  "partner_id",   limit: 4
-    t.integer  "cause_id",     limit: 4
-    t.integer  "year",         limit: 4,                                        null: false
+    t.integer  "partner_id",                                                    null: false
+    t.integer  "cause_id",                                                      null: false
+    t.integer  "year",                                                          null: false
     t.string   "balance_type", limit: 16
     t.decimal  "jan",                     precision: 8, scale: 2, default: 0.0, null: false
     t.decimal  "feb",                     precision: 8, scale: 2, default: 0.0, null: false
@@ -61,20 +64,20 @@ ActiveRecord::Schema.define(version: 20150915035757) do
   add_index "cause_balances", ["partner_id", "cause_id", "year", "balance_type"], name: "cause_balances_primary_key", unique: true, using: :btree
 
   create_table "cause_transactions", id: false, force: :cascade do |t|
-    t.integer  "transaction_identifier", limit: 4,                         null: false
-    t.integer  "partner_identifier",     limit: 4
-    t.integer  "month",                  limit: 4,                         null: false
-    t.integer  "year",                   limit: 4,                         null: false
-    t.decimal  "gross_amount",                     precision: 8, scale: 2
-    t.decimal  "net_amount",                       precision: 8, scale: 2
-    t.decimal  "donee_amount",                     precision: 8, scale: 2
-    t.decimal  "discounts_amount",                 precision: 6, scale: 2
-    t.decimal  "fees_amount",                      precision: 6, scale: 2
-    t.decimal  "calc_kula_fee",                    precision: 6, scale: 2
-    t.decimal  "calc_foundation_fee",              precision: 6, scale: 2
-    t.decimal  "calc_distributor_fee",             precision: 6, scale: 2
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+    t.integer  "transaction_identifier",                         null: false
+    t.integer  "partner_identifier"
+    t.integer  "month",                                          null: false
+    t.integer  "year",                                           null: false
+    t.decimal  "gross_amount",           precision: 8, scale: 2
+    t.decimal  "net_amount",             precision: 8, scale: 2
+    t.decimal  "donee_amount",           precision: 8, scale: 2
+    t.decimal  "discounts_amount",       precision: 6, scale: 2
+    t.decimal  "fees_amount",            precision: 6, scale: 2
+    t.decimal  "calc_kula_fee",          precision: 6, scale: 2
+    t.decimal  "calc_foundation_fee",    precision: 6, scale: 2
+    t.decimal  "calc_distributor_fee",   precision: 6, scale: 2
+    t.datetime "created_at",                                     null: false
+    t.datetime "updated_at",                                     null: false
   end
 
   add_index "cause_transactions", ["month", "year"], name: "index_cause_transactions_on_month_and_year", using: :btree
@@ -82,10 +85,9 @@ ActiveRecord::Schema.define(version: 20150915035757) do
   add_index "cause_transactions", ["transaction_identifier"], name: "index_cause_transactions_on_transaction_identifier", unique: true, using: :btree
 
   create_table "causes", id: false, force: :cascade do |t|
-    t.string   "cause_identifier",    limit: 64,                                   null: false
-    t.string   "name",                limit: 255,                                  null: false
-    t.integer  "cause_type",          limit: 4,                                    null: false
-    t.boolean  "has_ach_info",                                     default: false, null: false
+    t.string   "name",                limit: 255,                                null: false
+    t.integer  "cause_type",                                                     null: false
+    t.boolean  "has_ach_info",                                   default: false, null: false
     t.string   "email",               limit: 255
     t.string   "phone",               limit: 64
     t.string   "fax",                 limit: 64
@@ -95,7 +97,7 @@ ActiveRecord::Schema.define(version: 20150915035757) do
     t.string   "address_3",           limit: 128
     t.string   "city",                limit: 64
     t.string   "region",              limit: 64
-    t.string   "country",             limit: 2,                                    null: false
+    t.string   "country",             limit: 2,                                  null: false
     t.string   "postal_code",         limit: 16
     t.string   "mailing_address",     limit: 128
     t.string   "mailing_city",        limit: 64
@@ -103,17 +105,16 @@ ActiveRecord::Schema.define(version: 20150915035757) do
     t.string   "mailing_postal_code", limit: 16
     t.string   "site_url",            limit: 255
     t.string   "logo_url",            limit: 255
-    t.decimal  "latitude",                          precision: 10
-    t.decimal  "longitude",                         precision: 10
-    t.text     "mission",             limit: 65535
+    t.decimal  "latitude",                        precision: 10
+    t.decimal  "longitude",                       precision: 10
+    t.text     "mission"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "cause_identifier",                                               null: false
   end
 
-  add_index "causes", ["cause_identifier"], name: "index_causes_on_cause_identifier", unique: true, using: :btree
-
   create_table "distributors", id: false, force: :cascade do |t|
-    t.integer  "distributor_identifier", limit: 4,  null: false
+    t.integer  "distributor_identifier",            null: false
     t.string   "name",                   limit: 64, null: false
     t.string   "display_name",           limit: 64
     t.datetime "created_at",                        null: false
@@ -123,19 +124,19 @@ ActiveRecord::Schema.define(version: 20150915035757) do
   add_index "distributors", ["distributor_identifier"], name: "index_distributors_on_distributor_identifier", unique: true, using: :btree
 
   create_table "kula_fees", force: :cascade do |t|
-    t.integer  "partner_identifier",     limit: 4
+    t.integer  "partner_identifier"
     t.date     "effective_date"
     t.date     "expiration_date"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.decimal  "us_school_rate",                   precision: 6, scale: 4
-    t.decimal  "us_charity_rate",                  precision: 6, scale: 4
-    t.decimal  "intl_charity_rate",                precision: 6, scale: 4
-    t.decimal  "us_school_kf_rate",                precision: 6, scale: 4
-    t.decimal  "us_charity_kf_rate",               precision: 6, scale: 4
-    t.decimal  "intl_charity_kf_rate",             precision: 6, scale: 4
-    t.decimal  "distributor_rate",                 precision: 6, scale: 4
-    t.integer  "distributor_identifier", limit: 4
+    t.decimal  "us_school_rate",         precision: 6, scale: 4
+    t.decimal  "us_charity_rate",        precision: 6, scale: 4
+    t.decimal  "intl_charity_rate",      precision: 6, scale: 4
+    t.decimal  "us_school_kf_rate",      precision: 6, scale: 4
+    t.decimal  "us_charity_kf_rate",     precision: 6, scale: 4
+    t.decimal  "intl_charity_kf_rate",   precision: 6, scale: 4
+    t.decimal  "distributor_rate",       precision: 6, scale: 4
+    t.integer  "distributor_identifier"
   end
 
   create_table "partners", primary_key: "partner_identifier", force: :cascade do |t|
@@ -148,23 +149,23 @@ ActiveRecord::Schema.define(version: 20150915035757) do
   end
 
   create_table "payments", force: :cascade do |t|
-    t.integer  "batch_id",       limit: 4
+    t.integer  "batch_id"
     t.string   "status",         limit: 16
-    t.decimal  "amount",                       precision: 8, scale: 2, null: false
+    t.decimal  "amount",                     precision: 8, scale: 2, null: false
     t.datetime "date"
     t.string   "confirmation",   limit: 255
     t.string   "payment_method", limit: 8
     t.string   "address",        limit: 255
-    t.text     "comment",        limit: 65535
+    t.text     "comment"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "cause_id",       limit: 4
+    t.integer  "cause_id"
   end
 
   add_index "payments", ["batch_id"], name: "index_payments_on_batch_id", using: :btree
 
   create_table "stripe_accounts", force: :cascade do |t|
-    t.integer  "cause_id",   limit: 4
+    t.integer  "cause_id"
     t.string   "token",      limit: 32, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -173,27 +174,27 @@ ActiveRecord::Schema.define(version: 20150915035757) do
   add_index "stripe_accounts", ["token"], name: "index_stripe_accounts_on_token", unique: true, using: :btree
 
   create_table "transactions_by_cause", id: false, force: :cascade do |t|
-    t.integer "partner_id",                      limit: 4
-    t.integer "month",                           limit: 4
-    t.integer "year",                            limit: 4
-    t.float   "Gross_Contribution_Amount",       limit: 53
-    t.float   "Discounts_Amount",                limit: 53
-    t.float   "Net_amount",                      limit: 53
-    t.float   "Kula_And_Foundation_fees",        limit: 53
-    t.float   "Donee_amount",                    limit: 53
-    t.text    "Organization_name",               limit: 65535
-    t.text    "Organization_name_for_address",   limit: 65535
-    t.text    "Address1_2_3",                    limit: 65535
-    t.text    "City_State_Zip",                  limit: 65535
-    t.text    "Country",                         limit: 65535
-    t.text    "Type",                            limit: 65535
-    t.text    "Organization_Contact_First_Name", limit: 65535
-    t.text    "Organization_Contact_Last_Name",  limit: 65535
-    t.text    "Organization_Contact_Email",      limit: 65535
-    t.text    "Organization_Email",              limit: 65535
-    t.text    "Tax_ID",                          limit: 65535
-    t.integer "Has_ACH_Information",             limit: 4
-    t.integer "Cause_ID",                        limit: 4
+    t.integer "partner_id"
+    t.integer "month"
+    t.integer "year"
+    t.float   "Gross_Contribution_Amount"
+    t.float   "Discounts_Amount"
+    t.float   "Net_amount"
+    t.float   "Kula_And_Foundation_fees"
+    t.float   "Donee_amount"
+    t.text    "Organization_name"
+    t.text    "Organization_name_for_address"
+    t.text    "Address1_2_3"
+    t.text    "City_State_Zip"
+    t.text    "Country"
+    t.text    "Type"
+    t.text    "Organization_Contact_First_Name"
+    t.text    "Organization_Contact_Last_Name"
+    t.text    "Organization_Contact_Email"
+    t.text    "Organization_Email"
+    t.text    "Tax_ID"
+    t.integer "Has_ACH_Information"
+    t.integer "Cause_ID"
   end
 
   create_table "users", force: :cascade do |t|
@@ -202,7 +203,7 @@ ActiveRecord::Schema.define(version: 20150915035757) do
     t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          limit: 4,   default: 0,  null: false
+    t.integer  "sign_in_count",                      default: 0,  null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip",     limit: 255
@@ -210,8 +211,8 @@ ActiveRecord::Schema.define(version: 20150915035757) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "role",                   limit: 16
-    t.integer  "partner_id",             limit: 4
-    t.integer  "cause_id",               limit: 4
+    t.integer  "partner_id"
+    t.integer  "cause_id"
   end
 
   add_index "users", ["cause_id"], name: "index_users_on_cause_id", using: :btree

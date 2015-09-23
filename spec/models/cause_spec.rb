@@ -2,7 +2,6 @@
 #
 # Table name: causes
 #
-#  cause_identifier    :string(64)       not null, primary key
 #  name                :string(255)      not null
 #  cause_type          :integer          not null
 #  has_ach_info        :boolean          default(FALSE), not null
@@ -25,9 +24,10 @@
 #  logo_url            :string(255)
 #  latitude            :decimal(10, )
 #  longitude           :decimal(10, )
-#  mission             :text(65535)
+#  mission             :text
 #  created_at          :datetime
 #  updated_at          :datetime
+#  cause_identifier    :integer          not null, primary key
 #
 
 describe Cause do

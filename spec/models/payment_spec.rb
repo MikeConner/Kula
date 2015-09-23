@@ -10,7 +10,7 @@
 #  confirmation   :string(255)
 #  payment_method :string(8)
 #  address        :string(255)
-#  comment        :text(65535)
+#  comment        :text
 #  created_at     :datetime
 #  updated_at     :datetime
 #  cause_id       :integer
