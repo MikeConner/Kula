@@ -253,13 +253,18 @@ namespace :db do
               total_rate = fee.us_school_rate + fee.us_school_kf_rate
               total_fee = total_rate * gross
               
-              kula_fee = fee.us_school_rate / total_rate * total_fee
+              kula_fee = 0 == total_rate ? 0 : fee.us_school_rate / total_rate * total_fee
               foundation_fee = total_fee - kula_fee
             else
               total_rate = cause.international? ? fee.intl_charity_rate + fee.intl_charity_kf_rate : fee.us_charity_rate + fee.us_charity_kf_rate
               total_fee = total_rate * gross
               
-              kula_fee = (cause.international? ? fee.intl_charity_rate / total_rate : fee.us_charity_rate / total_rate) * total_fee 
+              if 0 == total_rate
+                kula_fee = 0
+              else
+                kula_fee = (cause.international? ? fee.intl_charity_rate / total_rate : fee.us_charity_rate / total_rate) * total_fee 
+              end
+              
               foundation_fee = total_fee - kula_fee
             end
             
