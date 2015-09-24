@@ -19,27 +19,28 @@
         %tr
           %th Year
           %th Amount Due
-          %th Payable
-          %th Payments 
           %th Donee Amount
-          %th Kula Fees
-          %th Net 
-          %th Discount 
+          %th Payments 
+          %th Adjustments 
           %th Gross
+          %th Discount 
+          %th Net 
+          %th Kula Fees
           %th
       %tbody
         - balance_data.each do |year, balances|
           %tr
             %td= year
-            %td= number_to_currency(balances[:amount_due])
-            %td= number_to_currency(balances[:payable])
-            %td= number_to_currency(balances[:payments])
+            %td{:style => balances[:amount_due] < 0 ? 'color:red' : 'color:black'}
+              = number_to_currency(balances[:amount_due])
             %td= number_to_currency(balances[:donee])
-            %td= number_to_currency(balances[:fees])
-            %td= number_to_currency(balances[:net])
-            %td= number_to_currency(balances[:discount])
+            %td= number_to_currency(-balances[:payments])
+            %td= number_to_currency(-balances[:adjustments])
             %td= number_to_currency(balances[:gross])
-            - if balances[:amount_due] != 0
+            %td= number_to_currency(balances[:discount])
+            %td= number_to_currency(balances[:net])
+            %td= number_to_currency(balances[:fees])
+            - if balances[:amount_due] > 0
               %td 
                 -# TODO: Make payment
                 = button_to 'PAY', causes_path
