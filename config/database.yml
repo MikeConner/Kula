@@ -5,17 +5,17 @@
 #   gem 'sqlite3'
 #
 default: &default
-  adapter: mysql2
-  username: rails
-  password: rails
-  host: kulatest.cjc0nanez7zy.us-east-1.rds.amazonaws.com
-  encoding: utf8
-  pool: 5
-  timeout: 5000
+  <<: *default
+  adapter: postgresql
+  username: captain
+  password: MonkeY1984
+  host: kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
+  port: 5432
+  database: kula_pg_dev
 
 development:
   <<: *default
-  database: kula_dev
+
 
 # This is the ghetto writeable version of the read-only replica of the production database
 test_dev:
@@ -39,7 +39,7 @@ replica:
   database: kula
   port: 3306
   sslca: /Users/jeff/Kula/config/rds-ca.pem #Rails.root.join("config", "rds-ca-2015-root.pem")
-    
+
 production:
   <<: *default
   adapter: postgresql
