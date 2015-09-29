@@ -30,6 +30,34 @@ namespace :db do
     Rake::Task["db:total_cause_balances"].invoke   
   end
   
+  desc "(One-off) Create pre-2014 adjustments"
+  task :create_adjustments => :environment do
+    ActiveRecord::Base.establish_connection(:production).connection unless Rails.env.production?
+    user = User.select { |u| u.super_admin? }.first
+    one_off = 'One off adjustment due to lack of early data'
+    batches = Hash.new
+    
+    for year in 2012..2013      
+      sql = "SELECT partner_identifier, cause_identifier, sum(donee_amount) FROM cause_transactions WHERE year=#{year} GROUP BY partner_identifier, cause_identifier"
+      records = ActiveRecord::Base.connection.execute(sql)
+      adj_date = Date.parse("#{year}-12-31")
+      
+      records.each do |rec|
+        partner = rec['partner_identifier'].to_i
+        cause = rec['cause_identifier'].to_i
+        amount = -rec['sum'].to_f
+
+        unless batches.has_key?(partner)
+          batches[partner] = Batch.create!(:name => 'Historical adjustment', :partner_id => partner, :user_id => user.id, 
+                                           :date => adj_date, :description => one_off)
+        end
+        
+        batches[partner].adjustments.create!(:amount => amount, :date => adj_date, :comment => one_off, :cause_id => cause)
+        CauseBalance.create!(:partner_id => partner, :cause_id => cause, :year => year, :balance_type => CauseBalance::ADJUSTMENT, :dec => amount, :total => amount)
+      end
+    end
+  end
+  
   # After import transactions, reconstruct CauseBalances by going through the table
   desc "Cause balances from transactions"
   task :cause_balances_from_tx => :environment do
