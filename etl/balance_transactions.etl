@@ -1,0 +1,71 @@
+# put this at the top of your script
+require_relative '../config/environment'
+
+# then declare your Kiba ETL script
+
+#!/usr/bin/env ruby
+
+$:.unshift "#{File.dirname(__FILE__)}/lib"
+
+require 'balance_transaction_source'
+require 'balance_transaction_destination'
+
+#TODO: Get this from Database.yml
+PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
+
+
+config = YAML.load(IO.read('config/database.yml'))
+source BalanceTransactionSource, config['replica']
+
+
+start_time = Time.now
+pre_process do
+  puts "*** START BALANCES TRANSACTION REPLICATION #{start_time}***"
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
+
+  @conn = PG.connect(PGDevURL)
+  @conn.exec("delete from replicated_balance_transactions")
+
+  puts "Table Clear"
+
+  puts "--------------------------------------------"
+
+end
+
+#transform FilterMD5
+
+transform do |row|
+  print "."
+  newrow = {}
+
+
+
+  newrow[:transaction_id] = row[:transaction_id]
+  newrow[:type] = row[:type]
+  newrow[:user_id] = row[:user_id]
+  newrow[:cause_id] = row[:cause_id]
+  newrow[:campaign_id] = row[:campaign_id]
+  newrow[:category_id] = row[:category_id]
+  newrow[:partner_id] = row[:partner_id]
+  newrow[:currency] = row[:currency]
+  newrow[:amount] = row[:amount]
+  newrow[:status] = row[:status]
+  newrow[:session_uuid] = row[:session_uuid]
+  newrow[:updated] = row[:updated]
+  newrow[:created] = row[:created]
+
+
+
+  newrow
+end
+
+post_process do
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts "*** End BALANCES TRANSACTION REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+destination BalanceTransactionDestination, PGDevURL

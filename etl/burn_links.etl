@@ -1,0 +1,68 @@
+# put this at the top of your script
+require_relative '../config/environment'
+
+# then declare your Kiba ETL script
+
+#!/usr/bin/env ruby
+
+$:.unshift "#{File.dirname(__FILE__)}/lib"
+
+require 'burn_link_source'
+require 'burn_link_destination'
+
+#TODO: Get this from Database.yml
+PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
+
+
+config = YAML.load(IO.read('config/database.yml'))
+source BurnLinkSource, config['replica']
+
+
+start_time = Time.now
+pre_process do
+  puts "*** START BURN LINKS REPLICATION #{start_time}***"
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
+
+  @conn = PG.connect(PGDevURL)
+  @conn.exec("delete from replicated_burn_links")
+
+  puts "Table Clear"
+
+  puts "--------------------------------------------"
+
+end
+
+#transform FilterMD5
+
+transform do |row|
+  print "."
+  newrow = {}
+
+
+
+  newrow[:burn_link_id] = row[:burn_link_id]
+  newrow[:burn_balance_transaction_id] = row[:burn_balance_transaction_id]
+  newrow[:earn_balance_transaction_id] = row[:earn_balance_transaction_id]
+  newrow[:type] = row[:type]
+  newrow[:cut_payee_id] = row[:cut_payee_id]
+  newrow[:amount] = row[:amount]
+
+  newrow[:cut_percent] = row[:cut_percent]
+  newrow[:cut_amount] = row[:cut_amount]
+  newrow[:matched] = row[:matched]
+  newrow[:updated] = row[:updated]
+
+
+  newrow
+end
+
+post_process do
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts "*** End BURN LINK REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+destination BurnLinkDestination, PGDevURL

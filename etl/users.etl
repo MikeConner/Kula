@@ -1,0 +1,78 @@
+# put this at the top of your script
+require_relative '../config/environment'
+
+# then declare your Kiba ETL script
+
+#!/usr/bin/env ruby
+
+$:.unshift "#{File.dirname(__FILE__)}/lib"
+
+require 'user_source'
+require 'user_destination'
+
+#TODO: Get this from Database.yml
+PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
+
+
+config = YAML.load(IO.read('config/database.yml'))
+source UserSource, config['replica']
+
+
+start_time = Time.now
+pre_process do
+  puts "*** START USERS REPLICATION #{start_time}***"
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
+
+  @conn = PG.connect(PGDevURL)
+  @conn.exec("delete from replicated_users")
+
+  puts "Table Clear"
+
+  puts "--------------------------------------------"
+
+end
+
+#transform FilterMD5
+
+transform do |row|
+  print "."
+  newrow = {}
+
+
+  newrow[:user_id] = row[:user_id]
+  newrow[:email] = row[:email]
+  newrow[:facebook_id] = row[:facebook_id]
+  newrow[:password] = row[:password]
+  newrow[:birthday] = row[:birthday]
+  newrow[:gender] = row[:gender]
+  newrow[:first_name] = row[:first_name]
+  newrow[:last_name] = row[:last_name]
+  newrow[:name_prefix] = row[:name_prefix]
+  newrow[:donor_type] = row[:donor_type]
+  newrow[:group_name] = row[:group_name]
+  newrow[:last_login] = row[:last_login]
+  newrow[:last_activity] = row[:last_activity]
+  newrow[:account_created] = row[:account_created]
+  newrow[:address1] = row[:address1]
+  newrow[:address2] = row[:address2]
+  newrow[:city] = row[:city]
+  newrow[:region] = row[:region]
+  newrow[:country] = row[:country]
+  newrow[:postal_code] = row[:postal_code]
+  newrow[:newsletter] = row[:newsletter]
+  newrow[:program_email] = row[:program_email]
+  newrow[:tax_receipts] = row[:tax_receipts]
+
+  newrow
+end
+
+post_process do
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts "*** End USERS REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+destination UserDestination, PGDevURL

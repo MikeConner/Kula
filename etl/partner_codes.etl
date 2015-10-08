@@ -1,0 +1,67 @@
+# put this at the top of your script
+require_relative '../config/environment'
+
+# then declare your Kiba ETL script
+
+#!/usr/bin/env ruby
+
+$:.unshift "#{File.dirname(__FILE__)}/lib"
+
+require 'partner_code_source'
+require 'partner_code_destination'
+
+#TODO: Get this from Database.yml
+PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
+
+
+config = YAML.load(IO.read('config/database.yml'))
+source PartnerCodeSource, config['replica']
+
+
+start_time = Time.now
+pre_process do
+  puts "*** START PARTNER CODE REPLICATION #{start_time}***"
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
+
+  @conn = PG.connect(PGDevURL)
+  @conn.exec("delete from replicated_partner_codes")
+
+  puts "Table Clear"
+
+  puts "--------------------------------------------"
+
+end
+
+#transform FilterMD5
+
+transform do |row|
+  print "."
+  newrow = {}
+  
+  newrow[:code] = row[:code]
+  newrow[:balance_transaction_id] = row[:balance_transaction_id]
+  newrow[:partner_id] = row[:partner_id]
+  newrow[:value] = row[:value]
+  newrow[:currency] = row[:currency]
+  newrow[:user_id] = row[:user_id]
+  newrow[:created] = row[:created]
+  newrow[:claimed] = row[:claimed]
+  newrow[:batch_id] = row[:batch_id]
+  newrow[:cut_percent] = row[:cut_percent]
+  newrow[:active] = row[:active]
+  newrow[:activated] = row[:activated]
+  newrow[:batch_partner_id] = row[:batch_partner_id]
+
+  newrow
+end
+
+post_process do
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts "*** End PARTNER CODE REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+destination PartnerCodeDestination, PGDevURL

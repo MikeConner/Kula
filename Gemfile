@@ -7,7 +7,7 @@ gem 'pg', '0.18.3'
 gem 'devise', '3.5.1'
 gem 'devise-async', '0.10.1'
 gem 'nokogiri', '1.6.1'
-
+gem 'kiba'
 gem 'haml-rails', "0.9.0"
 gem 'rails_admin', '0.6.8'
 

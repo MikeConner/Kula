@@ -1,0 +1,151 @@
+# put this at the top of your script
+require_relative '../config/environment'
+
+# then declare your Kiba ETL script
+
+#!/usr/bin/env ruby
+
+$:.unshift "#{File.dirname(__FILE__)}/lib"
+
+require 'cause_source'
+require 'cause_destination'
+
+
+#TODO: Get this from Database.yml
+PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
+
+
+config = YAML.load(IO.read('/Users/rasha/code/kula/config/database.yml'))
+source CauseSource, config['replica']
+
+
+start_time = Time.now
+pre_process do
+  puts "*** START CAUSES REPLICATION #{start_time}***"
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
+
+  @conn = PG.connect(PGDevURL)
+  @conn.exec("delete from replicated_causes")
+
+  puts "Table Clear"
+
+  puts "--------------------------------------------"
+
+end
+
+#transform FilterMD5
+
+transform do |row|
+  print "."
+  newrow = {}
+
+  newrow[:cause_id] = row[:cause_id]
+  newrow[:source_id] = row[:source_id]
+  newrow[:source_cause_id] = row[:source_cause_id]
+  newrow[:mcr_school_id] = row[:mcr_school_id]
+  newrow[:enhanced_date] = row[:enhanced_date]
+  newrow[:unenhanced_cause_id] = row[:unenhanced_cause_id]
+  newrow[:tax_id] = row[:tax_id]
+  newrow[:type] = row[:type]
+  newrow[:has_ach_info] = row[:has_ach_info]
+  newrow[:k8] = row[:k8]
+  newrow[:org_name] = row[:org_name]
+  newrow[:old_org_name] = row[:old_org_name]
+  newrow[:org_contact_first_name] = row[:org_contact_first_name]
+  newrow[:old_org_contact_first_name] = row[:old_org_contact_first_name]
+  newrow[:org_contact_last_name] = row[:org_contact_last_name]
+  newrow[:old_org_contact_last_name] = row[:old_org_contact_last_name]
+  newrow[:org_contact_email] = row[:org_contact_email]
+  newrow[:old_org_contact_email] = row[:old_org_contact_email]
+  newrow[:mcr_role] = row[:mcr_role]
+  newrow[:mcr_user_level] = row[:mcr_user_level]
+  newrow[:org_email] = row[:org_email]
+  newrow[:org_phone] = row[:org_phone]
+  newrow[:old_org_phone] = row[:old_org_phone]
+  newrow[:org_fax] = row[:org_fax]
+  newrow[:mission] = row[:mission]
+  newrow[:additional_description] = row[:additional_description]
+  newrow[:description] = row[:description]
+  newrow[:address1] = row[:address1]
+  newrow[:old_address1] = row[:old_address1]
+  newrow[:address2] = row[:address2]
+  newrow[:address3] = row[:address3]
+  newrow[:latitude] = row[:latitude]
+  newrow[:longitude] = row[:longitude]
+  newrow[:city] = row[:city]
+  newrow[:old_city] = row[:old_city]
+  newrow[:region] = row[:region]
+  newrow[:old_region] = row[:old_region]
+  newrow[:country] = row[:country]
+  newrow[:postal_code] = row[:postal_code]
+  newrow[:old_postal_code] = row[:old_postal_code]
+  newrow[:mailing_address] = row[:mailing_address]
+  newrow[:mailing_city] = row[:mailing_city]
+  newrow[:mailing_state] = row[:mailing_state]
+  newrow[:mailing_postal_code] = row[:mailing_postal_code]
+  newrow[:site_url] = row[:site_url]
+  newrow[:old_site_url] = row[:old_site_url]
+  newrow[:logo_url] = row[:logo_url]
+  newrow[:logo_small_url] = row[:logo_small_url]
+  newrow[:image_url] = row[:image_url]
+  newrow[:video_url] = row[:video_url]
+  newrow[:facebook_url] = row[:facebook_url]
+  newrow[:newsletter_url] = row[:newsletter_url]
+  newrow[:photos_url] = row[:photos_url]
+  newrow[:twitter_username] = row[:twitter_username]
+  newrow[:school_grades_desc] = row[:school_grades_desc]
+  newrow[:school_student_range_cd_desc] = row[:school_student_range_cd_desc]
+  newrow[:ethnic_african_american_pct] = row[:ethnic_african_american_pct]
+  newrow[:ethnic_asian_american_pct] = row[:ethnic_asian_american_pct]
+  newrow[:ethnic_hispanic_american_pct] = row[:ethnic_hispanic_american_pct]
+  newrow[:ethnic_native_american_pct] = row[:ethnic_native_american_pct]
+  newrow[:ethnic_caucasian_pct] = row[:ethnic_caucasian_pct]
+  newrow[:keywords] = row[:keywords]
+  newrow[:countries_operation] = row[:countries_operation]
+  newrow[:language] = row[:language]
+  newrow[:donation_5] = row[:donation_5]
+  newrow[:donation_10] = row[:donation_10]
+  newrow[:donation_25] = row[:donation_25]
+  newrow[:donation_50] = row[:donation_50]
+  newrow[:donation_100] = row[:donation_100]
+  newrow[:is_prison_school] = row[:is_prison_school]
+  newrow[:views] = row[:views]
+  newrow[:donations] = row[:donations]
+  newrow[:comment_count] = row[:comment_count]
+  newrow[:favorite_count] = row[:favorite_count]
+  newrow[:share_count] = row[:share_count]
+  newrow[:mcr_net_points] = row[:mcr_net_points]
+  newrow[:status] = row[:status]
+  newrow[:donatable_status] = row[:donatable_status]
+  newrow[:mcr_status] = row[:mcr_status]
+  newrow[:payment_first_name] = row[:payment_first_name]
+  newrow[:payment_last_name] = row[:payment_last_name]
+  newrow[:payment_email] = row[:payment_email]
+  newrow[:payment_currency] = row[:payment_currency]
+  newrow[:payment_address1] = row[:payment_address1]
+  newrow[:old_payment_address1] = row[:old_payment_address1]
+  newrow[:payment_address2] = row[:payment_address2]
+  newrow[:old_payment_address2] = row[:old_payment_address2]
+  newrow[:bank_routing_number] = row[:bank_routing_number]
+  newrow[:bank_account_number] = row[:bank_account_number]
+  newrow[:iban] = row[:iban]
+  newrow[:paypal_email] = row[:paypal_email]
+  newrow[:cached] = row[:cached]
+  newrow[:updated] = row[:updated]
+  newrow[:old_updated] = row[:old_updated]
+  newrow[:created] = row[:created]
+
+
+  newrow
+end
+
+post_process do
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts "*** End CAUSES REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+destination CauseDestination, PGDevURL

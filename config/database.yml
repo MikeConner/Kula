@@ -38,7 +38,9 @@ replica:
   password: vwxcwe3G5gcN83bT
   database: kula
   port: 3306
-  sslca: /Users/jeff/Kula/config/rds-ca.pem #Rails.root.join("config", "rds-ca-2015-root.pem")
+  sslca: config/rds-ca.pem
+    #Rails.root.join("config").join("rds-ca.pem")
+    #/Users/rasha/code/kula/config/rds-ca.pem #Rails.root.join("config", "rds-ca-2015-root.pem")
 
 production:
   <<: *default
