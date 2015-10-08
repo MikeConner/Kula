@@ -1,6 +1,6 @@
 require 'pg'
 
-class BalanceDestination
+class CauseDestination
   # connect_url should look like;
   #  mysql://user:pass@localhost/dbname
 
