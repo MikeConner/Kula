@@ -66,6 +66,40 @@ class BatchesController < ApplicationController
             balance.update_attribute(:total, balance.jan + balance.feb + balance.mar + balance.apr + balance.may + balance.jun +
                                              balance.jul + balance.aug + balance.sep + balance.oct + balance.nov + balance.dec)
           end
+          
+          @batch.adjustments.each do |adjustment|
+            balance = CauseBalance.where(:partner_id => @batch.partner, :cause_id => payment.cause,
+                                         :year => payment.date.year, :balance_type => CauseBalance::ADJUSTMENT).first_or_create
+            case payment.date.month
+            when 1
+              balance.update_attribute(:jan, balance.jan + payment.amount)
+            when 2
+              balance.update_attribute(:feb, balance.feb + payment.amount)
+            when 3
+              balance.update_attribute(:mar, balance.mar + payment.amount)
+            when 4
+              balance.update_attribute(:apr, balance.apr + payment.amount)
+            when 5
+              balance.update_attribute(:may, balance.may + payment.amount)
+            when 6
+              balance.update_attribute(:jun, balance.jun + payment.amount)
+            when 7
+              balance.update_attribute(:jul, balance.jul + payment.amount)
+            when 8
+              balance.update_attribute(:aug, balance.aug + payment.amount)
+            when 9
+              balance.update_attribute(:sep, balance.sep + payment.amount)
+            when 10
+              balance.update_attribute(:oct, balance.oct + payment.amount)
+            when 11
+              balance.update_attribute(:nov, balance.nov + payment.amount)
+            when 12
+              balance.update_attribute(:dec, balance.dec + payment.amount)
+            end
+
+            balance.update_attribute(:total, balance.jan + balance.feb + balance.mar + balance.apr + balance.may + balance.jun +
+                                             balance.jul + balance.aug + balance.sep + balance.oct + balance.nov + balance.dec)
+          end
         rescue ActiveRecord::Rollback => ex
           # All or nothing
           @batch.destroy

@@ -24,8 +24,9 @@
 #  updated_at   :datetime
 #
 
+require 'csv'
+
 class CauseBalance < ActiveRecord::Base
-  PAYABLE = 'Payable'
   PAYMENT = 'Payment'
   GROSS = 'Gross'
   DISCOUNT = 'Discount' # Discount fee
@@ -34,7 +35,7 @@ class CauseBalance < ActiveRecord::Base
   ADJUSTMENT = 'Adjustment'
   DONEE_AMOUNT = 'Donee Amount'
   
-  BALANCE_TYPES = [PAYABLE, PAYMENT, GROSS, DISCOUNT, NET, FEE, ADJUSTMENT, DONEE_AMOUNT]
+  BALANCE_TYPES = [PAYMENT, GROSS, DISCOUNT, NET, FEE, ADJUSTMENT, DONEE_AMOUNT]
   MAX_TYPE_LEN = 16
     
   belongs_to :partner
@@ -47,4 +48,61 @@ class CauseBalance < ActiveRecord::Base
   
   scope :payments, -> { where("balance_type = ?", PAYMENT).group(:year, :partner_id) }
   scope :transactional, -> { where("balance_type in (?)", [PAYABLE, GROSS, DISCOUNT, NET, FEE, DONEE_AMOUNT]) }
+  
+  def generate_payment_batch(partner, month, year, has_ach, minimum_due = 10)
+    # Get the ids of those with ACH info; this should be smaller
+    ach_causes = Cause.where(:has_ach_info => true).map(&:cause_identifier)
+    sum_clause = get_sum_clause(month)
+    payment_type = has_ach ? Payment::ACH : Payment::CHECK
+    
+    sql = "SELECT * FROM" + 
+          "(SELECT cause_id, #{sum_clause} as balance_due from cause_balances" +
+          " WHERE partner_id = #{partner} and year <= #{year} and balance_type in ('#{PAYMENT}', '#{ADJUSTMENT}', '#{DONEE_AMOUNT}') " +
+          "GROUP BY cause_id) as firstPass WHERE balance_due > #{minimum_due}"
+    
+    records = ActiveRecord::Base.connection.execute(sql)
+
+    # This assuming we're downloading it vs. creating the batch here
+    CSV.generate do |csv|
+      csv << ['cause_id', 'balance_due', 'payment type', 'status']
+      records.each do |rec|
+        cid = rec['cause_id'].to_i
+        
+        # Skip if ach_info doesn't match
+        next if ach_causes.include?(cid) ^ has_ach
+        
+        csv << [cid, rec['balance_due'].to_f, payment_type, Payment::Pending]
+      end
+    end
+  end
+  
+private
+  def get_sum_clause(month)
+    case month
+    when 1
+      "SUM(jan)"
+    when 2
+      "SUM(jan+feb)"
+    when 3
+      "SUM(jan+feb+mar)"
+    when 4
+      "SUM(jan+feb+mar+apr)"
+    when 5
+      "SUM(jan+feb+mar+apr+may)"
+    when 6
+      "SUM(jan+feb+mar+apr+may+jun)"
+    when 7
+      "SUM(jan+feb+mar+apr+may+jun+jul)"
+    when 8
+      "SUM(jan+feb+mar+apr+may+jun+jul+aug)"
+    when 9
+      "SUM(jan+feb+mar+apr+may+jun+jul+aug+sep)"
+    when 10
+      "SUM(jan+feb+mar+apr+may+jun+jul+aug+sep+oct)"
+    when 11
+      "SUM(jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov)"
+    when 12
+      "SUM(jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov+dec)"
+    end
+  end
 end

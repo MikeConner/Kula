@@ -1,0 +1,17 @@
+.adjustment.row
+  .large-2.columns
+    = f.hidden_field :_destroy
+    = content_tag(:a, 'X', :href => '#', :class => "close", :onclick => "if (confirm('Delete this payment?')) remove_adjustment(this)")
+    = label_tag 'Adjustment'    
+  .large-2.columns
+    = f.label :cause_id
+    = f.select :cause_id, options_from_collection_for_select(Cause.order(:name), 'cause_identifier', 'name', f.object.cause_id), :prompt => 'Select a Cause'
+  .large-2.columns
+    = f.label :date
+    = f.date_select :date
+  .large-2.columns
+    = f.label :amount
+    = f.text_field :amount
+  .large-2.columns
+    = f.label :comment
+    = f.text_area :comment, :size => '40x3'

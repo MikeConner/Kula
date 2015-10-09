@@ -2,6 +2,7 @@
   .large-2.columns
     = f.hidden_field :_destroy
     = content_tag(:a, 'X', :href => '#', :class => "close", :onclick => "if (confirm('Delete this payment?')) remove_payment(this)")
+    = label_tag 'Payment'
   .large-2.columns
     = f.label :cause_id
     = f.select :cause_id, options_from_collection_for_select(Cause.order(:name), 'cause_identifier', 'name', f.object.cause_id), :prompt => 'Select a Cause'

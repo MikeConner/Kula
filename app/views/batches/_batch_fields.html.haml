@@ -12,4 +12,7 @@
 = f.fields_for :payments do |payment_form|
   = render :partial => 'payment', :locals => { :f => payment_form }
 = add_payment(@batch, f)
-  
+%br
+= f.fields_for :adjustments do |adjustment_form|
+  = render :partial => 'adjustment', :locals => { :f => adjustment_form }
+= add_adjustment(@batch, f)

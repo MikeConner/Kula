@@ -7,5 +7,5 @@
   = render :partial => 'payments', :locals => { :partner => @partner, :payments => @payments }
   = form_tag new_batch_path, :class => 'button_to', :method => :get do
     = hidden_field_tag :partner, @partner.partner_identifier
-    = submit_tag 'New Payment'
+    = submit_tag 'New Payment/Adjustment'
  
