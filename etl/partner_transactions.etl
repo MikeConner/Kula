@@ -1,0 +1,60 @@
+# put this at the top of your script
+require_relative '../config/environment'
+
+# then declare your Kiba ETL script
+
+#!/usr/bin/env ruby
+
+$:.unshift "#{File.dirname(__FILE__)}/lib"
+
+require 'partner_transaction_source'
+require 'partner_transaction_destination'
+
+#TODO: Get this from Database.yml
+PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
+
+
+config = YAML.load(IO.read('config/database.yml'))
+source PartnerTransactionSource, config['replica']
+
+
+start_time = Time.now
+pre_process do
+  puts "*** START PARTNER TRANSACTIONS REPLICATION #{start_time}***"
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
+
+  @conn = PG.connect(PGDevURL)
+  @conn.exec("delete from replicated_partner_transaction")
+
+  puts "Table Clear"
+
+  puts "--------------------------------------------"
+
+end
+
+#transform FilterMD5
+
+transform do |row|
+  print "."
+  newrow = {}
+
+  newrow[:partner_transaction_id] = row[:partner_transaction_id]
+  newrow[:balance_transaction_id] = row[:balance_transaction_id]
+  newrow[:partner_id] = row[:partner_id]
+  newrow[:user_id] = row[:user_id]
+  newrow[:status] = row[:status]
+  newrow[:created] = row[:created]
+  newrow[:last_modified] = row[:last_modified]
+  newrow
+end
+
+post_process do
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts "*** End PARTNER TRANSACTIONS REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+destination PartnerTransactionDestination, PGDevURL

@@ -1,3 +1,22 @@
+CREATE TABLE replicated_partner_transaction (
+  partner_transaction_id int NOT NULL,
+  balance_transaction_id int DEFAULT NULL,
+  partner_id int NOT NULL,
+  user_id int NOT NULL,
+  status varchar(64),
+  created timestamp NOT NULL,
+  last_modified timestamp DEFAULT NULL,
+  PRIMARY KEY (partner_transaction_id)
+)
+
+
+
+CREATE TABLE replicated_partner_transaction_field (
+  partner_transaction_id int NOT NULL,
+  name varchar(30)   NOT NULL,
+  value varchar(50)   NOT NULL DEFAULT '',
+  PRIMARY KEY (partner_transaction_id,name)
+)
 
 
 CREATE TABLE replicated_partner_codes (

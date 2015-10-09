@@ -55,3 +55,21 @@ task :partner_codes_replicate => :environment do
   job_definition = Kiba.parse(script_content, etl_filename)
   Kiba.run(job_definition)
 end
+
+
+task :partner_transaction_fields_replicate => :environment do
+  etl_filename = 'etl/partner_transaction_fields.etl'
+  script_content = IO.read(etl_filename)
+  # pass etl_filename to line numbers on errors
+  job_definition = Kiba.parse(script_content, etl_filename)
+  Kiba.run(job_definition)
+end
+
+
+task :partner_transactions_replicate => :environment do
+  etl_filename = 'etl/partner_transactions.etl'
+  script_content = IO.read(etl_filename)
+  # pass etl_filename to line numbers on errors
+  job_definition = Kiba.parse(script_content, etl_filename)
+  Kiba.run(job_definition)
+end
