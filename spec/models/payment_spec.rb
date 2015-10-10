@@ -4,16 +4,17 @@
 #
 #  id             :integer          not null, primary key
 #  batch_id       :integer
-#  status         :string(16)
+#  status         :string(16)       default("Pending"), not null
 #  amount         :decimal(8, 2)    not null
 #  date           :datetime
 #  confirmation   :string(255)
-#  payment_method :string(8)
+#  payment_method :string(8)        default("Check"), not null
 #  address        :string(255)
 #  comment        :text
 #  created_at     :datetime
 #  updated_at     :datetime
-#  cause_id       :integer
+#  cause_id       :integer          not null
+#  check_num      :integer          not null
 #
 
 describe Payment do

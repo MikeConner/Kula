@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   root :to => 'static_pages#home'
 
   resources :payments, :only => [:index]
-  resources :batches, :only => [:index, :show, :new, :create]
+  resources :batches, :only => [:index, :show, :new, :create, :destroy]
   resources :partners, :only => [:index, :edit, :update] do
     member do
       get 'debt'

@@ -1,6 +1,7 @@
 class BatchesController < ApplicationController
   before_filter :authenticate_user!
-
+  before_filter :admin_or_owner, :only => [:destroy]
+  
   # GET /batches
   def index
     @batches = Batch.order('created_at DESC')
@@ -112,11 +113,82 @@ class BatchesController < ApplicationController
     end
   end
 
+  def destroy
+    causes = @batch.payments.map(&:cause_id).uniq | @batch.adjustments.map(&:cause_id).uniq
+    
+    ActiveRecord::Base.transaction do
+      @batch.payments.each do |p|
+        balance = CauseBalance.where(:partner_id => @batch.partner_id, :cause_id => p.cause_id, :year => p.date.year, :balance_type => CauseBalance::PAYMENT).first
+        if balance.nil?
+          raise "Cause Balance payment record not found when deleting batch #{@batch.id}, #{p.inspect}"
+        end
+        
+        # payments are negative, so subtracting them cancels the payment
+        adjust_cause_balance(balance, p.date.month, p.amount)
+      end
+      @batch.payments.destroy_all
+
+      @batch.adjustments.each do |a|
+        balance = CauseBalance.where(:partner_id => @batch.partner_id, :cause_id => a.cause_id, :year => a.date.year, :balance_type => CauseBalance::ADJUSTMENT).first
+        if balance.nil?
+          raise "Cause Balance payment record not found when deleting batch #{@batch.id}, #{a.inspect}"
+        end
+        
+        # payments are negative, so subtracting them cancels the payment
+        # adjustments can be either, but still want to subtract them
+        adjust_cause_balance(balance, a.date.month, a.amount)
+      end      
+      @batch.adjustments.destroy_all
+      @batch.destroy
+      
+      str_ids = causes.to_s.gsub('[','').gsub(']','')
+      ActiveRecord::Base.connection.execute("UPDATE cause_balances SET total=jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov+dec WHERE cause_id in (#{str_ids})")    
+    end
+    
+    redirect_to batches_path, :notice => 'Batch was successfully deleted'
+  end
+  
 private
   def batch_params
     params.require(:batch).permit(:partner_id, :user_id, :name, :date, :description,
                                   :payments_attributes => [:id, :status, :amount, :date, :confirmation,
                                                            :payment_method, :address, :comment, :cause_id,
                                                            :_destroy])
+  end
+  
+  def admin_or_owner
+    @batch = Batch.find(params[:id])
+    unless current_user.any_admin? or current_user.id == @batch.user_id
+      redirect_to batches_path, :alert => I18n.t('admins_only')
+    end
+  end
+  
+  def adjust_cause_balance(balance, month, amount)
+    case month
+    when 1
+      balance.update_attribute(:jan, balance.jan - amount)
+    when 2
+      balance.update_attribute(:feb, balance.feb - amount)
+    when 3
+      balance.update_attribute(:mar, balance.mar - amount)
+    when 4
+      balance.update_attribute(:apr, balance.apr - amount)
+    when 5
+      balance.update_attribute(:may, balance.may - amount)
+    when 6
+      balance.update_attribute(:jun, balance.jun - amount)
+    when 7
+      balance.update_attribute(:jul, balance.jul - amount)
+    when 8
+      balance.update_attribute(:aug, balance.aug - amount)
+    when 9
+      balance.update_attribute(:sep, balance.sep - amount)
+    when 10
+      balance.update_attribute(:oct, balance.oct - amount)
+    when 11
+      balance.update_attribute(:nov, balance.nov - amount)
+    when 12
+      balance.update_attribute(:dec, balance.dec - amount)
+    end    
   end
 end

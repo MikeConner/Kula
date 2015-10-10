@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150919215930) do
+ActiveRecord::Schema.define(version: 20151009231802) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(version: 20150919215930) do
 
   create_table "cause_transactions", id: false, force: :cascade do |t|
     t.integer  "transaction_identifier",                         null: false
-    t.integer  "partner_identifier"
+    t.integer  "partner_identifier",                             null: false
     t.integer  "month",                                          null: false
     t.integer  "year",                                           null: false
     t.decimal  "gross_amount",           precision: 8, scale: 2
@@ -78,11 +78,14 @@ ActiveRecord::Schema.define(version: 20150919215930) do
     t.decimal  "calc_distributor_fee",   precision: 6, scale: 2
     t.datetime "created_at",                                     null: false
     t.datetime "updated_at",                                     null: false
+    t.integer  "cause_identifier",                               null: false
   end
 
+  add_index "cause_transactions", ["cause_identifier"], name: "index_cause_transactions_on_cause_identifier", using: :btree
   add_index "cause_transactions", ["month", "year"], name: "index_cause_transactions_on_month_and_year", using: :btree
   add_index "cause_transactions", ["partner_identifier"], name: "index_cause_transactions_on_partner_identifier", using: :btree
   add_index "cause_transactions", ["transaction_identifier"], name: "index_cause_transactions_on_transaction_identifier", unique: true, using: :btree
+  add_index "cause_transactions", ["year"], name: "index_cause_transactions_on_year", using: :btree
 
   create_table "causes", id: false, force: :cascade do |t|
     t.string   "name",                limit: 255,                                null: false
@@ -150,19 +153,209 @@ ActiveRecord::Schema.define(version: 20150919215930) do
 
   create_table "payments", force: :cascade do |t|
     t.integer  "batch_id"
-    t.string   "status",         limit: 16
-    t.decimal  "amount",                     precision: 8, scale: 2, null: false
+    t.string   "status",         limit: 16,                          default: "Pending", null: false
+    t.decimal  "amount",                     precision: 8, scale: 2,                     null: false
     t.datetime "date"
     t.string   "confirmation",   limit: 255
-    t.string   "payment_method", limit: 8
+    t.string   "payment_method", limit: 8,                           default: "Check",   null: false
     t.string   "address",        limit: 255
     t.text     "comment"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "cause_id"
+    t.integer  "cause_id",                                                               null: false
+    t.integer  "check_num",                                                              null: false
   end
 
   add_index "payments", ["batch_id"], name: "index_payments_on_batch_id", using: :btree
+
+  create_table "replicated_balance_transactions", primary_key: "transaction_id", force: :cascade do |t|
+    t.integer  "type",                                             null: false
+    t.integer  "user_id",                                          null: false
+    t.string   "cause_id",     limit: 64
+    t.integer  "campaign_id"
+    t.integer  "category_id"
+    t.integer  "partner_id"
+    t.string   "currency",     limit: 3,                           null: false
+    t.decimal  "amount",                  precision: 11, scale: 2, null: false
+    t.integer  "status",                                           null: false
+    t.string   "session_uuid", limit: 36
+    t.datetime "updated"
+    t.datetime "created",                                          null: false
+  end
+
+  create_table "replicated_balances", id: false, force: :cascade do |t|
+    t.integer  "user_id",                                       null: false
+    t.integer  "partner_id",                                    null: false
+    t.string   "currency",   limit: 3,                          null: false
+    t.decimal  "amount",               precision: 11, scale: 2, null: false
+    t.datetime "updated"
+    t.datetime "created",                                       null: false
+  end
+
+  create_table "replicated_burn_links", primary_key: "burn_link_id", force: :cascade do |t|
+    t.integer  "burn_balance_transaction_id",                                     null: false
+    t.integer  "earn_balance_transaction_id"
+    t.integer  "type",                                                            null: false
+    t.string   "cut_payee_id",                limit: 32
+    t.decimal  "amount",                                 precision: 11, scale: 2, null: false
+    t.decimal  "cut_percent",                            precision: 6,  scale: 3
+    t.decimal  "cut_amount",                             precision: 11, scale: 2
+    t.datetime "matched",                                                         null: false
+    t.datetime "updated"
+  end
+
+  create_table "replicated_causes", primary_key: "cause_id", force: :cascade do |t|
+    t.integer  "source_id",                                            null: false
+    t.string   "source_cause_id",              limit: 64
+    t.integer  "mcr_school_id"
+    t.datetime "enhanced_date"
+    t.string   "unenhanced_cause_id",          limit: 64
+    t.string   "tax_id",                       limit: 64
+    t.integer  "type",                                     default: 1, null: false
+    t.integer  "has_ach_info",                             default: 0, null: false
+    t.integer  "k8",                                       default: 0, null: false
+    t.string   "org_name",                     limit: 255,             null: false
+    t.string   "old_org_name",                 limit: 255
+    t.string   "org_contact_first_name",       limit: 64
+    t.string   "old_org_contact_first_name",   limit: 64
+    t.string   "org_contact_last_name",        limit: 64
+    t.string   "old_org_contact_last_name",    limit: 64
+    t.string   "org_contact_email",            limit: 255
+    t.string   "old_org_contact_email",        limit: 255
+    t.string   "mcr_role",                     limit: 50
+    t.string   "mcr_user_level",               limit: 25
+    t.string   "org_email",                    limit: 255
+    t.string   "org_phone",                    limit: 64
+    t.string   "old_org_phone",                limit: 64
+    t.string   "org_fax",                      limit: 64
+    t.text     "mission"
+    t.text     "additional_description"
+    t.text     "description"
+    t.string   "address1",                     limit: 128
+    t.string   "old_address1",                 limit: 128
+    t.string   "address2",                     limit: 128
+    t.string   "address3",                     limit: 128
+    t.float    "latitude"
+    t.float    "longitude"
+    t.string   "city",                         limit: 64
+    t.string   "old_city",                     limit: 64
+    t.string   "region",                       limit: 64
+    t.string   "old_region",                   limit: 64
+    t.string   "country",                      limit: 2,               null: false
+    t.string   "postal_code",                  limit: 16
+    t.string   "old_postal_code",              limit: 16
+    t.string   "mailing_address",              limit: 128
+    t.string   "mailing_city",                 limit: 64
+    t.string   "mailing_state",                limit: 64
+    t.string   "mailing_postal_code",          limit: 16
+    t.string   "site_url",                     limit: 255
+    t.string   "old_site_url",                 limit: 255
+    t.string   "logo_url",                     limit: 255
+    t.string   "logo_small_url",               limit: 255
+    t.string   "image_url",                    limit: 255
+    t.string   "video_url",                    limit: 255
+    t.string   "facebook_url",                 limit: 255
+    t.string   "newsletter_url",               limit: 255
+    t.string   "photos_url",                   limit: 255
+    t.string   "twitter_username",             limit: 16
+    t.string   "school_grades_desc",           limit: 255
+    t.string   "school_student_range_cd_desc", limit: 255
+    t.integer  "ethnic_african_american_pct"
+    t.integer  "ethnic_asian_american_pct"
+    t.integer  "ethnic_hispanic_american_pct"
+    t.integer  "ethnic_native_american_pct"
+    t.integer  "ethnic_caucasian_pct"
+    t.text     "keywords"
+    t.text     "countries_operation"
+    t.string   "language",                     limit: 8,               null: false
+    t.string   "donation_5",                   limit: 128
+    t.string   "donation_10",                  limit: 128
+    t.string   "donation_25",                  limit: 128
+    t.string   "donation_50",                  limit: 128
+    t.string   "donation_100",                 limit: 128
+    t.integer  "is_prison_school",                         default: 0
+    t.integer  "views",                                    default: 0, null: false
+    t.integer  "donations",                                default: 0, null: false
+    t.integer  "comment_count",                            default: 0, null: false
+    t.integer  "favorite_count",                           default: 0, null: false
+    t.integer  "share_count",                              default: 0, null: false
+    t.integer  "mcr_net_points"
+    t.integer  "status"
+    t.integer  "donatable_status",                         default: 1
+    t.integer  "mcr_status"
+    t.string   "payment_first_name",           limit: 64
+    t.string   "payment_last_name",            limit: 64
+    t.string   "payment_email",                limit: 255
+    t.string   "payment_currency",             limit: 3
+    t.string   "payment_address1",             limit: 128
+    t.string   "old_payment_address1",         limit: 128
+    t.string   "payment_address2",             limit: 128
+    t.string   "old_payment_address2",         limit: 128
+    t.string   "bank_routing_number",          limit: 16
+    t.string   "bank_account_number",          limit: 32
+    t.string   "iban",                         limit: 34
+    t.string   "paypal_email",                 limit: 255
+    t.integer  "cached",                                   default: 0
+    t.datetime "updated"
+    t.datetime "old_updated"
+    t.datetime "created",                                              null: false
+    t.point    "latitude_longitude_point"
+  end
+
+  create_table "replicated_partner_codes", primary_key: "code", force: :cascade do |t|
+    t.integer  "balance_transaction_id"
+    t.integer  "partner_id",                                                            null: false
+    t.decimal  "value",                            precision: 11, scale: 2,             null: false
+    t.string   "currency",               limit: 3,                                      null: false
+    t.integer  "user_id"
+    t.datetime "created",                                                               null: false
+    t.datetime "claimed"
+    t.integer  "batch_id"
+    t.decimal  "cut_percent",                      precision: 6,  scale: 3
+    t.integer  "active",                                                    default: 1
+    t.datetime "activated"
+    t.integer  "batch_partner_id"
+  end
+
+  create_table "replicated_partner_transaction", primary_key: "partner_transaction_id", force: :cascade do |t|
+    t.integer  "balance_transaction_id"
+    t.integer  "partner_id",                        null: false
+    t.integer  "user_id",                           null: false
+    t.string   "status",                 limit: 64
+    t.datetime "created",                           null: false
+    t.datetime "last_modified"
+  end
+
+  create_table "replicated_partner_transaction_field", id: false, force: :cascade do |t|
+    t.integer "partner_transaction_id",                         null: false
+    t.string  "name",                   limit: 30,              null: false
+    t.string  "value",                  limit: 50, default: "", null: false
+  end
+
+  create_table "replicated_users", primary_key: "user_id", force: :cascade do |t|
+    t.string   "email",           limit: 255, null: false
+    t.integer  "facebook_id",     limit: 8
+    t.string   "password",        limit: 64
+    t.date     "birthday"
+    t.string   "gender",          limit: 1
+    t.string   "first_name",      limit: 64
+    t.string   "last_name",       limit: 64
+    t.string   "name_prefix",     limit: 4
+    t.string   "donor_type",      limit: 1
+    t.string   "group_name",      limit: 255
+    t.datetime "last_login"
+    t.datetime "last_activity"
+    t.datetime "account_created",             null: false
+    t.string   "address1",        limit: 128
+    t.string   "address2",        limit: 128
+    t.string   "city",            limit: 64
+    t.string   "region",          limit: 64
+    t.string   "country",         limit: 2,   null: false
+    t.string   "postal_code",     limit: 16
+    t.integer  "newsletter"
+    t.integer  "program_email"
+    t.integer  "tax_receipts"
+  end
 
   create_table "stripe_accounts", force: :cascade do |t|
     t.integer  "cause_id"

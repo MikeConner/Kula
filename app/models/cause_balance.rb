@@ -49,11 +49,11 @@ class CauseBalance < ActiveRecord::Base
   scope :payments, -> { where("balance_type = ?", PAYMENT).group(:year, :partner_id) }
   scope :transactional, -> { where("balance_type in (?)", [PAYABLE, GROSS, DISCOUNT, NET, FEE, DONEE_AMOUNT]) }
   
-  def generate_payment_batch(partner, month, year, has_ach, minimum_due = 10)
+  def self.generate_payment_batch(user_id, partner, month, year, has_ach, minimum_due = 10)
     # Get the ids of those with ACH info; this should be smaller
     ach_causes = Cause.where(:has_ach_info => true).map(&:cause_identifier)
     sum_clause = get_sum_clause(month)
-    payment_type = has_ach ? Payment::ACH : Payment::CHECK
+    payment_method = has_ach ? Payment::ACH : Payment::CHECK
     
     sql = "SELECT * FROM" + 
           "(SELECT cause_id, #{sum_clause} as balance_due from cause_balances" +
@@ -62,22 +62,81 @@ class CauseBalance < ActiveRecord::Base
     
     records = ActiveRecord::Base.connection.execute(sql)
 
-    # This assuming we're downloading it vs. creating the batch here
-    CSV.generate do |csv|
-      csv << ['cause_id', 'balance_due', 'payment type', 'status']
-      records.each do |rec|
-        cid = rec['cause_id'].to_i
-        
-        # Skip if ach_info doesn't match
-        next if ach_causes.include?(cid) ^ has_ach
-        
-        csv << [cid, rec['balance_due'].to_f, payment_type, Payment::Pending]
+    ActiveRecord::Base.transaction do
+      begin
+        partner = Partner.find(partner)
+        batch = partner.batches.create!(:user_id => user_id, 
+                                        :date => Time.now, 
+                                        :name => "Generated payment batch #{Time.now.to_s}",
+                                        :description => "month=#{month}; year=#{year}; has_ach=#{has_ach}; minimum_due=#{minimum_due}") 
+        # This assuming we're downloading it vs. creating the batch here
+        CSV.generate do |csv|
+          csv << ['check_num', 'cause_id', 'name', 'address_1', 'address_2', 'address_3', 'city', 'region', 'country', 'postal_code',
+                  'mailing_address', 'mailing_city', 'mailing_state', 'mailing_postal_code',
+                  'balance_due', 'payment type']
+
+          records.each do |rec|
+            cid = rec['cause_id'].to_i
+            
+            # Skip if ach_info doesn't match
+            next if ach_causes.include?(cid) ^ has_ach
+            
+            # Generate payment
+            cause = Cause.find(cid)
+            address = cause.mailing_address.blank? ? "#{cause.address_1} #{cause.address_2} #{cause.address_3}" : cause.mailing_address || ""
+            address += "; " unless address.blank?
+            address += cause.mailing_city.blank? ? cause.city || "" : cause.mailing_city || ""
+            address += ", " unless address.blank?
+            address += cause.mailing_state.blank? ? cause.region || "" : cause.mailing_state || ""
+            address += " " unless address.blank?
+            address += cause.mailing_postal_code.blank? ? cause.postal_code || "" : cause.mailing_postal_code || ""
+            
+            payment = batch.payments.create!(:cause_id => cid, 
+                                             :amount => rec['balance_due'].to_f, 
+                                             :date => Time.now, 
+                                             :payment_method => payment_method,
+                                             :address => address,
+                                             :check_num => 0)
+            payment.update_attribute(:check_num, payment.id)
+            balance = partner.cause_balances.create!(:cause_id => cid, :year => payment.date.year, :balance_type => PAYMENT, :total => payment.amount)
+            case payment.date.month
+              when 1
+                balance.update_attribute(:jan, payment.amount)
+              when 2
+                balance.update_attribute(:feb, payment.amount)
+              when 3
+                balance.update_attribute(:mar, payment.amount)
+              when 4
+                balance.update_attribute(:apr, payment.amount)
+              when 5
+                balance.update_attribute(:may, payment.amount)
+              when 6
+                balance.update_attribute(:jun, payment.amount)
+              when 7
+                balance.update_attribute(:jul, payment.amount)
+              when 8
+                balance.update_attribute(:aug, payment.amount)
+              when 9
+                balance.update_attribute(:sep, payment.amount)
+              when 10
+                balance.update_attribute(:oct, payment.amount)
+              when 11
+                balance.update_attribute(:nov, payment.amount)
+              when 12
+                balance.update_attribute(:dec, payment.amount)
+            end
+                                             
+            csv << [payment.id, cid, cause.name, cause.address_1, cause.address_2, cause.address_3, cause.city, cause.region, cause.country, cause.postal_code,
+                    cause.mailing_address, cause.mailing_city, cause.mailing_state, cause.mailing_postal_code,
+                    rec['balance_due'].to_f, payment_method]
+          end
+        end
       end
     end
   end
   
 private
-  def get_sum_clause(month)
+  def self.get_sum_clause(month)
     case month
     when 1
       "SUM(jan)"

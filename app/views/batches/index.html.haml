@@ -11,6 +11,7 @@
               %col{:width => "100"}/
               %col{:width => "200"}/
               %col{:width => "75"}/
+              %col{:width => "50"}/
               %thead
                 %tr
                   %th Date
@@ -20,6 +21,7 @@
                   %th # Payments
                   %th # Adjustments
                   %th User
+                  %th
               %tbody
                 - @batches.each do |batch|
                   %tr
@@ -31,3 +33,4 @@
                     %td= number_with_delimiter(batch.payments.count)
                     %td= batch.adjustments.count
                     %td== #{batch.user.email} (#{batch.user.role})
+                    %td= link_to 'Delete', batch, :method => :delete, :data => { :confirm => "Are you sure?" }
