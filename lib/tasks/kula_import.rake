@@ -358,21 +358,21 @@ namespace :db do
     puts "Reading transactions from #{current_date.to_s} to #{latest_date.to_s}"
     BATCH_SIZE = 100
     
-    partner_id = args[:partner_id].to_i
+    partner_id_param = args[:partner_id].to_i
     
     # Delete everything if all partners
-    if 0 == partner_id 
+    if 0 == partner_id_param 
       CauseTransaction.delete_all
-      Payment.delete_all
-      Adjustment.delete_all
+      #Payment.delete_all
+      #Adjustment.delete_all
       CauseBalance.delete_all
     else
       CauseTransaction.where(:partner_identifier => partner_id).delete_all
       
-      Batch.where(:partner_id => partner_id).each do |batch|
-        batch.payments.delete_all
-        batch.adjustments.delete_all
-      end
+      #Batch.where(:partner_id => partner_id).each do |batch|
+      #  batch.payments.delete_all
+      #  batch.adjustments.delete_all
+      #end
       
       CauseBalance.where(:partner_id => partner_id).delete_all
     end
@@ -381,14 +381,14 @@ namespace :db do
       start_date = current_date.to_s
       end_date = current_date.end_of_month.to_s
       
-      puts "Processing #{start_date}"
+      puts "Processing #{start_date} to #{end_date}"
       
       # fill in dates
       sql = sql_base.gsub('##START_DATE', "'#{start_date}'").gsub('##END_DATE', "'#{end_date}'")
-      if 0 == partner_id
+      if 0 == partner_id_param
         sql.gsub!('##PARTNER_CLAUSE', '')
       else
-        sql.gsub!('##PARTNER_CLAUSE', " AND bt.partner_id = #{partner_id}")
+        sql.gsub!('##PARTNER_CLAUSE', " AND bt.partner_id = #{partner_id_param}")
       end
       
       #ActiveRecord::Base.establish_connection(:test_dev).connection unless Rails.env.test_dev?
@@ -416,10 +416,9 @@ namespace :db do
               CauseTransaction.create!(r)
               
               update_cause_balances(r)
-            end
-            
+            end           
             records = []
-          end        
+          end       
         end
         
         idx += 1
@@ -489,7 +488,7 @@ namespace :db do
           update_cause_balances(r)
         end
       end
-      
+     
       current_date += 1.month
     end
     
