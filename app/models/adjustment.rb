@@ -15,6 +15,7 @@
 class Adjustment < ActiveRecord::Base
   belongs_to :batch
   belongs_to :cause
-  
+  has_one :partner, :through => :batch
+
   validates :amount, :numericality => { :only_integer => false }
 end

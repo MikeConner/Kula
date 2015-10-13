@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151009231802) do
+ActiveRecord::Schema.define(version: 20151013215614) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -63,28 +63,26 @@ ActiveRecord::Schema.define(version: 20151009231802) do
   add_index "cause_balances", ["cause_id"], name: "index_cause_balances_on_cause_id", using: :btree
   add_index "cause_balances", ["partner_id", "cause_id", "year", "balance_type"], name: "cause_balances_primary_key", unique: true, using: :btree
 
-  create_table "cause_transactions", id: false, force: :cascade do |t|
-    t.integer  "transaction_identifier",                         null: false
-    t.integer  "partner_identifier",                             null: false
-    t.integer  "month",                                          null: false
-    t.integer  "year",                                           null: false
-    t.decimal  "gross_amount",           precision: 8, scale: 2
-    t.decimal  "net_amount",             precision: 8, scale: 2
-    t.decimal  "donee_amount",           precision: 8, scale: 2
-    t.decimal  "discounts_amount",       precision: 6, scale: 2
-    t.decimal  "fees_amount",            precision: 6, scale: 2
-    t.decimal  "calc_kula_fee",          precision: 6, scale: 2
-    t.decimal  "calc_foundation_fee",    precision: 6, scale: 2
-    t.decimal  "calc_distributor_fee",   precision: 6, scale: 2
-    t.datetime "created_at",                                     null: false
-    t.datetime "updated_at",                                     null: false
-    t.integer  "cause_identifier",                               null: false
+  create_table "cause_transactions", force: :cascade do |t|
+    t.integer  "partner_identifier",                           null: false
+    t.integer  "cause_identifier",                             null: false
+    t.integer  "month",                                        null: false
+    t.integer  "year",                                         null: false
+    t.decimal  "gross_amount",         precision: 8, scale: 2
+    t.decimal  "net_amount",           precision: 8, scale: 2
+    t.decimal  "donee_amount",         precision: 8, scale: 2
+    t.decimal  "discounts_amount",     precision: 6, scale: 2
+    t.decimal  "fees_amount",          precision: 6, scale: 2
+    t.decimal  "calc_kula_fee",        precision: 6, scale: 2
+    t.decimal  "calc_foundation_fee",  precision: 6, scale: 2
+    t.decimal  "calc_distributor_fee", precision: 6, scale: 2
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
   end
 
   add_index "cause_transactions", ["cause_identifier"], name: "index_cause_transactions_on_cause_identifier", using: :btree
   add_index "cause_transactions", ["month", "year"], name: "index_cause_transactions_on_month_and_year", using: :btree
   add_index "cause_transactions", ["partner_identifier"], name: "index_cause_transactions_on_partner_identifier", using: :btree
-  add_index "cause_transactions", ["transaction_identifier"], name: "index_cause_transactions_on_transaction_identifier", unique: true, using: :btree
   add_index "cause_transactions", ["year"], name: "index_cause_transactions_on_year", using: :btree
 
   create_table "causes", id: false, force: :cascade do |t|
@@ -330,6 +328,12 @@ ActiveRecord::Schema.define(version: 20151009231802) do
     t.integer "partner_transaction_id",                         null: false
     t.string  "name",                   limit: 30,              null: false
     t.string  "value",                  limit: 50, default: "", null: false
+  end
+
+  create_table "replicated_partner_user_map", id: false, force: :cascade do |t|
+    t.integer "user_id",                         null: false
+    t.integer "partner_id",                      null: false
+    t.string  "partner_identity_id", limit: 255
   end
 
   create_table "replicated_users", primary_key: "user_id", force: :cascade do |t|

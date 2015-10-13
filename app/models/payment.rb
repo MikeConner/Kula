@@ -29,6 +29,7 @@ class Payment < ActiveRecord::Base
   
   belongs_to :batch
   belongs_to :cause
+  has_one :partner, :through => :batch
   
   validates_inclusion_of :status, :in => VALID_STATUSES
   validates :amount, :numericality => { :greater_than => 0 }
