@@ -334,7 +334,10 @@ namespace :db do
   desc "Import transactions"
   task :stepwise_import_transactions, [:partner_id] => :environment do |t, args|
     # Read from read-only replica (or our ghetto writeable copy), copy data to postgres reporting db
-    #  In the process: calculate fees and write those alongside Kula's calculations              
+    #  In the process: calculate fees and write those alongside Kula's calculations            
+    
+    # Permissions issue using Sprockets on elastic beanstalk  
+=begin
     asset = Rails.application.assets.find_asset('transaction-query-step1.sql')
     resolved_fname = asset.pathname.to_s unless asset.nil?
     
@@ -345,9 +348,10 @@ namespace :db do
     end
 
     sql_base = IO.read(resolved_fname)
-    
+=end    
     #ActiveRecord::Base.establish_connection(:development).connection unless Rails.env.test_dev?
-
+    sql_base = CauseTransaction.query_step1
+    
     current_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created LIMIT 1').first['created']).beginning_of_month
     latest_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created DESC LIMIT 1').first['created']).beginning_of_month
     
