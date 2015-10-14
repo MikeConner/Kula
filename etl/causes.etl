@@ -15,7 +15,7 @@ require 'cause_destination'
 PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
 
 
-config = YAML.load(IO.read('/Users/rasha/code/kula/config/database.yml'))
+config = YAML.load(IO.read('config/database.yml'))
 source CauseSource, config['replica']
 
 
