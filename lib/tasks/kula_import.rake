@@ -334,22 +334,10 @@ namespace :db do
   desc "Import transactions"
   task :stepwise_import_transactions, [:partner_id] => :environment do |t, args|
     # Read from read-only replica (or our ghetto writeable copy), copy data to postgres reporting db
-    #  In the process: calculate fees and write those alongside Kula's calculations            
-    
+    #  In the process: calculate fees and write those alongside Kula's calculations 
+    partner_id_param = args[:partner_id].to_i
+             
     # Permissions issue using Sprockets on elastic beanstalk  
-=begin
-    asset = Rails.application.assets.find_asset('transaction-query-step1.sql')
-    resolved_fname = asset.pathname.to_s unless asset.nil?
-    
-    unless !asset.nil? and File.exists?(resolved_fname)
-      puts "Cannot find transaction query file: transaction-query-step1.sql"
-      
-      next
-    end
-
-    sql_base = IO.read(resolved_fname)
-=end    
-    #ActiveRecord::Base.establish_connection(:development).connection unless Rails.env.test_dev?
     sql_base = CauseTransaction.query_step1
     
     current_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created LIMIT 1').first['created']).beginning_of_month
@@ -357,23 +345,13 @@ namespace :db do
     
     puts "Reading transactions from #{current_date.to_s} to #{latest_date.to_s}"
     BATCH_SIZE = 100
-    
-    partner_id_param = args[:partner_id].to_i
-    
+        
     # Delete everything if all partners
     if 0 == partner_id_param 
       CauseTransaction.delete_all
-      #Payment.delete_all
-      #Adjustment.delete_all
       CauseBalance.delete_all
     else
-      CauseTransaction.where(:partner_identifier => partner_id).delete_all
-      
-      #Batch.where(:partner_id => partner_id).each do |batch|
-      #  batch.payments.delete_all
-      #  batch.adjustments.delete_all
-      #end
-      
+      CauseTransaction.where(:partner_identifier => partner_id).delete_all      
       CauseBalance.where(:partner_id => partner_id).delete_all
     end
         
@@ -491,6 +469,86 @@ namespace :db do
      
       current_date += 1.month
     end
+
+    puts "STEP 2"
+    sql = CauseTransaction.query_step2
+    
+    if 0 == partner_id_param
+      sql.gsub!('##PARTNER_CLAUSE', '')
+    else
+      sql_base.gsub!('##PARTNER_CLAUSE', " AND bt.partner_id = #{partner_id_param}")
+    end
+    
+    transactions = ActiveRecord::Base.connection.execute(sql)
+    puts "Read #{transactions.count} discount transactions"
+
+    transactions.each do |tx|
+      partner_id = tx['partner_id'].to_i
+      distributor_id = tx['distributor_id'].to_i
+      month = tx['month'].to_i
+      year = tx['year'].to_i
+      cause_id = tx['cause_id'].to_i
+      
+      existing_tx = CauseTransaction.where(:partner_identifier => partner_id,
+                                           :cause_identifier => cause_id,
+                                           :month => month,
+                                           :year => year).first      
+      partner = Partner.find(partner_id)
+      if partner.nil?
+        puts "Could not find partner #{partner_id}"
+      else
+        fee = partner.current_kula_rate(distributor_id, Date.parse("#{year}-#{month}-01"))
+        if fee.nil?
+          # If unknown distributor, add in a 0 fee entry
+          fee = partner.kula_fees.create(:distributor_identifier => distributor_id, 
+                                         :distributor_rate => 0, 
+                                         :us_charity_rate => 0.1, 
+                                         :us_charity_kf_rate => 0.025, 
+                                         :us_school_rate => 0.1, 
+                                         :us_school_kf_rate => 0.025, 
+                                         :intl_charity_rate => 0.1, 
+                                         :intl_charity_kf_rate => 0.025)
+          puts "Added previously unknown distributor: #{distributor_id}"
+        end
+        
+        if fee.nil?
+          cause = Cause.find(cause_id)
+          puts "Could not find fee for cause #{cause_id} P=#{partner_id} D=#{distributor_id}, C=#{cause.name} School? #{cause.school?} Intl? #{cause.international?} Date:#{month}/#{year}"
+        else                        
+          distributor_fee = (fee.distributor_rate * tx['amount'].to_f).round(2)
+          
+          unless 0 == distributor_fee
+            ActiveRecord::Base.transaction do
+              if existing_tx.nil?
+                puts "Could not find CauseTransaction: #{tx.inspect} - Creating!"
+=begin
+                existing_tx = CauseTransaction.create!(:partner_identifier => partner_id,
+                                                       :cause_identifier => cause_id,
+                                                       :month => month,
+                                                       :year => year,
+                                                       :gross_amount => 0,
+                                                       :net_amount => 0,
+                                                       :donee_amount => 0,
+                                                       :discounts_amount => 0,
+                                                       :fees_amount => 0,
+                                                       :calc_kula_fee => 0,
+                                                       :calc_foundation_fee => 0,
+                                                       :calc_distributor_fee => 0)          
+=end                
+              end
+              
+              if existing_tx.nil?
+                puts "Adding fee of #{distributor_fee} to NEW transaction"
+              else
+                puts "Adding fee of #{distributor_fee} to #{existing_tx.id}"
+              end
+              #existing_tx.update_attribute(:calc_distributor_fee, distributor_fee)
+              #update_cause_balances(existing_tx.attributes.with_indifferent_access)
+            end
+          end
+        end
+      end
+    end         
     
     # Total Cause Balances
     Rake::Task["db:total_cause_balances"].invoke   

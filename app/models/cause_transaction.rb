@@ -70,4 +70,18 @@ class CauseTransaction < ActiveRecord::Base
       GROUP BY Extract(MONTH from bt.created)  , Extract( Year from bt.created), partner_id, c.cause_id
     EOT
   end
+  
+  def self.query_step2
+    <<-EOT
+      SELECT partner_id, SUM(amount) AS amount, EXTRACT(month FROM bt_created) AS month, EXTRACT(year FROM bt_created) as year, distributor_id, cause_id FROM
+          (SELECT partner_id, amount, batch_partner_id AS distributor_id, 
+              (SELECT cause_id FROM replicated_balance_transactions where transaction_id = burn_balance_transaction_id) AS cause_id,
+                  (SELECT created from replicated_balance_transactions where transaction_id = burn_balance_transaction_id) AS bt_created
+           FROM replicated_burn_links bl 
+             LEFT OUTER JOIN replicated_partner_codes pc ON pc.balance_transaction_id = bl.earn_balance_transaction_id
+               WHERE type = 2 AND batch_partner_id NOT IN (18,19)) as bob
+                 GROUP BY partner_id, cause_id, distributor_id, year, month
+                 ORDER BY year, month
+    EOT
+  end  
 end

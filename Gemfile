@@ -10,6 +10,7 @@ gem 'nokogiri', '1.6.1'
 gem 'kiba', '0.6.1'
 gem 'haml-rails', "0.9.0"
 gem 'rails_admin', '0.7.0'
+gem 'delayed_job_active_record', '4.1.0'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '5.0.4'
