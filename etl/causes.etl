@@ -10,37 +10,54 @@ $:.unshift "#{File.dirname(__FILE__)}/lib"
 require 'cause_source'
 require 'cause_destination'
 
-
 #TODO: Get this from Database.yml
 PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
 
 
 config = YAML.load(IO.read('config/database.yml'))
-source CauseSource, config['replica']
-
-
 start_time = Time.now
+
+
 pre_process do
+
+  puts "--------------------------------------------"
   puts "*** START CAUSES REPLICATION #{start_time}***"
-  puts "--------------------------------------------"
-  puts "Clearing Replicated Table"
-  puts "--------------------------------------------"
-
-  @conn = PG.connect(PGDevURL)
-  @conn.exec("delete from replicated_causes")
-
-  puts "Table Clear"
-
-  puts "--------------------------------------------"
-
 end
+
+#
+  # Count rows
+  # --- for full insert, go by cause_id
+  # --- start with limit 10000 and get max cause_id
+  # pass in > max_cause_id and get 10000
+  # end loop based on rows divided by batch size times.
+
+  # ---- this is for updates
+  # order by modified DATE
+  # Larger than MOdified date in param
+  # store in table last modified DATE
+  # Upsert if modified ate passed in or not null (insert otherwise)
+
+  # select rows after or equal to  modified date limit to batch lize
+  # select rows after or equal to  modified date limit to batch lize -> get max modified date
+     # -> insert in to table as range
+  # loop through count/batch_size times -> use last modified date to go to next one (include which means we need upsert )
+
+
+source CauseSource, config['replica']
 
 #transform FilterMD5
 
 transform do |row|
   print "."
-  newrow = {}
+  newrow = row
+  newrow
+end
 
+
+destination CauseDestination, PGDevURL
+
+
+=begin
   newrow[:cause_id] = row[:cause_id]
   newrow[:source_id] = row[:source_id]
   newrow[:source_cause_id] = row[:source_cause_id]
@@ -136,16 +153,17 @@ transform do |row|
   newrow[:updated] = row[:updated]
   newrow[:old_updated] = row[:old_updated]
   newrow[:created] = row[:created]
+=end
 
-
-  newrow
-end
 
 post_process do
+ 
   end_time = Time.now
   duration_in_minutes = (end_time - start_time)/60
+  puts ""
   puts "*** End CAUSES REPLICATION #{end_time}***"
   puts "*** Duration (min): #{duration_in_minutes.round(2)}"
-end
 
-destination CauseDestination, PGDevURL
+
+
+end

@@ -118,15 +118,10 @@ $86,
 $87,
 $88,
 $89,
-$90,
-$91,
-$92,
-$93,
-$94,
-$95)')
+$90,$91,$92,$93,$94,$95)')
 
 
- 
+
 
     #INSERT INTO replicated_causes(cause_id, org_name) VALUES ($1, $2)
   end

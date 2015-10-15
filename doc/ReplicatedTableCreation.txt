@@ -1,3 +1,12 @@
+
+CREATE TABLE replicated_partner_user_map (
+  user_id int NOT NULL  ,
+  partner_id int NOT NULL  ,
+  partner_identity_id varchar(255)   DEFAULT NULL  ,
+  PRIMARY KEY (user_id,partner_id)
+)
+
+
 CREATE TABLE replicated_partner_transaction (
   partner_transaction_id int NOT NULL,
   balance_transaction_id int DEFAULT NULL,
