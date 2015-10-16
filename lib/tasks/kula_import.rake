@@ -532,7 +532,7 @@ namespace :db do
   # One-Off!
   task :initialize_cause_identifier => :environment do
     puts ReplicatedCause.count
-    ReplicatedCause.where(:cause_identifier => null).find_in_batches do |batch|
+    ReplicatedCause.where(:cause_identifier => :null).find_in_batches do |batch|
       batch.each { |c| c.update_attribute(:cause_identifier, c.cause_id.to_i) }
       puts "Batch processed. #{ReplicatedCause.where('cause_identifier IS NOT NULL')}"
     end
