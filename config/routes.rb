@@ -16,7 +16,7 @@ Rails.application.routes.draw do
       post 'make_batch'
     end
   end
-  resources :causes, :only => [:index, :show]
+  resources :replicated_causes, :only => [:index, :show], :controller => 'causes', :as => 'causes'
   resources :adjustments, :only => [:new, :create]
   resources :users, :except => [:create]
   

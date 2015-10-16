@@ -42,7 +42,7 @@ class PartnersController < ApplicationController
   def make_batch
     @partner = Partner.find_by_partner_identifier(params[:id])
     @owed = calculate_debt(params[:minimum_ach].to_i, params[:minimum_check].to_i)
-    @ach_causes = Cause.where(:has_ach_info => true).map(&:cause_identifier)
+    @ach_causes = ReplicatedCause.where(:has_ach_info => true).map(&:cause_identifier)
     
     if @owed.empty?
       redirect_to batches_path, :notice => 'No valid Payments; No batch created.'
@@ -68,7 +68,7 @@ class PartnersController < ApplicationController
 private
   def calculate_debt(threshold_ach = 0, threshold_check = 0)
     @owed = Hash.new
-    @ach_causes = Cause.where(:has_ach_info => true).map(&:cause_identifier)
+    @ach_causes = ReplicatedCause.where(:has_ach_info => true).map(&:cause_identifier)
     
     CauseBalance.where('partner_id = ? AND ((balance_type = ?) OR (balance_type = ?))', 
                        @partner.id, CauseBalance::PAYABLE, CauseBalance::PAYMENT).each do |balance|

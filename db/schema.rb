@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151015220746) do
+ActiveRecord::Schema.define(version: 20151016040640) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -84,35 +84,6 @@ ActiveRecord::Schema.define(version: 20151015220746) do
   add_index "cause_transactions", ["month", "year"], name: "index_cause_transactions_on_month_and_year", using: :btree
   add_index "cause_transactions", ["partner_identifier"], name: "index_cause_transactions_on_partner_identifier", using: :btree
   add_index "cause_transactions", ["year"], name: "index_cause_transactions_on_year", using: :btree
-
-  create_table "causes", id: false, force: :cascade do |t|
-    t.string   "name",                limit: 255,                                null: false
-    t.integer  "cause_type",                                                     null: false
-    t.boolean  "has_ach_info",                                   default: false, null: false
-    t.string   "email",               limit: 255
-    t.string   "phone",               limit: 64
-    t.string   "fax",                 limit: 64
-    t.string   "tax_id",              limit: 64
-    t.string   "address_1",           limit: 128
-    t.string   "address_2",           limit: 128
-    t.string   "address_3",           limit: 128
-    t.string   "city",                limit: 64
-    t.string   "region",              limit: 64
-    t.string   "country",             limit: 2,                                  null: false
-    t.string   "postal_code",         limit: 16
-    t.string   "mailing_address",     limit: 128
-    t.string   "mailing_city",        limit: 64
-    t.string   "mailing_state",       limit: 64
-    t.string   "mailing_postal_code", limit: 16
-    t.string   "site_url",            limit: 255
-    t.string   "logo_url",            limit: 255
-    t.decimal  "latitude",                        precision: 10
-    t.decimal  "longitude",                       precision: 10
-    t.text     "mission"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "cause_identifier",                                               null: false
-  end
 
   create_table "delayed_jobs", force: :cascade do |t|
     t.integer  "priority",   default: 0, null: false
@@ -225,7 +196,7 @@ ActiveRecord::Schema.define(version: 20151015220746) do
     t.datetime "enhanced_date"
     t.string   "unenhanced_cause_id",          limit: 64
     t.string   "tax_id",                       limit: 64
-    t.integer  "type",                                     default: 1, null: false
+    t.integer  "cause_type",                               default: 1, null: false
     t.integer  "has_ach_info",                             default: 0, null: false
     t.integer  "k8",                                       default: 0, null: false
     t.string   "org_name",                     limit: 255,             null: false
@@ -314,6 +285,7 @@ ActiveRecord::Schema.define(version: 20151015220746) do
     t.datetime "old_updated"
     t.datetime "created",                                              null: false
     t.point    "latitude_longitude_point"
+    t.integer  "cause_identifier"
   end
 
   create_table "replicated_partner_codes", primary_key: "code", force: :cascade do |t|

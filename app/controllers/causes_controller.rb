@@ -7,11 +7,11 @@ class CausesController < ApplicationController
     
     where_clause = @cause_name.blank? ? '' : "WHERE name LIKE '%#{@cause_name}%'"
     sql = 'SELECT *,' +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER::integer and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER::integer  and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER::integer  and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER::integer  and balance_type in('#{CauseBalance::ADJUSTMENT}')) as adj_balance" +
-          " FROM causes #{where_clause} ORDER BY name;"
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = replicated_causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = replicated_causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = replicated_causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = replicated_causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::ADJUSTMENT}')) as adj_balance" +
+          " FROM replicated_causes #{where_clause} ORDER BY org_name;"
 
     @cause_data = []
     
