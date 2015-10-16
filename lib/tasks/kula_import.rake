@@ -513,29 +513,12 @@ namespace :db do
             ActiveRecord::Base.transaction do
               if existing_tx.nil?
                 puts "Could not find CauseTransaction: #{tx.inspect} - Creating!"
-=begin
-                existing_tx = CauseTransaction.create!(:partner_identifier => partner_id,
-                                                       :cause_identifier => cause_id,
-                                                       :month => month,
-                                                       :year => year,
-                                                       :gross_amount => 0,
-                                                       :net_amount => 0,
-                                                       :donee_amount => 0,
-                                                       :discounts_amount => 0,
-                                                       :fees_amount => 0,
-                                                       :calc_kula_fee => 0,
-                                                       :calc_foundation_fee => 0,
-                                                       :calc_distributor_fee => 0)          
-=end                
+              else             
+                existing_tx.update_attribute(:calc_distributor_fee, distributor_fee)
+                update_cause_balances(existing_tx.attributes.with_indifferent_access)
+
+                puts "Added fee #{distributor_fee} to #{existing_tx.id}"
               end
-              
-              if existing_tx.nil?
-                puts "Adding fee of #{distributor_fee} to NEW transaction"
-              else
-                puts "Adding fee of #{distributor_fee} to #{existing_tx.id}"
-              end
-              #existing_tx.update_attribute(:calc_distributor_fee, distributor_fee)
-              #update_cause_balances(existing_tx.attributes.with_indifferent_access)
             end
           end
         end
