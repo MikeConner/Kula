@@ -349,15 +349,15 @@ namespace :db do
     # Delete everything if all partners
     if 0 == partner_id_param 
       CauseTransaction.delete_all
-      CauseBalance.delete_all
+      CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
     else
       CauseTransaction.where(:partner_identifier => partner_id).delete_all      
-      CauseBalance.where(:partner_id => partner_id).delete_all
+      CauseBalance.where(:partner_id => partner_id).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
     end
         
     while current_date <= latest_date do
       start_date = current_date.to_s
-      end_date = current_date.end_of_month.to_s
+      end_date = (current_date + 1.month).to_s
       
       puts "Processing #{start_date} to #{end_date}"
       
@@ -505,8 +505,7 @@ namespace :db do
         end
         
         if fee.nil?
-          cause = Cause.find(cause_id)
-          puts "Could not find fee for cause #{cause_id} P=#{partner_id} D=#{distributor_id}, C=#{cause.name} School? #{cause.school?} Intl? #{cause.international?} Date:#{month}/#{year}"
+           puts "Could not find fee for cause #{cause_id} P=#{partner_id} D=#{distributor_id}, Date:#{month}/#{year}"
         else                        
           distributor_fee = (fee.distributor_rate * tx['amount'].to_f).round(2)
           
