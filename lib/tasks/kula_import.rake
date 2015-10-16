@@ -529,6 +529,15 @@ namespace :db do
     Rake::Task["db:total_cause_balances"].invoke   
   end
   
+  # One-Off!
+  task :initialize_cause_identifier => :environment do
+    puts ReplicatedCause.count
+    ReplicatedCause.where(:cause_identifier => null).find_in_batches do |batch|
+      batch.each { |c| c.update_attribute(:cause_identifier, c.cause_id.to_i) }
+      puts "Batch processed. #{ReplicatedCause.where('cause_identifier IS NOT NULL')}"
+    end
+  end
+  
   task :total_cause_balances => :environment do
     #ActiveRecord::Base.establish_connection(:production).connection unless Rails.env.production?    
     ActiveRecord::Base.connection.execute('UPDATE cause_balances SET total=jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov+dec')
