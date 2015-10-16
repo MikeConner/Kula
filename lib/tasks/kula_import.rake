@@ -344,7 +344,7 @@ namespace :db do
     latest_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created DESC LIMIT 1').first['created']).beginning_of_month
     
     puts "Reading transactions from #{current_date.to_s} to #{latest_date.to_s}"
-    BATCH_SIZE = 100
+    BATCH_SIZE = 500
         
     # Delete everything if all partners
     if 0 == partner_id_param 
