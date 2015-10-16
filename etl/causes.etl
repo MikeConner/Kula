@@ -50,6 +50,8 @@ source CauseSource, config['replica']
 transform do |row|
   print "."
   newrow = row
+  newrow[:cause_type] = row[:type]
+  
   newrow
 end
 
@@ -157,7 +159,7 @@ destination CauseDestination, PGDevURL
 
 
 post_process do
- 
+
   end_time = Time.now
   duration_in_minutes = (end_time - start_time)/60
   puts ""

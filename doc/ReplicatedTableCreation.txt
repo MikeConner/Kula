@@ -132,7 +132,7 @@ CREATE TABLE replicated_causes (
   enhanced_date timestamp DEFAULT NULL,
   unenhanced_cause_id varchar(64)  DEFAULT NULL,
   tax_id varchar(64)  DEFAULT NULL,
-  type int NOT NULL DEFAULT '1',
+  cause_type int NOT NULL DEFAULT '1',
   has_ach_info int NOT NULL DEFAULT '0',
   k8 int NOT NULL DEFAULT '0',
   org_name varchar(255)  NOT NULL,
@@ -221,6 +221,7 @@ CREATE TABLE replicated_causes (
   old_updated timestamp DEFAULT NULL,
   created timestamp NOT NULL,
   latitude_longitude_point point DEFAULT NULL,
+    cause_identifier int, 
   PRIMARY KEY (cause_id)
 
 )

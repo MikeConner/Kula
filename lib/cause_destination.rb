@@ -9,7 +9,7 @@ class CauseDestination
     #TODO - Insert Cause Statement
     @conn.prepare('insert_user_stmt', 'INSERT INTO replicated_causes(
             cause_id, source_id, source_cause_id, mcr_school_id, enhanced_date,
-            unenhanced_cause_id, tax_id, type, has_ach_info, k8, org_name,
+            unenhanced_cause_id, tax_id, cause_type, has_ach_info, k8, org_name,
             old_org_name, org_contact_first_name, old_org_contact_first_name,
             org_contact_last_name, old_org_contact_last_name, org_contact_email,
             old_org_contact_email, mcr_role, mcr_user_level, org_email, org_phone,
@@ -28,7 +28,7 @@ class CauseDestination
             payment_first_name, payment_last_name, payment_email, payment_currency,
             payment_address1, old_payment_address1, payment_address2, old_payment_address2,
             bank_routing_number, bank_account_number, iban, paypal_email,
-            cached, updated, old_updated, created)
+            cached, updated, old_updated, created, cause_identifier)
     VALUES ($1,
 $2,
 $3,
@@ -137,7 +137,7 @@ $90,$91,$92,$93,$94,$95)')
       row[:enhanced_date],
       row[:unenhanced_cause_id],
       row[:tax_id],
-      row[:type],
+      row[:cause_type],
       row[:has_ach_info],
       row[:k8],
       row[:org_name],
