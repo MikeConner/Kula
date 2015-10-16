@@ -376,11 +376,6 @@ namespace :db do
       puts "Read #{transactions.count} transactions"
 
       # Now point to postgres
-      #ActiveRecord::Base.establish_connection(:production).connection
-      
-      existing_causes = Cause.all.map(&:id) if existing_causes.nil?
-      puts "#{existing_causes.count} causes"
-
       puts "Processing transactions..."
       
       idx = 0
@@ -401,9 +396,7 @@ namespace :db do
         
         idx += 1
 
-        cid = tx['causeid'].to_i
-        puts "Missing cause #{cid}" unless existing_causes.include?(cid)
-        
+        cid = tx['causeid'].to_i        
         partner_id = tx['partnerid'].to_i        
         month = tx['month'].to_i
         year = tx['year'].to_i
