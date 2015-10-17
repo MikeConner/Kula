@@ -1,7 +1,7 @@
 %h1= @user.email
 = form_for @user do |f|
   = render :partial => 'shared/error_messages', :locals => { :errors => @user.errors, :name => 'User' }
-  = render :partial => 'user_fields', :locals => { :f => f }
+  = render :partial => 'user_fields', :locals => { :f => f, :cause => @cause, :partners => @partners }
   %br
   = f.submit 'Update User'
 %br

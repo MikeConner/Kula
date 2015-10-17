@@ -124,7 +124,7 @@ CREATE TABLE replicated_balances (
 
 
 
-CREATE TABLE replicated_causes (
+CREATE TABLE causes (
   cause_id varchar(64)  NOT NULL,
   source_id int   NOT NULL,
   source_cause_id varchar(64)  DEFAULT NULL,
@@ -221,7 +221,7 @@ CREATE TABLE replicated_causes (
   old_updated timestamp DEFAULT NULL,
   created timestamp NOT NULL,
   latitude_longitude_point point DEFAULT NULL,
-    cause_identifier int, 
+  cause_identifier int, 
   PRIMARY KEY (cause_id)
 
 )

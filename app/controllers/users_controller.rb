@@ -12,6 +12,8 @@ class UsersController < ApplicationController
   # GET /users/:id/edit
   def edit
     @user = User.find(params[:id])
+    @partners = Partner.order(:display_name)
+    @cause = @user.cause.nil? ? '' : @user.cause.org_name
     
     render :layout => 'admin'
   end
@@ -20,7 +22,11 @@ class UsersController < ApplicationController
   def update
     @user = User.find(params[:id])
     @user.partner_id = nil unless params[:user].has_key?(:partner_id)
-    @user.cause_id = nil unless params[:user].has_key?(:cause_id)      
+    if params[:user].has_key?(:cause)  
+      @user.cause_id = Cause.find_by_org_name(params[:user][:cause]).first
+    else
+      @user.cause_id = nil     
+    end
     
     if @user.update_attributes(user_params)
       redirect_to users_path, :notice => 'User successfully updated'
@@ -47,7 +53,7 @@ class UsersController < ApplicationController
 
     redirect_to users_path, :notice => 'User successfully destroyed'
   end
-  
+
 private
   def user_params
     params.require(:user).permit(:email, :role, :partner_id, :cause_id)

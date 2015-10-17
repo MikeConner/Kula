@@ -77,4 +77,13 @@ class CausesController < ApplicationController
         
     render :layout => 'admin'
   end
+  
+  def autocomplete
+    @causes = Cause.where("org_name ILIKE ?", "%#{params[:term]}%").order(:org_name)
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @causes.map(&:org_name) }
+    end    
+  end
 end

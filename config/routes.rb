@@ -16,7 +16,11 @@ Rails.application.routes.draw do
       post 'make_batch'
     end
   end
-  resources :causes, :only => [:index, :show]
+  
+  resources :causes, :only => [:index, :show] do
+    get 'autocomplete', :on => :collection
+  end
+  
   resources :adjustments, :only => [:new, :create]
   resources :users, :except => [:create]
   

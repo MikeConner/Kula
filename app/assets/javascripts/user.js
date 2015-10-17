@@ -10,6 +10,10 @@ $(function() {
   if ($('#editing_user').val() != undefined ) {
     update_affiliation();
   }
+  $("#autocompleted_cause").autocomplete({
+    source: '/causes/autocomplete.json',
+    minLength: 3
+  });  
 });
   
 function update_affiliation() {
