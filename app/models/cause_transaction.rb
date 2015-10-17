@@ -40,7 +40,7 @@ class CauseTransaction < ActiveRecord::Base
     c.org_name as CauseName,
 
     c.country AS Country,
-    c.type as CauseType
+    c.cause_type as CauseType
     FROM
         replicated_balance_transactions bt
 
