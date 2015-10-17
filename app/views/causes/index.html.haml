@@ -38,10 +38,12 @@
     %tbody
       - @causes.each do |cause|
         %tr
+          - color = cause[:adjustments] < 0 ? "color:red" : ""
           %td= link_to cause[:name], cause[:path]
           %td= number_to_currency(cause[:due])
           %td= number_to_currency(cause[:donated])
           %td= number_to_currency(cause[:payments])
-          %td= number_to_currency(cause[:adjustments])
+          %td{:style => color}
+            = number_to_currency(cause[:adjustments].abs)
   
   %center= foundation_paginate @causes

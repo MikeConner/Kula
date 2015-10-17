@@ -5,13 +5,13 @@ class CausesController < ApplicationController
     @cause_name = (params[:cause_name] || "").gsub('*', '%')
     @min_balance = params[:min_balance].to_f
     
-    where_clause = @cause_name.blank? ? '' : "WHERE name LIKE '%#{@cause_name}%'"
+    where_clause = @cause_name.blank? ? '' : "WHERE org_name LIKE '%#{@cause_name}%'"
     sql = 'SELECT *,' +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = replicated_causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = replicated_causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = replicated_causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = replicated_causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::ADJUSTMENT}')) as adj_balance" +
-          " FROM replicated_causes #{where_clause} ORDER BY org_name;"
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
+          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::ADJUSTMENT}')) as adj_balance" +
+          " FROM causes #{where_clause} ORDER BY org_name;"
 
     @cause_data = []
     
@@ -20,12 +20,15 @@ class CausesController < ApplicationController
       due = line['balance_due'].to_f
       donated = line['donated_balance'].to_f
       payments = line['payments_balance'].to_f
+      unless 0 == payments
+        payments *= -1
+      end
       adjustments = line['adj_balance'].to_f
       
       next if due.nil? and donated.nil? and payments.nil? and adjustments.nil?
       next unless (0 == @min_balance) or (due >= @min_balance)
       
-      @cause_data.push({:name => line['name'], :path => cause_path(line['cause_identifier']), :due => due, :donated => donated, :payments => payments, :adjustments => adjustments})
+      @cause_data.push({:name => line['org_name'], :path => cause_path(line['cause_identifier']), :due => due, :donated => donated, :payments => payments, :adjustments => adjustments})
     end
  
     @causes = @cause_data.paginate(:page => params[:page])

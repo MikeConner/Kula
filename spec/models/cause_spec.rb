@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: replicated_causes
+# Table name: causes
 #
 #  cause_id                     :string(64)       not null, primary key
 #  source_id                    :integer          not null
@@ -98,7 +98,11 @@
 #  old_updated                  :datetime
 #  created                      :datetime         not null
 #  latitude_longitude_point     :point
+#  cause_identifier             :integer          not null
 #
 
-class ReplicatedCause < ActiveRecord::Base
+require 'rails_helper'
+
+RSpec.describe Cause, type: :model do
+  pending "add some examples to (or delete) #{__FILE__}"
 end

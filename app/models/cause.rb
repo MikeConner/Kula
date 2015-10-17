@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: replicated_causes
+# Table name: causes
 #
 #  cause_id                     :string(64)       not null, primary key
 #  source_id                    :integer          not null
@@ -98,10 +98,37 @@
 #  old_updated                  :datetime
 #  created                      :datetime         not null
 #  latitude_longitude_point     :point
+#  cause_identifier             :integer          not null
 #
 
-require 'rails_helper'
+class Cause < ActiveRecord::Base
+  include ApplicationHelper
+    
+  CAUSE_TYPE = 1
+  SCHOOL_TYPE = 2
+  VALID_TYPES = [CAUSE_TYPE, SCHOOL_TYPE]
+  
+  MAX_COUNTRY_LEN = 2 
+  MAX_SMALL = 16
+  MAX_MEDIUM = 64
+  MAX_LARGE = 128
+  
+  has_many :cause_balances, :dependent => :restrict_with_exception
 
-RSpec.describe ReplicatedCause, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  validates_presence_of :name, :cause_type, :country
+  validates_inclusion_of :has_ach_info, :in => [true, false]
+  validates_inclusion_of :cause_type, :in => VALID_TYPES
+  validates :country, :length => { :maximum => MAX_COUNTRY_LEN }
+  # NOTE: Apparently emails are not unique, or always valid!
+  validates :postal_code, :mailing_postal_code, :length => { :maximum => MAX_SMALL }, :allow_nil => true
+  validates :phone, :fax, :tax_id, :city, :region, :mailing_city, :mailing_state, :length => { :maximum => MAX_MEDIUM }, :allow_nil => true
+  validates :address_1, :address_2, :address_3, :mailing_address, :length => { :maximum => MAX_LARGE }, :allow_nil => true
+  
+  def school?
+    SCHOOL_TYPE == self.cause_type
+  end
+  
+  def international?
+    'US' != self.country
+  end
 end

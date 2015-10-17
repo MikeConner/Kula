@@ -29,7 +29,7 @@
             - batch_display = payment.batch_id
             - last_batch = batch_display
           %td= batch_display
-          %td= payment.cause.name
+          %td= payment.cause.org_name
           %td= payment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
           %td= payment.payment_method
           %td= payment.status

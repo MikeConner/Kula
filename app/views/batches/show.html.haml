@@ -28,7 +28,7 @@
               %tbody
                 - @payments.each do |payment|
                   %tr
-                    %td= payment.cause.name
+                    %td= payment.cause.org_name
                     %td= payment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
                     %td= number_to_currency(payment.amount)
                     %td= payment.payment_method
@@ -53,9 +53,10 @@
                 %tbody
                   - @adjustments.each do |adjustment|
                     %tr
-                      %td= adjustment.cause.name
+                      %td= adjustment.cause.org_name
                       %td= adjustment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
-                      %td= number_to_currency(adjustment.amount)
+                      %td{:style => adjustment.amount < 0 ? "color:red" : ""}
+                        = number_to_currency(adjustment.amount.abs)
                       %td= adjustment.comment
           .row
             = link_to 'Add Adjustment', new_adjustment_path(:batch_id => @batch.id)

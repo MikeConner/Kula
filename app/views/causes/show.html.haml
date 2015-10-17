@@ -1,7 +1,7 @@
 - if @partner_balances.empty?
   %h1 No balances for this cause
 - else
-  %h1= @cause.nil? ? nil : @cause.name
+  %h1= @cause.nil? ? nil : @cause.org_name
   - @partner_balances.each do |partner_id, balance_data|
     %table.table.zebra-striped
       %caption= Partner.find_by_partner_identifier(partner_id).name
@@ -31,11 +31,12 @@
         - balance_data.each do |year, balances|
           %tr
             %td= year
-            %td{:style => balances[:amount_due] < 0 ? 'color:red' : 'color:black'}
-              = number_to_currency(balances[:amount_due])
+            %td{:style => balances[:amount_due] < 0 ? 'color:red' : ''}
+              = number_to_currency(balances[:amount_due].abs)
             %td= number_to_currency(balances[:donee])
-            %td= number_to_currency(-balances[:payments])
-            %td= number_to_currency(-balances[:adjustments])
+            %td= number_to_currency(balances[:payments].abs)
+            %td{:style => balances[:adjustments] < 0 ? 'color:red' : ''} 
+              = number_to_currency(balances[:adjustments].abs)
             %td= number_to_currency(balances[:gross])
             %td= number_to_currency(balances[:discount])
             %td= number_to_currency(balances[:net])

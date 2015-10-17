@@ -51,7 +51,7 @@ class CauseBalance < ActiveRecord::Base
   
   def self.generate_payment_batch(user_id, partner, month, year, has_ach, minimum_due = 10)
     # Get the ids of those with ACH info; this should be smaller
-    ach_causes = ReplicatedCause.where(:has_ach_info => true).map(&:cause_identifier)
+    ach_causes = Cause.where(:has_ach_info => true).map(&:cause_identifier)
     sum_clause = get_sum_clause(month)
     payment_method = has_ach ? Payment::ACH : Payment::CHECK
     
@@ -126,7 +126,7 @@ class CauseBalance < ActiveRecord::Base
                 balance.update_attribute(:dec, payment.amount)
             end
                                              
-            csv << [payment.id, cid, cause.name, cause.address_1, cause.address_2, cause.address_3, cause.city, cause.region, cause.country, cause.postal_code,
+            csv << [payment.id, cid, cause.org_name, cause.address_1, cause.address_2, cause.address_3, cause.city, cause.region, cause.country, cause.postal_code,
                     cause.mailing_address, cause.mailing_city, cause.mailing_state, cause.mailing_postal_code,
                     rec['balance_due'].to_f, payment_method]
           end

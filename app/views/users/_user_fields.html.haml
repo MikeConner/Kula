@@ -9,5 +9,5 @@
   = f.select :partner_id, options_from_collection_for_select(Partner.order(:display_name), 'partner_identifier', 'display_name', f.object.partner_id), :prompt => 'Select a Partner'
 .field#cause_section{:style => 'display:none'}
   = f.label :cause_id
-  = f.select :cause_id, options_from_collection_for_select(Cause.order(:name), 'cause_identifier', 'name', f.object.cause_id), :prompt => 'Select a Cause'
+  = f.select :cause_id, options_from_collection_for_select(Cause.order(:org_name), 'cause_identifier', 'org_name', f.object.cause_id), :prompt => 'Select a Cause'
 #editing_user

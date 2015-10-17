@@ -25,7 +25,7 @@ class PartnersController < ApplicationController
   def debt
     @partner = Partner.find_by_partner_identifier(params[:id])
 
-    @causes = CauseBalance.where(:partner_id => @partner.partner_identifier).pluck(:cause_id).uniq.inject({}) { |s, n| s.merge(n => (Cause.find_by_cause_identifier(n) || Cause.new(:name => '?')).name) }
+    @causes = CauseBalance.where(:partner_id => @partner.partner_identifier).pluck(:cause_id).uniq.inject({}) { |s, n| s.merge(n => (Cause.find_by_cause_identifier(n) || Cause.new(:org_name => '?')).org_name) }
     @owed = calculate_debt
     
     render :layout => 'admin'    
@@ -42,7 +42,7 @@ class PartnersController < ApplicationController
   def make_batch
     @partner = Partner.find_by_partner_identifier(params[:id])
     @owed = calculate_debt(params[:minimum_ach].to_i, params[:minimum_check].to_i)
-    @ach_causes = ReplicatedCause.where(:has_ach_info => true).map(&:cause_identifier)
+    @ach_causes = Cause.where(:has_ach_info => true).map(&:cause_identifier)
     
     if @owed.empty?
       redirect_to batches_path, :notice => 'No valid Payments; No batch created.'
@@ -68,19 +68,15 @@ class PartnersController < ApplicationController
 private
   def calculate_debt(threshold_ach = 0, threshold_check = 0)
     @owed = Hash.new
-    @ach_causes = ReplicatedCause.where(:has_ach_info => true).map(&:cause_identifier)
+    @ach_causes = Cause.where(:has_ach_info => true).map(&:cause_identifier)
     
-    CauseBalance.where('partner_id = ? AND ((balance_type = ?) OR (balance_type = ?))', 
-                       @partner.id, CauseBalance::PAYABLE, CauseBalance::PAYMENT).each do |balance|
+    CauseBalance.where('partner_id = ? AND balance_type = ?', 
+                       @partner.id, CauseBalance::PAYMENT).each do |balance|
       unless @owed.has_key?(balance.cause_id)
         @owed[balance.cause_id] = 0
       end
       
-      if CauseBalance::PAYABLE == balance.balance_type
-        @owed[balance.cause_id] += balance.total
-      elsif CauseBalance::PAYMENT == balance.balance_type
-        @owed[balance.cause_id] -= balance.total        
-      end
+      @owed[balance.cause_id] -= balance.total        
     end
 
     @owed.select { |k, v| v >= (@ach_causes.include?(k) ? threshold_ach : threshold_check) }.sort_by { |k, v| v }.reverse 

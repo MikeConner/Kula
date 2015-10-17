@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151016040640) do
+ActiveRecord::Schema.define(version: 20151017034826) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -84,6 +84,109 @@ ActiveRecord::Schema.define(version: 20151016040640) do
   add_index "cause_transactions", ["month", "year"], name: "index_cause_transactions_on_month_and_year", using: :btree
   add_index "cause_transactions", ["partner_identifier"], name: "index_cause_transactions_on_partner_identifier", using: :btree
   add_index "cause_transactions", ["year"], name: "index_cause_transactions_on_year", using: :btree
+
+  create_table "causes", primary_key: "cause_id", force: :cascade do |t|
+    t.integer  "source_id",                                            null: false
+    t.string   "source_cause_id",              limit: 64
+    t.integer  "mcr_school_id"
+    t.datetime "enhanced_date"
+    t.string   "unenhanced_cause_id",          limit: 64
+    t.string   "tax_id",                       limit: 64
+    t.integer  "cause_type",                               default: 1, null: false
+    t.integer  "has_ach_info",                             default: 0, null: false
+    t.integer  "k8",                                       default: 0, null: false
+    t.string   "org_name",                     limit: 255,             null: false
+    t.string   "old_org_name",                 limit: 255
+    t.string   "org_contact_first_name",       limit: 64
+    t.string   "old_org_contact_first_name",   limit: 64
+    t.string   "org_contact_last_name",        limit: 64
+    t.string   "old_org_contact_last_name",    limit: 64
+    t.string   "org_contact_email",            limit: 255
+    t.string   "old_org_contact_email",        limit: 255
+    t.string   "mcr_role",                     limit: 50
+    t.string   "mcr_user_level",               limit: 25
+    t.string   "org_email",                    limit: 255
+    t.string   "org_phone",                    limit: 64
+    t.string   "old_org_phone",                limit: 64
+    t.string   "org_fax",                      limit: 64
+    t.text     "mission"
+    t.text     "additional_description"
+    t.text     "description"
+    t.string   "address1",                     limit: 128
+    t.string   "old_address1",                 limit: 128
+    t.string   "address2",                     limit: 128
+    t.string   "address3",                     limit: 128
+    t.float    "latitude"
+    t.float    "longitude"
+    t.string   "city",                         limit: 64
+    t.string   "old_city",                     limit: 64
+    t.string   "region",                       limit: 64
+    t.string   "old_region",                   limit: 64
+    t.string   "country",                      limit: 2,               null: false
+    t.string   "postal_code",                  limit: 16
+    t.string   "old_postal_code",              limit: 16
+    t.string   "mailing_address",              limit: 128
+    t.string   "mailing_city",                 limit: 64
+    t.string   "mailing_state",                limit: 64
+    t.string   "mailing_postal_code",          limit: 16
+    t.string   "site_url",                     limit: 255
+    t.string   "old_site_url",                 limit: 255
+    t.string   "logo_url",                     limit: 255
+    t.string   "logo_small_url",               limit: 255
+    t.string   "image_url",                    limit: 255
+    t.string   "video_url",                    limit: 255
+    t.string   "facebook_url",                 limit: 255
+    t.string   "newsletter_url",               limit: 255
+    t.string   "photos_url",                   limit: 255
+    t.string   "twitter_username",             limit: 16
+    t.string   "school_grades_desc",           limit: 255
+    t.string   "school_student_range_cd_desc", limit: 255
+    t.integer  "ethnic_african_american_pct"
+    t.integer  "ethnic_asian_american_pct"
+    t.integer  "ethnic_hispanic_american_pct"
+    t.integer  "ethnic_native_american_pct"
+    t.integer  "ethnic_caucasian_pct"
+    t.text     "keywords"
+    t.text     "countries_operation"
+    t.string   "language",                     limit: 8,               null: false
+    t.string   "donation_5",                   limit: 128
+    t.string   "donation_10",                  limit: 128
+    t.string   "donation_25",                  limit: 128
+    t.string   "donation_50",                  limit: 128
+    t.string   "donation_100",                 limit: 128
+    t.integer  "is_prison_school",                         default: 0
+    t.integer  "views",                                    default: 0, null: false
+    t.integer  "donations",                                default: 0, null: false
+    t.integer  "comment_count",                            default: 0, null: false
+    t.integer  "favorite_count",                           default: 0, null: false
+    t.integer  "share_count",                              default: 0, null: false
+    t.integer  "mcr_net_points"
+    t.integer  "status"
+    t.integer  "donatable_status",                         default: 1
+    t.integer  "mcr_status"
+    t.string   "payment_first_name",           limit: 64
+    t.string   "payment_last_name",            limit: 64
+    t.string   "payment_email",                limit: 255
+    t.string   "payment_currency",             limit: 3
+    t.string   "payment_address1",             limit: 128
+    t.string   "old_payment_address1",         limit: 128
+    t.string   "payment_address2",             limit: 128
+    t.string   "old_payment_address2",         limit: 128
+    t.string   "bank_routing_number",          limit: 16
+    t.string   "bank_account_number",          limit: 32
+    t.string   "iban",                         limit: 34
+    t.string   "paypal_email",                 limit: 255
+    t.integer  "cached",                                   default: 0
+    t.datetime "updated"
+    t.datetime "old_updated"
+    t.datetime "created",                                              null: false
+    t.point    "latitude_longitude_point"
+    t.integer  "cause_identifier",                                     null: false
+  end
+
+  add_index "causes", ["cause_id"], name: "index_causes_on_cause_id", unique: true, using: :btree
+  add_index "causes", ["cause_identifier"], name: "index_causes_on_cause_identifier", unique: true, using: :btree
+  add_index "causes", ["org_name"], name: "index_causes_on_org_name", using: :btree
 
   create_table "delayed_jobs", force: :cascade do |t|
     t.integer  "priority",   default: 0, null: false
@@ -187,105 +290,6 @@ ActiveRecord::Schema.define(version: 20151016040640) do
     t.decimal  "cut_amount",                             precision: 11, scale: 2
     t.datetime "matched",                                                         null: false
     t.datetime "updated"
-  end
-
-  create_table "replicated_causes", primary_key: "cause_id", force: :cascade do |t|
-    t.integer  "source_id",                                            null: false
-    t.string   "source_cause_id",              limit: 64
-    t.integer  "mcr_school_id"
-    t.datetime "enhanced_date"
-    t.string   "unenhanced_cause_id",          limit: 64
-    t.string   "tax_id",                       limit: 64
-    t.integer  "cause_type",                               default: 1, null: false
-    t.integer  "has_ach_info",                             default: 0, null: false
-    t.integer  "k8",                                       default: 0, null: false
-    t.string   "org_name",                     limit: 255,             null: false
-    t.string   "old_org_name",                 limit: 255
-    t.string   "org_contact_first_name",       limit: 64
-    t.string   "old_org_contact_first_name",   limit: 64
-    t.string   "org_contact_last_name",        limit: 64
-    t.string   "old_org_contact_last_name",    limit: 64
-    t.string   "org_contact_email",            limit: 255
-    t.string   "old_org_contact_email",        limit: 255
-    t.string   "mcr_role",                     limit: 50
-    t.string   "mcr_user_level",               limit: 25
-    t.string   "org_email",                    limit: 255
-    t.string   "org_phone",                    limit: 64
-    t.string   "old_org_phone",                limit: 64
-    t.string   "org_fax",                      limit: 64
-    t.text     "mission"
-    t.text     "additional_description"
-    t.text     "description"
-    t.string   "address1",                     limit: 128
-    t.string   "old_address1",                 limit: 128
-    t.string   "address2",                     limit: 128
-    t.string   "address3",                     limit: 128
-    t.float    "latitude"
-    t.float    "longitude"
-    t.string   "city",                         limit: 64
-    t.string   "old_city",                     limit: 64
-    t.string   "region",                       limit: 64
-    t.string   "old_region",                   limit: 64
-    t.string   "country",                      limit: 2,               null: false
-    t.string   "postal_code",                  limit: 16
-    t.string   "old_postal_code",              limit: 16
-    t.string   "mailing_address",              limit: 128
-    t.string   "mailing_city",                 limit: 64
-    t.string   "mailing_state",                limit: 64
-    t.string   "mailing_postal_code",          limit: 16
-    t.string   "site_url",                     limit: 255
-    t.string   "old_site_url",                 limit: 255
-    t.string   "logo_url",                     limit: 255
-    t.string   "logo_small_url",               limit: 255
-    t.string   "image_url",                    limit: 255
-    t.string   "video_url",                    limit: 255
-    t.string   "facebook_url",                 limit: 255
-    t.string   "newsletter_url",               limit: 255
-    t.string   "photos_url",                   limit: 255
-    t.string   "twitter_username",             limit: 16
-    t.string   "school_grades_desc",           limit: 255
-    t.string   "school_student_range_cd_desc", limit: 255
-    t.integer  "ethnic_african_american_pct"
-    t.integer  "ethnic_asian_american_pct"
-    t.integer  "ethnic_hispanic_american_pct"
-    t.integer  "ethnic_native_american_pct"
-    t.integer  "ethnic_caucasian_pct"
-    t.text     "keywords"
-    t.text     "countries_operation"
-    t.string   "language",                     limit: 8,               null: false
-    t.string   "donation_5",                   limit: 128
-    t.string   "donation_10",                  limit: 128
-    t.string   "donation_25",                  limit: 128
-    t.string   "donation_50",                  limit: 128
-    t.string   "donation_100",                 limit: 128
-    t.integer  "is_prison_school",                         default: 0
-    t.integer  "views",                                    default: 0, null: false
-    t.integer  "donations",                                default: 0, null: false
-    t.integer  "comment_count",                            default: 0, null: false
-    t.integer  "favorite_count",                           default: 0, null: false
-    t.integer  "share_count",                              default: 0, null: false
-    t.integer  "mcr_net_points"
-    t.integer  "status"
-    t.integer  "donatable_status",                         default: 1
-    t.integer  "mcr_status"
-    t.string   "payment_first_name",           limit: 64
-    t.string   "payment_last_name",            limit: 64
-    t.string   "payment_email",                limit: 255
-    t.string   "payment_currency",             limit: 3
-    t.string   "payment_address1",             limit: 128
-    t.string   "old_payment_address1",         limit: 128
-    t.string   "payment_address2",             limit: 128
-    t.string   "old_payment_address2",         limit: 128
-    t.string   "bank_routing_number",          limit: 16
-    t.string   "bank_account_number",          limit: 32
-    t.string   "iban",                         limit: 34
-    t.string   "paypal_email",                 limit: 255
-    t.integer  "cached",                                   default: 0
-    t.datetime "updated"
-    t.datetime "old_updated"
-    t.datetime "created",                                              null: false
-    t.point    "latitude_longitude_point"
-    t.integer  "cause_identifier"
   end
 
   create_table "replicated_partner_codes", primary_key: "code", force: :cascade do |t|
@@ -398,6 +402,12 @@ ActiveRecord::Schema.define(version: 20151016040640) do
     t.string   "role",                   limit: 16
     t.integer  "partner_id"
     t.integer  "cause_id"
+    t.integer  "partner_12_balance",     limit: 8
+    t.integer  "partner_14_balance",     limit: 8
+    t.integer  "partner_22_balance",     limit: 8
+    t.integer  "partner_24_balance",     limit: 8
+    t.integer  "partner_10_balance",     limit: 8
+    t.integer  "partner_11_balance",     limit: 8
   end
 
   add_index "users", ["cause_id"], name: "index_users_on_cause_id", using: :btree
