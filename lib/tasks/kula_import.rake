@@ -58,28 +58,75 @@ namespace :db do
     end
   end
   
+  task :test, [:partner_id, :year, :month] => :environment do |t, args|
+    puts "FISH #{args[:partner_id]}, #{args[:year]}, #{args[:month]}"
+  end
+
   desc "Import transactions"
-  task :stepwise_import_transactions, [:partner_id] => :environment do |t, args|
+  task :stepwise_import_transactions, [:partner_id, :year, :month] => :environment do |t, args|
     # Read from read-only replica (or our ghetto writeable copy), copy data to postgres reporting db
     #  In the process: calculate fees and write those alongside Kula's calculations 
     partner_id_param = args[:partner_id].to_i
-             
+    # Can be given a year but no month
+    #   Or a year and a month
+    #   Or neither
+    year_param = args[:year].to_i
+    month_param = args[:month].to_i
+    
+    # We're given a year
+    if 0 == month_param
+      unless 0 == year_param
+        # If both nil, fall through and it will use the full date range
+        current_date = Date.parse("#{year_param}-01-01")
+        latest_date = current_date + 1.year
+      end
+    else
+      # Month is valid - year must also be valid or it's an error
+      if 0 == year_param
+        raise "Invalid parameters: must give year and month"
+      else
+        current_date = Date.parse("#{year_param}-#{month_param.to_s.rjust(2,'0')}-01")
+        latest_date = current_date + 1.month
+      end
+    end
+
+    all_time = current_date.nil?
+    
+    # If no start/end defined, fall through and use full range (start_date and end_date must be defined together, so only one nil check suffices)
+    if all_time
+      current_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created LIMIT 1').first['created']).beginning_of_month
+      latest_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created DESC LIMIT 1').first['created']).beginning_of_month
+    end
+          
     # Permissions issue using Sprockets on elastic beanstalk  
     sql_base = CauseTransaction.query_step1
-    
-    current_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created LIMIT 1').first['created']).beginning_of_month
-    latest_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created DESC LIMIT 1').first['created']).beginning_of_month
-    
+        
     puts "Reading transactions from #{current_date.to_s} to #{latest_date.to_s}"
     BATCH_SIZE = 500
-        
+            
     # Delete everything if all partners
     if 0 == partner_id_param 
-      CauseTransaction.delete_all
-      CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
+      if all_time
+        CauseTransaction.delete_all
+        CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
+      else
+        CauseTransaction.select { |tx| (current_date..latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.delete_all
+        balances = CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").select { |b| (current_date.year..latest_date.year).include? b.year }
+        balances.each do |b|
+          clear_balances(b, current_date, latest_date)
+        end
+      end
     else
-      CauseTransaction.where(:partner_identifier => partner_id).delete_all      
-      CauseBalance.where(:partner_id => partner_id).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
+      if all_time
+        CauseTransaction.where(:partner_identifier => partner_id).delete_all      
+        CauseBalance.where(:partner_id => partner_id).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
+      else
+        CauseTransaction.where(:partner_identifier => partner_id).select { |tx| (current_date..latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.delete_all
+        balances = CauseBalance.where(:partner_id => partner_id).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").select { |b| (current_date.year..latest_date.year).include? b.year }
+        balances.each do |b|
+          clear_balances(b, current_date, latest_date)
+        end        
+      end
     end
         
     while current_date <= latest_date do
@@ -317,6 +364,45 @@ def update_cause_balances(r)
                                              :balance_type => CauseBalance::DONEE_AMOUNT)
     update_balance(balance, r[:month], r[:donee_amount].to_f)  
   end
+end
+
+def clear_balances(b, current_date, latest_date)
+  for month in 1..12 do
+    test_date = Date.parse("#{b.year}-#{month.to_s.rjust(2, '0')}-01")
+    
+    if (current_date..latest_date).include? test_date
+      case month
+      when 1
+        b.update_attribute(:jan, 0)
+      when 2
+        b.update_attribute(:feb, 0)
+      when 3
+        b.update_attribute(:mar, 0)
+      when 4
+        b.update_attribute(:apr, 0)
+      when 5
+        b.update_attribute(:may, 0)
+      when 6
+        b.update_attribute(:jun, 0)
+      when 7
+        b.update_attribute(:jul, 0)
+      when 8
+        b.update_attribute(:aug, 0)
+      when 9
+        b.update_attribute(:sep, 0)
+      when 10
+        b.update_attribute(:oct, 0)
+      when 11
+        b.update_attribute(:nov, 0)
+      when 12
+        b.update_attribute(:dec, 0)
+      else
+        raise "Invalid month #{month}"
+      end                          
+    end
+  end
+  
+  b.update_attribute(:total, b.jan + b.feb + b.mar + b.apr + b.may + b.jun + b.jul + b.aug + b.sep + b.oct + b.nov + b.dec)
 end
 
 def update_balance(balance, month, amount)
