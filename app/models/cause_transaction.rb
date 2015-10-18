@@ -20,6 +20,8 @@
 #
 
 class CauseTransaction < ActiveRecord::Base
+  LAST_MONTH_LABEL = 'Import Last Month'
+  
   validates :partner_identifier, :numericality => { :only_integer => true, :greater_than => 0 }
   validates :month, :numericality => { :only_integer => true },
                     :inclusion => { :in => 1..12 }

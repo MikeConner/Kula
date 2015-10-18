@@ -1,0 +1,48 @@
+%h1 Active Jobs
+- if @active_jobs.empty?
+  %h2 None
+- else
+  %table.table.zebra-striped
+    %thead
+      %tr
+        %th ID
+        %th Task
+        %th Arguments
+        %th Started
+        %th Attempts
+        %th Error
+    %tbody
+      - @active_jobs.each do |rec|
+        %tr
+          %td= rec.job_identifier
+          %td= rec.display_name
+          %td= rec.args
+          %td= rec.started_at
+          %td= rec.attempts
+          %td= rec.last_error
+%br
+%br
+- if @failed_jobs.empty?
+  %h2 None
+- else
+  %h1 Failed Jobs
+  %table.table.zebra-striped
+    %thead
+      %tr
+        %th ID
+        %th Task
+        %th Arguments
+        %th Started
+        %th Failed
+        %th Attempts
+        %th Error
+    %tbody
+      - @failed_jobs.each do |rec|
+        %tr
+          %td= rec.job_identifier
+          %td= rec.display_name
+          %td= rec.args
+          %td= rec.started_at
+          %td= rec.failed_at
+          %td= rec.attempts
+          %td= rec.last_error

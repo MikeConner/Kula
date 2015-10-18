@@ -24,6 +24,12 @@ Rails.application.routes.draw do
   resources :adjustments, :only => [:new, :create]
   resources :users, :except => [:create]
   
+  resources :cause_transactions, :only => [] do
+    post 'import', :on => :collection
+  end
+  
+  resources :delayed_rakes, :only => [:index]
+  
   # Static pages
   get "/site_admin" => "static_pages#admin_index"
 end

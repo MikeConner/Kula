@@ -1,3 +1,20 @@
 
 %h1 Kula System Administration
 %p Please select from the menu on the left
+
+%h2 Import Transactions
+- if @active_import
+  = link_to 'Check status of import', delayed_rakes_path
+- else
+  = form_tag import_cause_transactions_path do
+    = select_tag :partner_id, options_from_collection_for_select(@partners, 'partner_identifier', 'display_name'), :prompt => 'Select a Partner'
+    .field
+      = label_tag :year
+      = number_field_tag :year, Date.today.year
+    .field
+      = label_tag :month
+      -#= number_field_tag :month
+      = select_month(Date.today, :prompt => 'Select a Month')
+    .actions  
+      = submit_tag 'Import'
+      = submit_tag CauseTransaction::LAST_MONTH_LABEL
