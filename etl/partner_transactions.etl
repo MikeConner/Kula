@@ -40,14 +40,17 @@ transform do |row|
   print "."
   newrow = {}
 
-  newrow[:partner_transaction_id] = row[:partner_transaction_id]
-  newrow[:balance_transaction_id] = row[:balance_transaction_id]
-  newrow[:partner_id] = row[:partner_id]
-  newrow[:user_id] = row[:user_id]
-  newrow[:status] = row[:status]
-  newrow[:created] = row[:created]
-  newrow[:last_modified] = row[:last_modified]
+#  newrow[:partner_transaction_id] = row[:partner_transaction_id]
+#  newrow[:balance_transaction_id] = row[:balance_transaction_id]
+#  newrow[:partner_id] = row[:partner_id]
+#  newrow[:user_id] = row[:user_id]
+#  newrow[:status] = row[:status]
+#  newrow[:created] = row[:created]
+#  newrow[:last_modified] = row[:last_modified]
+  newrow=row
+
   newrow
+
 end
 
 post_process do

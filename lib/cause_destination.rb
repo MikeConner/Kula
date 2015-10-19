@@ -6,7 +6,8 @@ class CauseDestination
 
   def initialize(connect_url)
     @conn = PG.connect(connect_url)
-    @conn.prepare('insert_user_stmt', 'INSERT INTO causes(
+    #TODO - Insert Cause Statement
+    @conn.prepare('insert_user_stmt', 'INSERT INTO replicated_causes(
             cause_id, source_id, source_cause_id, mcr_school_id, enhanced_date,
             unenhanced_cause_id, tax_id, cause_type, has_ach_info, k8, org_name,
             old_org_name, org_contact_first_name, old_org_contact_first_name,
@@ -28,11 +29,101 @@ class CauseDestination
             payment_address1, old_payment_address1, payment_address2, old_payment_address2,
             bank_routing_number, bank_account_number, iban, paypal_email,
             cached, updated, old_updated, created, cause_identifier)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,
-            $25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,
-            $47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66,$67,$68,
-            $69,$70,$71,$72,$73,$74,$75,$76,$77,$78,$79,$80,$81,$82,$83,$84,$85,$86,$87,$88,$89,$90,
-            $91,$92,$93,$94,$95)')
+    VALUES ($1,
+$2,
+$3,
+$4,
+$5,
+$6,
+$7,
+$8,
+$9,
+$10,
+$11,
+$12,
+$13,
+$14,
+$15,
+$16,
+$17,
+$18,
+$19,
+$20,
+$21,
+$22,
+$23,
+$24,
+$25,
+$26,
+$27,
+$28,
+$29,
+$30,
+$31,
+$32,
+$33,
+$34,
+$35,
+$36,
+$37,
+$38,
+$39,
+$40,
+$41,
+$42,
+$43,
+$44,
+$45,
+$46,
+$47,
+$48,
+$49,
+$50,
+$51,
+$52,
+$53,
+$54,
+$55,
+$56,
+$57,
+$58,
+$59,
+$60,
+$61,
+$62,
+$63,
+$64,
+$65,
+$66,
+$67,
+$68,
+$69,
+$70,
+$71,
+$72,
+$73,
+$74,
+$75,
+$76,
+$77,
+$78,
+$79,
+$80,
+$81,
+$82,
+$83,
+$84,
+$85,
+$86,
+$87,
+$88,
+$89,
+$90,$91,$92,$93,$94,$95, $96)')
+
+
+
+
+    #INSERT INTO replicated_causes(cause_id, org_name) VALUES ($1, $2)
   end
 
   def write(row)
@@ -133,7 +224,8 @@ class CauseDestination
       row[:cached],
       row[:updated],
       row[:old_updated],
-      row[:created] ]
+      row[:created],
+      row[:cause_id].to_i ]
       )
       #, time
   rescue PG::Error => ex

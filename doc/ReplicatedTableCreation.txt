@@ -7,6 +7,8 @@ CREATE TABLE replicated_partner_user_map (
 )
 
 
+
+--OLD TABLE
 CREATE TABLE replicated_partner_transaction (
   partner_transaction_id int NOT NULL,
   balance_transaction_id int DEFAULT NULL,
@@ -17,7 +19,71 @@ CREATE TABLE replicated_partner_transaction (
   last_modified timestamp DEFAULT NULL,
   PRIMARY KEY (partner_transaction_id)
 )
+--END OLD Table
 
+-- DROP TABLE replicated_partner_txns;
+
+CREATE TABLE replicated_partner_transaction
+(
+  partner_transaction_id integer,
+  balance_transaction_id integer,
+  partner_id integer,
+  user_id integer,
+  status character varying(64),
+  created timestamp without time zone,
+  last_modified timestamp without time zone,
+  points character varying(50),
+  user__id character varying(50),
+  amount character varying(50),
+  currency character varying(50),
+  ip_address character varying(50),
+  order_description character varying(50),
+  result_avs_result character varying(50),
+  result_billing_id character varying(50),
+  result_code character varying(50),
+  result_customer_vault_id character varying(50),
+  result_cvv_result character varying(50),
+  result_result_code character varying(50),
+  result_shipping_id character varying(50),
+  result_text character varying(50),
+  result_transaction_id character varying(50),
+  action_type character varying(50),
+  authorization__code character varying(50),
+  avs__result character varying(50),
+  billing_first_name character varying(50),
+  billing_last_name character varying(50),
+  billing_postal character varying(50),
+  customer__id character varying(50),
+  customer__vault_id character varying(50),
+  ccv__result character varying(50),
+  industry character varying(50),
+  ip__address character varying(50),
+  order__description character varying(50),
+  processor_id character varying(50),
+  processor_result_code character varying(50),
+  processor_result_text character varying(50),
+  result character varying(50),
+  result__text character varying(50),
+  result__code character varying(50),
+  shipping__amount character varying(50),
+  tax_amount character varying(50),
+  token__id character varying(50),
+  transaction__id character varying(50),
+  surcharge_amount character varying(50),
+  tip_amount character varying(50),
+  amount_authorized character varying(50),
+  giving_code character varying(50),
+  giving_code_email character varying(50),
+  giving_code_name character varying(50),
+  rr_transaction_id character varying(50),
+  cash_value character varying(50),
+  client_transaction_id character varying(50),
+  transaction_id character varying(50),
+  final_balance character varying(50),
+  billing_billing__id character varying(50),
+  shipping_shipping__id character varying(50),
+  PRIMARY KEY (partner_transaction_id)
+)
 
 
 CREATE TABLE replicated_partner_transaction_field (
@@ -221,7 +287,7 @@ CREATE TABLE causes (
   old_updated timestamp DEFAULT NULL,
   created timestamp NOT NULL,
   latitude_longitude_point point DEFAULT NULL,
-  cause_identifier int, 
+  cause_identifier int,
   PRIMARY KEY (cause_id)
 
 )
