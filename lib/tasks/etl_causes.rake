@@ -46,7 +46,7 @@ task :causes_replicate => :environment do
 
   blocks.times do
     Kiba.run(job_definition)
-    ENV['LAST_CAUSE_ID'] = ActiveRecord::Base.connection.execute("SELECT MAX(cause_id) as max FROM replicated_causes").first['max']
+    ENV['LAST_CAUSE_ID'] = ActiveRecord::Base.connection.execute("SELECT MAX(cause_id) as max FROM causes").first['max']
   end
   ENV['BATCH_SIZE'] = remainder.to_s
   Kiba.run(job_definition)
