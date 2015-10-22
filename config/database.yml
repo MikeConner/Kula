@@ -46,7 +46,7 @@ production:
   <<: *default
   adapter: postgresql
   username: captain
-  password: MonkeY1984
-  host: kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
+  password: AiHEp7kER5SY
+  host: kulaoperationsprod.cx7mhivmut45.us-east-1.rds.amazonaws.com
   port: 5432
-  database: kula_pg_dev
+  database: kula_prod
