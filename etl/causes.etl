@@ -11,7 +11,7 @@ require 'cause_source'
 require 'cause_destination'
 
 #TODO: Get this from Database.yml
-PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
+#PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
 
 
 config = YAML.load(IO.read('config/database.yml'))
@@ -51,12 +51,12 @@ transform do |row|
   print "."
   newrow = row
   newrow[:cause_type] = row[:type]
-  
+
   newrow
 end
 
 
-destination CauseDestination, PGDevURL
+destination CauseDestination, config[Rails.env]
 
 post_process do
   end_time = Time.now

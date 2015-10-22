@@ -19,7 +19,7 @@ task :causes_replicate => :environment do
   @mysql = Mysql2::Client.new(config['replica'])
   rowCount = @mysql.query('select count(*) as cnt from causes')
   ActiveRecord::Base.establish_connection(Rails.env).connection
-  ActiveRecord::Base.connection.execute("DELETE FROM causes")
+  ActiveRecord::Base.connection.execute("DELETE FROM causes;")
 
   #ActiveRecord::Base.establish_connection(:replica)
   #count = ActiveRecord::Base.connection.execute("SELECT COUNT(*) as cnt FROM causes")

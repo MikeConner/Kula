@@ -4,8 +4,10 @@ class CauseDestination
   # connect_url should look like;
   #  mysql://user:pass@localhost/dbname
 
-  def initialize(connect_url)
-    @conn = PG.connect(connect_url)
+  def initialize(connect_yaml)
+     
+    conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}@#{connect_yaml['host']}/#{connect_yaml['database']}"
+    @conn =  PG.connect(conn_url)
     #TODO - Insert Cause Statement
     @conn.prepare('insert_user_stmt', 'INSERT INTO causes(
             cause_id, source_id, source_cause_id, mcr_school_id, enhanced_date,
