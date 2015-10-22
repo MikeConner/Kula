@@ -7,7 +7,7 @@ class CauseDestination
   def initialize(connect_url)
     @conn = PG.connect(connect_url)
     #TODO - Insert Cause Statement
-    @conn.prepare('insert_user_stmt', 'INSERT INTO replicated_causes(
+    @conn.prepare('insert_user_stmt', 'INSERT INTO causes(
             cause_id, source_id, source_cause_id, mcr_school_id, enhanced_date,
             unenhanced_cause_id, tax_id, cause_type, has_ach_info, k8, org_name,
             old_org_name, org_contact_first_name, old_org_contact_first_name,
