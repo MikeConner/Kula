@@ -1,3 +1,5 @@
+#TODO  Rename file to just ETL (no mention of causes)
+
 
 task :causes_replicate => :environment do
   start_time = Time.now
@@ -92,9 +94,10 @@ task :users_replicate => :environment do
 end
 
 task :balances_replicate => :environment do
+  #TODO We will update this to store possibly in a different format - For now we'll do a full replication - should be fast enough no batching
+  start_time = Time.now
   etl_filename = 'etl/balances.etl'
   script_content = IO.read(etl_filename)
-  # pass etl_filename to line numbers on errors
   job_definition = Kiba.parse(script_content, etl_filename)
   Kiba.run(job_definition)
 end

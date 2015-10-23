@@ -6,7 +6,7 @@ class CauseDestination
 
   def initialize(conn_url)
 
-    
+
     @conn =  PG.connect(conn_url)
     #TODO - Insert Cause Statement
     @conn.prepare('insert_user_stmt', 'INSERT INTO causes(
