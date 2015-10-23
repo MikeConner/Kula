@@ -15,6 +15,8 @@
 #  updated_at     :datetime
 #  cause_id       :integer          not null
 #  check_num      :integer          not null
+#  month          :integer          not null
+#  year           :integer          not null
 #
 
 describe Payment do

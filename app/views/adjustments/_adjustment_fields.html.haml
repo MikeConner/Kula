@@ -1,9 +1,15 @@
 .field
   = f.label :cause_id
-  = f.select :cause_id, options_from_collection_for_select(Cause.order(:name), 'cause_identifier', 'name', f.object.cause_id), :prompt => 'Select a Cause'
+  = text_field_tag :cause, cause, :class => 'autocompleted_cause', :title => I18n.t('autocomplete_field')
 .field
-  = f.label :date
+  = f.label :date, 'Date adjusted'
   = f.date_select :date
+.field
+  = f.label :month, 'Month of period to apply this adjustment to'
+  = f.date_select :month, :add_month_numbers => true, :discard_day => true, :discard_year => true
+.field
+  = f.label :year, 'Month of period to apply this adjustment to'
+  = f.date_select :year, :discard_day => true, :discard_month => true
 .field
   = f.label :amount
   = f.text_field :amount

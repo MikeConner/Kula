@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151019180357) do
+ActiveRecord::Schema.define(version: 20151023175236) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,8 @@ ActiveRecord::Schema.define(version: 20151019180357) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "cause_id"
+    t.integer  "month",                              null: false
+    t.integer  "year",                               null: false
   end
 
   add_index "adjustments", ["batch_id"], name: "index_adjustments_on_batch_id", using: :btree
@@ -260,6 +262,8 @@ ActiveRecord::Schema.define(version: 20151019180357) do
     t.datetime "updated_at"
     t.integer  "cause_id",                                                               null: false
     t.integer  "check_num",                                                              null: false
+    t.integer  "month",                                                                  null: false
+    t.integer  "year",                                                                   null: false
   end
 
   add_index "payments", ["batch_id"], name: "index_payments_on_batch_id", using: :btree

@@ -3,6 +3,7 @@ class AdjustmentsController < ApplicationController
 
   def new
     @adjustment = Batch.find(params[:batch_id]).adjustments.build
+    @cause = current_user.cause.nil? ? '' : current_user.cause.org_name      
   end
   
   def create
@@ -11,8 +12,15 @@ class AdjustmentsController < ApplicationController
     if @adjustment.valid?
       ActiveRecord::Base.transaction do
       begin
-        # Save in cause balances too
+        if params[:adjustment].has_key?(:cause)  
+          @adjustment.cause_id = Cause.find_by_org_name(params[:adjustment][:cause]).first
+        else
+          @adjustment.cause_id = nil     
+        end
+        
         @adjustment.save!
+        
+        # Save in cause balances too
         CauseBalance.create!(:partner_id => @adjustment.batch.partner.id, 
                              :cause_id => @adjustment.cause_id, 
                              :year => @adjustment.date.year,

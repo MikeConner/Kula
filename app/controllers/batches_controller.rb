@@ -22,14 +22,30 @@ class BatchesController < ApplicationController
   def new
     @partner = Partner.find_by_partner_identifier(params[:partner])
     @batch = @partner.batches.build(:user => current_user)
-    
+    @cause = current_user.cause.nil? ? '' : current_user.cause.org_name  
+        
     render :layout => 'admin'
   end
 
   # POST /batches
   def create
+    # Cause fields are autocomplete. Cause_id comes back as a string, but we need it to be the cause_identifier
+    # Convert before passing to batch creation
+    if params[:batch].has_key?(:payments_attributes)
+      params[:batch][:payments_attributes].each do |k, v|
+        v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier
+      end
+    end
+    
+    if params[:batch].has_key?(:adjustments_attributes)
+      params[:batch][:adjustments_attributes].each do |k, v|
+        v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier
+      end
+    end
+    
     @batch = Batch.new(batch_params)
-
+    
+    # Preprocess to change embedded autocompleted text cause_ids to integer cause_ids
     if @batch.save
       # Add to CauseBalance
       ActiveRecord::Base.transaction do
@@ -151,9 +167,13 @@ class BatchesController < ApplicationController
 private
   def batch_params
     params.require(:batch).permit(:partner_id, :user_id, :name, :date, :description,
-                                  :payments_attributes => [:id, :status, :amount, :date, :confirmation,
+                                  :payments_attributes => [:status, :amount, :date, :confirmation,
                                                            :payment_method, :address, :comment, :cause_id,
-                                                           :_destroy])
+                                                           'month(1i)', 'month(2i)', 'month(3i)', 'year(1i)', 'year(2i)', 'year(3i)',
+                                                           :_destroy],
+                                  :adjustments_attributes => [:amount, :date, :comment, :cause_id,
+                                                              'month(1i)', 'month(2i)', 'month(3i)', 'year(1i)', 'year(2i)', 'year(3i)',
+                                                              :_destroy])
   end
   
   def admin_or_owner

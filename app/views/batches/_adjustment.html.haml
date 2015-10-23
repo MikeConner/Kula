@@ -5,10 +5,15 @@
     = label_tag 'Adjustment'    
   .large-2.columns
     = f.label :cause_id
-    = f.select :cause_id, options_from_collection_for_select(Cause.order(:name), 'cause_identifier', 'name', f.object.cause_id), :prompt => 'Select a Cause'
+    = f.text_field :cause_id, :value => cause, :class => 'autocompleted_cause', :title => I18n.t('autocomplete_field')
   .large-2.columns
-    = f.label :date
+    = f.label :date, 'Date of Adjustment'
     = f.date_select :date
+  .large-2.columns
+    = f.label :month, 'Month and year of period to apply this adjustment to'
+    = f.date_select :month, :add_month_numbers => true, :discard_day => true, :discard_year => true
+    = f.label :year
+    = f.date_select :year, :discard_day => true, :discard_month => true
   .large-2.columns
     = f.label :amount
     = f.text_field :amount

@@ -15,24 +15,43 @@
 #  updated_at     :datetime
 #  cause_id       :integer          not null
 #  check_num      :integer          not null
+#  month          :integer          not null
+#  year           :integer          not null
 #
 
 class Payment < ActiveRecord::Base
   MAX_METHOD_LEN = 8
   MAX_STATUS_LEN = 16
-  PENDING = 'Pending'
+  CLEARED = 'Cleared'
+  OUTSTANDING = 'Outstanding'
+  CANCELLED = 'Cancelled'
+  REISSUED = 'Reissued'
+  RETURNED = 'Returned'
+  VOID = 'Void'
+  
   ACH = 'ACH'
   CHECK = 'Check'
   
-  VALID_STATUSES = [PENDING, 'Approved', 'Sent', 'Cleared', 'Hold']
   VALID_METHODS = [ACH, CHECK]
+  VALID_CHECK_STATUSES = [OUTSTANDING, CLEARED, CANCELLED, REISSUED, VOID]
+  VALID_ACH_STATUSES = [OUTSTANDING, CLEARED, RETURNED, REISSUED]
   
   belongs_to :batch
   belongs_to :cause
   has_one :partner, :through => :batch
   
-  validates_inclusion_of :status, :in => VALID_STATUSES
+  validates_inclusion_of :status, :in => VALID_CHECK_STATUSES, :if => :check_payment?
+  validates_inclusion_of :status, :in => VALID_ACH_STATUSES, :if => :ach_payment?
+  
   validates :amount, :numericality => { :greater_than => 0 }
   validates_inclusion_of :payment_method, :in => VALID_METHODS
   validates_presence_of :check_num
+
+  def check_payment?
+    Payment::CHECK == self.payment_method
+  end
+  
+  def ach_payment?
+    Payment::ACH == self.payment_method
+  end
 end

@@ -1,0 +1,23 @@
+function update_status_options(id) {
+  var check_options = <%=Payment::VALID_CHECK_STATUSES.to_s%>;
+  var ach_options = <%=Payment::VALID_ACH_STATUSES.to_s%>;
+  var new_options = "";
+  
+  var status_id = id.replace("payment_method", "status");
+  if ("<%=Payment::ACH%>" == $('#' + id).val()) {
+    var len = ach_options.length;
+    
+    for (var i = 0; i < len; i++) {
+    	new_options += "<option value=\"" + ach_options[i] + "\">" + ach_options[i] + "</option>";
+  	}
+  }
+  else {
+    var len = check_options.length;
+    
+    for (var i = 0; i < len; i++) {
+    	new_options += "<option value=\"" + check_options[i] + "\">" + check_options[i] + "</option>";
+  	}  	
+  }
+  
+  $("#" + status_id).empty().append(new_options);
+}

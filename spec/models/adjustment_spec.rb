@@ -10,6 +10,8 @@
 #  created_at :datetime
 #  updated_at :datetime
 #  cause_id   :integer
+#  month      :integer          not null
+#  year       :integer          not null
 #
 
 describe Adjustment do

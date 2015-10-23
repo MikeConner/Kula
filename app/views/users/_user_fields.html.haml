@@ -9,8 +9,7 @@
   = f.select :partner_id, options_from_collection_for_select(partners, 'partner_identifier', 'display_name', f.object.partner_id), :prompt => 'Select a Partner'
 .field#cause_section{:style => 'display:none'}
   = label_tag :cause
-  -#= f.select :cause_id, options_from_collection_for_select(@causes, 'cause_identifier', 'org_name', f.object.cause_id), :prompt => 'Select a Cause'
-  = text_field_tag :cause, cause, :id => 'autocompleted_cause', :title => I18n.t('autocomplete_field')
+  = text_field_tag :cause, cause, :class => 'autocompleted_cause', :title => I18n.t('autocomplete_field')
 #editing_user
 :javascript
   

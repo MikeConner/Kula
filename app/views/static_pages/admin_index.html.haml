@@ -13,7 +13,6 @@
       = number_field_tag :year, Date.today.year
     .field
       = label_tag :month
-      -#= number_field_tag :month
       = select_month(Date.today, :prompt => 'Select a Month')
     .actions  
       = submit_tag 'Import'

@@ -17,4 +17,6 @@
 //= require libs/jquery-ui-1.10.1.custom.min.js
 //= require_tree .
 
-$(function(){ $(document).foundation(); });
+$(function(){ 
+  $(document).foundation(); 
+});

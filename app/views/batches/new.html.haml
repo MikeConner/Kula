@@ -1,3 +1,5 @@
+= javascript_include_tag 'autocomplete.js'
+= javascript_include_tag 'payment_status_options.js'
 .container
   .row
     .span12
@@ -10,8 +12,6 @@
           .row
             .span6
               = form_for @batch do |f|
-                -#= f.hidden_field :user, :value => current_user
-                -#= f.hidden_field :partner
-                = render :partial => 'batch_fields', :locals => { :f => f }
+                = render :partial => 'batch_fields', :locals => { :f => f, :cause => @cause }
                 .actions
                   = f.submit 'Create Batch'
