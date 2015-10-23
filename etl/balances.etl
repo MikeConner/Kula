@@ -10,12 +10,12 @@ $:.unshift "#{File.dirname(__FILE__)}/lib"
 require 'balance_source'
 require 'balance_destination'
 
-connect_yaml = config[Rails.env]
-conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}@#{connect_yaml['host']}/#{connect_yaml['database']}"
-
 
 config = YAML.load(IO.read('config/database.yml'))
 source BalanceSource, config['replica']
+
+connect_yaml = config[Rails.env]
+conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}@#{connect_yaml['host']}/#{connect_yaml['database']}"
 
 
 start_time = Time.now
