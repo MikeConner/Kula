@@ -10,8 +10,6 @@ $:.unshift "#{File.dirname(__FILE__)}/lib"
 require 'user_source'
 require 'user_destination'
 
-#TODO: Get this from Database.yml
-PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
 
 
 config = YAML.load(IO.read('config/database.yml'))
@@ -75,4 +73,4 @@ post_process do
   puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
 
-destination UserDestination, PGDevURL
+destination UserDestination,  config[Rails.env]
