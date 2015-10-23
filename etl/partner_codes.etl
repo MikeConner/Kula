@@ -10,12 +10,11 @@ $:.unshift "#{File.dirname(__FILE__)}/lib"
 require 'partner_code_source'
 require 'partner_code_destination'
 
-#TODO: Get this from Database.yml
-PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
-
 
 config = YAML.load(IO.read('config/database.yml'))
 source PartnerCodeSource, config['replica']
+connect_yaml = config[Rails.env]
+conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}@#{connect_yaml['host']}/#{connect_yaml['database']}"
 
 
 start_time = Time.now
@@ -25,7 +24,7 @@ pre_process do
   puts "Clearing Replicated Table"
   puts "--------------------------------------------"
 
-  @conn = PG.connect(PGDevURL)
+  @conn = PG.connect(conn_url)
   @conn.exec("delete from replicated_partner_codes")
 
   puts "Table Clear"
@@ -39,7 +38,7 @@ end
 transform do |row|
   print "."
   newrow = {}
-  
+
   newrow[:code] = row[:code]
   newrow[:balance_transaction_id] = row[:balance_transaction_id]
   newrow[:partner_id] = row[:partner_id]
@@ -64,4 +63,4 @@ post_process do
   puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
 
-destination PartnerCodeDestination, PGDevURL
+destination PartnerCodeDestination, conn_url

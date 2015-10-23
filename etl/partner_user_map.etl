@@ -10,12 +10,11 @@ $:.unshift "#{File.dirname(__FILE__)}/lib"
 require 'partner_user_map_source'
 require 'partner_user_map_destination'
 
-#TODO: Get this from Database.yml
-PGDevURL = "postgresql://captain:MonkeY1984@kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com/kula_pg_dev"
-
 
 config = YAML.load(IO.read('config/database.yml'))
 source PartnerUserMapSource, config['replica']
+connect_yaml = config[Rails.env]
+conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}@#{connect_yaml['host']}/#{connect_yaml['database']}"
 
 
 start_time = Time.now
@@ -25,7 +24,7 @@ pre_process do
   puts "Clearing Replicated Table"
   puts "--------------------------------------------"
 
-  @conn = PG.connect(PGDevURL)
+  @conn = PG.connect(conn_url)
   @conn.exec("delete from replicated_partner_user_map")
 
   puts "Table Clear"
@@ -56,4 +55,4 @@ post_process do
   puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
 
-destination PartnerUserMapDestination, PGDevURL
+destination PartnerUserMapDestination, conn_url
