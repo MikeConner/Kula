@@ -4,11 +4,11 @@ class UserDestination
   # connect_url should look like;
   #  mysql://user:pass@localhost/dbname
 
-  def initialize(connect_yaml)
+  def initialize(conn_url)
 
-    conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}@#{connect_yaml['host']}/#{connect_yaml['database']}"
+     
     @conn =  PG.connect(conn_url)
- 
+
     @conn.prepare('insert_pg_stmt', 'INSERT INTO replicated_users(
             user_id, email, facebook_id, password, birthday, gender, first_name,
             last_name, name_prefix, donor_type, group_name, last_login, last_activity,

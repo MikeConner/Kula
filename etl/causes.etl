@@ -9,11 +9,12 @@ $:.unshift "#{File.dirname(__FILE__)}/lib"
 
 require 'cause_source'
 require 'cause_destination'
- 
+
 
 config = YAML.load(IO.read('config/database.yml'))
 start_time = Time.now
-
+connect_yaml = config[Rails.env]
+conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}@#{connect_yaml['host']}/#{connect_yaml['database']}"
 
 pre_process do
 
@@ -53,7 +54,7 @@ transform do |row|
 end
 
 
-destination CauseDestination, config[Rails.env]
+destination CauseDestination, conn_url
 
 post_process do
   end_time = Time.now

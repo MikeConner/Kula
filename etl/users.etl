@@ -14,7 +14,8 @@ require 'user_destination'
 
 config = YAML.load(IO.read('config/database.yml'))
 source UserSource, config['replica']
-
+connect_yaml = config[Rails.env]
+conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}@#{connect_yaml['host']}/#{connect_yaml['database']}"
 
 start_time = Time.now
 pre_process do
@@ -23,7 +24,7 @@ pre_process do
   puts "Clearing Replicated Table"
   puts "--------------------------------------------"
 
-  @conn = PG.connect(PGDevURL)
+  @conn = PG.connect(conn_url)
   @conn.exec("delete from replicated_users")
 
   puts "Table Clear"
@@ -73,4 +74,4 @@ post_process do
   puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
 
-destination UserDestination,  config[Rails.env]
+destination UserDestination, conn_url
