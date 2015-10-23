@@ -4,7 +4,7 @@
 #
 #  id             :integer          not null, primary key
 #  job_identifier :integer
-#  name           :string(16)
+#  name           :string(32)
 #  params         :text
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null

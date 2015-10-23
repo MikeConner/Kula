@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151018003219) do
+ActiveRecord::Schema.define(version: 20151019180357) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -206,7 +206,7 @@ ActiveRecord::Schema.define(version: 20151018003219) do
 
   create_table "delayed_rakes", force: :cascade do |t|
     t.integer  "job_identifier"
-    t.string   "name",           limit: 16
+    t.string   "name",           limit: 32
     t.text     "params"
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
@@ -317,11 +317,61 @@ ActiveRecord::Schema.define(version: 20151018003219) do
 
   create_table "replicated_partner_transaction", primary_key: "partner_transaction_id", force: :cascade do |t|
     t.integer  "balance_transaction_id"
-    t.integer  "partner_id",                        null: false
-    t.integer  "user_id",                           null: false
-    t.string   "status",                 limit: 64
-    t.datetime "created",                           null: false
+    t.integer  "partner_id"
+    t.integer  "user_id"
+    t.string   "status",                   limit: 64
+    t.datetime "created"
     t.datetime "last_modified"
+    t.string   "points",                   limit: 50
+    t.string   "user__id",                 limit: 50
+    t.string   "amount",                   limit: 50
+    t.string   "currency",                 limit: 50
+    t.string   "ip_address",               limit: 50
+    t.string   "order_description",        limit: 50
+    t.string   "result_avs_result",        limit: 50
+    t.string   "result_billing_id",        limit: 50
+    t.string   "result_code",              limit: 50
+    t.string   "result_customer_vault_id", limit: 50
+    t.string   "result_cvv_result",        limit: 50
+    t.string   "result_result_code",       limit: 50
+    t.string   "result_shipping_id",       limit: 50
+    t.string   "result_text",              limit: 50
+    t.string   "result_transaction_id",    limit: 50
+    t.string   "action_type",              limit: 50
+    t.string   "authorization__code",      limit: 50
+    t.string   "avs__result",              limit: 50
+    t.string   "billing_first_name",       limit: 50
+    t.string   "billing_last_name",        limit: 50
+    t.string   "billing_postal",           limit: 50
+    t.string   "customer__id",             limit: 50
+    t.string   "customer__vault_id",       limit: 50
+    t.string   "ccv__result",              limit: 50
+    t.string   "industry",                 limit: 50
+    t.string   "ip__address",              limit: 50
+    t.string   "order__description",       limit: 50
+    t.string   "processor_id",             limit: 50
+    t.string   "processor_result_code",    limit: 50
+    t.string   "processor_result_text",    limit: 50
+    t.string   "result",                   limit: 50
+    t.string   "result__text",             limit: 50
+    t.string   "result__code",             limit: 50
+    t.string   "shipping__amount",         limit: 50
+    t.string   "tax_amount",               limit: 50
+    t.string   "token__id",                limit: 50
+    t.string   "transaction__id",          limit: 50
+    t.string   "surcharge_amount",         limit: 50
+    t.string   "tip_amount",               limit: 50
+    t.string   "amount_authorized",        limit: 50
+    t.string   "giving_code",              limit: 50
+    t.string   "giving_code_email",        limit: 50
+    t.string   "giving_code_name",         limit: 50
+    t.string   "rr_transaction_id",        limit: 50
+    t.string   "cash_value",               limit: 50
+    t.string   "client_transaction_id",    limit: 50
+    t.string   "transaction_id",           limit: 50
+    t.string   "final_balance",            limit: 50
+    t.string   "billing_billing__id",      limit: 50
+    t.string   "shipping_shipping__id",    limit: 50
   end
 
   create_table "replicated_partner_transaction_field", id: false, force: :cascade do |t|
