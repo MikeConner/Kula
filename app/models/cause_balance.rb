@@ -2,26 +2,27 @@
 #
 # Table name: cause_balances
 #
-#  id           :integer          not null, primary key
-#  partner_id   :integer          not null
-#  cause_id     :integer          not null
-#  year         :integer          not null
-#  balance_type :string(16)
-#  jan          :decimal(8, 2)    default(0.0), not null
-#  feb          :decimal(8, 2)    default(0.0), not null
-#  mar          :decimal(8, 2)    default(0.0), not null
-#  apr          :decimal(8, 2)    default(0.0), not null
-#  may          :decimal(8, 2)    default(0.0), not null
-#  jun          :decimal(8, 2)    default(0.0), not null
-#  jul          :decimal(8, 2)    default(0.0), not null
-#  aug          :decimal(8, 2)    default(0.0), not null
-#  sep          :decimal(8, 2)    default(0.0), not null
-#  oct          :decimal(8, 2)    default(0.0), not null
-#  nov          :decimal(8, 2)    default(0.0), not null
-#  dec          :decimal(8, 2)    default(0.0), not null
-#  total        :decimal(8, 2)    default(0.0), not null
-#  created_at   :datetime
-#  updated_at   :datetime
+#  id                  :integer          not null, primary key
+#  partner_id          :integer          not null
+#  cause_id            :integer          not null
+#  year                :integer          not null
+#  balance_type        :string(16)
+#  jan                 :decimal(8, 2)    default(0.0), not null
+#  feb                 :decimal(8, 2)    default(0.0), not null
+#  mar                 :decimal(8, 2)    default(0.0), not null
+#  apr                 :decimal(8, 2)    default(0.0), not null
+#  may                 :decimal(8, 2)    default(0.0), not null
+#  jun                 :decimal(8, 2)    default(0.0), not null
+#  jul                 :decimal(8, 2)    default(0.0), not null
+#  aug                 :decimal(8, 2)    default(0.0), not null
+#  sep                 :decimal(8, 2)    default(0.0), not null
+#  oct                 :decimal(8, 2)    default(0.0), not null
+#  nov                 :decimal(8, 2)    default(0.0), not null
+#  dec                 :decimal(8, 2)    default(0.0), not null
+#  total               :decimal(8, 2)    default(0.0), not null
+#  created_at          :datetime
+#  updated_at          :datetime
+#  prior_year_rollover :decimal(8, 2)
 #
 
 require 'csv'
@@ -31,11 +32,13 @@ class CauseBalance < ActiveRecord::Base
   GROSS = 'Gross'
   DISCOUNT = 'Discount' # Discount fee
   NET = 'Net'
-  FEE = 'Fees'
+  KULA_FEE = 'Kula Fee'
+  FOUNDATION_FEE = 'Foundation Fee'
+  DISTRIBUTOR_FEE = 'Distributor Fee'
   ADJUSTMENT = 'Adjustment'
   DONEE_AMOUNT = 'Donee Amount'
   
-  BALANCE_TYPES = [PAYMENT, GROSS, DISCOUNT, NET, FEE, ADJUSTMENT, DONEE_AMOUNT]
+  BALANCE_TYPES = [PAYMENT, GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, ADJUSTMENT, DONEE_AMOUNT]
   MAX_TYPE_LEN = 16
     
   belongs_to :partner
@@ -45,9 +48,10 @@ class CauseBalance < ActiveRecord::Base
   validates_inclusion_of :balance_type, :in => BALANCE_TYPES
   validates :jan, :feb, :mar, :apr, :may, :jun, :jul, :aug, :sep, :oct, :nov, :dec, :total, 
               :numericality => { :greater_than_or_equal_to => 0 }, :unless => Proc.new { |b| (PAYMENT == b.balance_type) or (ADJUSTMENT == b.balance_type) }
+  validates_numericality_of :prior_year_rollover, :allow_nil => true
   
   scope :payments, -> { where("balance_type = ?", PAYMENT).group(:year, :partner_id) }
-  scope :transactional, -> { where("balance_type in (?)", [PAYABLE, GROSS, DISCOUNT, NET, FEE, DONEE_AMOUNT]) }
+  scope :transactional, -> { where("balance_type in (?)", [GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, DONEE_AMOUNT]) }
   
   def self.generate_payment_batch(user_id, partner, month, year, has_ach, minimum_due = 10)
     # Get the ids of those with ACH info; this should be smaller

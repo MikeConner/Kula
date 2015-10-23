@@ -26,6 +26,8 @@
           %th Discount 
           %th Net 
           %th Kula Fees
+          %th Foundation Fees
+          %th Distributor Fees
           %th
       %tbody
         - balance_data.each do |year, balances|
@@ -40,7 +42,9 @@
             %td= number_to_currency(balances[:gross])
             %td= number_to_currency(balances[:discount])
             %td= number_to_currency(balances[:net])
-            %td= number_to_currency(balances[:fees])
+            %td= number_to_currency(balances[:kula_fee])
+            %td= number_to_currency(balances[:foundation_fee])
+            %td= number_to_currency(balances[:distributor_fee])
             - if balances[:amount_due] > 0
               %td 
                 -# TODO: Make payment

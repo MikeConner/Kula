@@ -2,26 +2,27 @@
 #
 # Table name: cause_balances
 #
-#  id           :integer          not null, primary key
-#  partner_id   :integer          not null
-#  cause_id     :integer          not null
-#  year         :integer          not null
-#  balance_type :string(16)
-#  jan          :decimal(8, 2)    default(0.0), not null
-#  feb          :decimal(8, 2)    default(0.0), not null
-#  mar          :decimal(8, 2)    default(0.0), not null
-#  apr          :decimal(8, 2)    default(0.0), not null
-#  may          :decimal(8, 2)    default(0.0), not null
-#  jun          :decimal(8, 2)    default(0.0), not null
-#  jul          :decimal(8, 2)    default(0.0), not null
-#  aug          :decimal(8, 2)    default(0.0), not null
-#  sep          :decimal(8, 2)    default(0.0), not null
-#  oct          :decimal(8, 2)    default(0.0), not null
-#  nov          :decimal(8, 2)    default(0.0), not null
-#  dec          :decimal(8, 2)    default(0.0), not null
-#  total        :decimal(8, 2)    default(0.0), not null
-#  created_at   :datetime
-#  updated_at   :datetime
+#  id                  :integer          not null, primary key
+#  partner_id          :integer          not null
+#  cause_id            :integer          not null
+#  year                :integer          not null
+#  balance_type        :string(16)
+#  jan                 :decimal(8, 2)    default(0.0), not null
+#  feb                 :decimal(8, 2)    default(0.0), not null
+#  mar                 :decimal(8, 2)    default(0.0), not null
+#  apr                 :decimal(8, 2)    default(0.0), not null
+#  may                 :decimal(8, 2)    default(0.0), not null
+#  jun                 :decimal(8, 2)    default(0.0), not null
+#  jul                 :decimal(8, 2)    default(0.0), not null
+#  aug                 :decimal(8, 2)    default(0.0), not null
+#  sep                 :decimal(8, 2)    default(0.0), not null
+#  oct                 :decimal(8, 2)    default(0.0), not null
+#  nov                 :decimal(8, 2)    default(0.0), not null
+#  dec                 :decimal(8, 2)    default(0.0), not null
+#  total               :decimal(8, 2)    default(0.0), not null
+#  created_at          :datetime
+#  updated_at          :datetime
+#  prior_year_rollover :decimal(8, 2)
 #
 
 describe CauseBalance do

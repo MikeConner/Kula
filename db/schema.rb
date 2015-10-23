@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151023175236) do
+ActiveRecord::Schema.define(version: 20151023225207) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,27 +41,29 @@ ActiveRecord::Schema.define(version: 20151023175236) do
   end
 
   create_table "cause_balances", force: :cascade do |t|
-    t.integer  "partner_id",                                                    null: false
-    t.integer  "cause_id",                                                      null: false
-    t.integer  "year",                                                          null: false
-    t.string   "balance_type", limit: 16
-    t.decimal  "jan",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "feb",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "mar",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "apr",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "may",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "jun",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "jul",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "aug",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "sep",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "oct",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "nov",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "dec",                     precision: 8, scale: 2, default: 0.0, null: false
-    t.decimal  "total",                   precision: 8, scale: 2, default: 0.0, null: false
+    t.integer  "partner_id",                                                           null: false
+    t.integer  "cause_id",                                                             null: false
+    t.integer  "year",                                                                 null: false
+    t.string   "balance_type",        limit: 16
+    t.decimal  "jan",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "feb",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "mar",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "apr",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "may",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "jun",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "jul",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "aug",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "sep",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "oct",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "nov",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "dec",                            precision: 8, scale: 2, default: 0.0, null: false
+    t.decimal  "total",                          precision: 8, scale: 2, default: 0.0, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.decimal  "prior_year_rollover",            precision: 8, scale: 2
   end
 
+  add_index "cause_balances", ["cause_id", "balance_type"], name: "index_cause_balances_on_cause_id_and_balance_type", using: :btree
   add_index "cause_balances", ["cause_id"], name: "index_cause_balances_on_cause_id", using: :btree
   add_index "cause_balances", ["partner_id", "cause_id", "year", "balance_type"], name: "cause_balances_primary_key", unique: true, using: :btree
 

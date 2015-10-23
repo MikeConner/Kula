@@ -349,12 +349,28 @@ def update_cause_balances(r)
     update_balance(balance, r[:month], r[:net_amount].to_f)
   end
   
-  unless 0.0 == r[:calc_kula_fee].to_f +  r[:calc_foundation_fee].to_f + r[:calc_distributor_fee].to_f
+  unless 0.0 == r[:calc_kula_fee].to_f
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
-                                             :balance_type => CauseBalance::FEE)
-    update_balance(balance, r[:month], r[:calc_kula_fee] + r[:calc_foundation_fee] + r[:calc_distributor_fee])
+                                             :balance_type => CauseBalance::KULA_FEE)
+    update_balance(balance, r[:month], r[:calc_kula_fee])
+  end
+
+  unless 0.0 == r[:calc_foundation_fee].to_f 
+    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
+                                             :cause_id => r[:cause_identifier], 
+                                             :year => r[:year], 
+                                             :balance_type => CauseBalance::FOUNDATION_FEE)
+    update_balance(balance, r[:month], r[:calc_foundation_fee])
+  end
+
+  unless 0.0 == r[:calc_distributor_fee].to_f
+    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
+                                             :cause_id => r[:cause_identifier], 
+                                             :year => r[:year], 
+                                             :balance_type => CauseBalance::DISTRIBUTOR_FEE)
+    update_balance(balance, r[:month], r[:calc_distributor_fee])
   end
   
   unless 0.0 == r[:donee_amount]

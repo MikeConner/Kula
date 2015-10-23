@@ -6,7 +6,7 @@ class CausesController < ApplicationController
     @min_balance = params[:min_balance].to_f
     
     where_clause = @cause_name.blank? ? '' : "WHERE org_name LIKE '%#{@cause_name}%'"
-    sql = 'SELECT *,' +
+    sql = 'SELECT causes.cause_identifier, causes.cause_id, causes.org_name,' +
           "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
           "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
           "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
@@ -47,7 +47,7 @@ class CausesController < ApplicationController
       end
        
       unless @partner_balances[current_partner].has_key?(balance.year)
-        @partner_balances[current_partner][balance.year] = { :payments => 0, :adjustments => 0, :amount_due => 0, :donee => 0, :fees => 0, :net => 0, :discount => 0, :gross => 0 }        
+        @partner_balances[current_partner][balance.year] = { :payments => 0, :adjustments => 0, :amount_due => 0, :donee => 0, :kula_fee => 0, :foundation_fee => 0, :distributor_fee => 0, :net => 0, :discount => 0, :gross => 0 }        
       end
       
       case balance.balance_type
@@ -61,8 +61,12 @@ class CausesController < ApplicationController
         @partner_balances[current_partner][balance.year][:discount] += balance.total
       when CauseBalance::NET
         @partner_balances[current_partner][balance.year][:net] += balance.total
-      when CauseBalance::FEE
-        @partner_balances[current_partner][balance.year][:fees] += balance.total
+      when CauseBalance::KULA_FEE
+        @partner_balances[current_partner][balance.year][:kula_fee] += balance.total
+      when CauseBalance::DISTRIBUTOR_FEE
+        @partner_balances[current_partner][balance.year][:distributor_fee] += balance.total
+      when CauseBalance::FOUNDATION_FEE
+        @partner_balances[current_partner][balance.year][:foundation_fee] += balance.total
       when CauseBalance::DONEE_AMOUNT
         @partner_balances[current_partner][balance.year][:donee] += balance.total
         @partner_balances[current_partner][balance.year][:amount_due] += balance.total
