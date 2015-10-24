@@ -21,15 +21,8 @@ start_time = Time.now
 pre_process do
   puts "*** START USERS REPLICATION #{start_time}***"
   puts "--------------------------------------------"
-  puts "Clearing Replicated Table"
-  puts "--------------------------------------------"
 
-  @conn = PG.connect(conn_url)
-  @conn.exec("delete from replicated_users")
 
-  puts "Table Clear"
-
-  puts "--------------------------------------------"
 
 end
 
