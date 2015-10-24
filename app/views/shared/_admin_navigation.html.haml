@@ -20,19 +20,9 @@
   %a.item{:href => users_path}
     %i.fa.fa-user.fa-5
     %label Users
-
-  -# if current_user.super_admin?
-    %span.item
-      %label Admin Area
-    %a.item{:href => "#"}
-      %i.fa.fa-user.fa-5
-      %label Sample
-
-    %a.item{:href => "#{root_path}"}
-      %i.fa.fa-cogs.fa-5
-      %label Settings
-
-
+  %a.item{:href => edit_global_setting_path(GlobalSetting.first)}
+    %i.fa.fa-cogs.fa-5
+    %label Settings
 -#
   .section-container.accordion{:data => {:options => 'deep_linking', :section => ''}}
     .content

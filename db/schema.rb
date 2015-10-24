@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151023225207) do
+ActiveRecord::Schema.define(version: 20151024005432) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,7 +60,7 @@ ActiveRecord::Schema.define(version: 20151023225207) do
     t.decimal  "total",                          precision: 8, scale: 2, default: 0.0, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.decimal  "prior_year_rollover",            precision: 8, scale: 2
+    t.decimal  "prior_year_rollover",            precision: 8, scale: 2, default: 0.0, null: false
   end
 
   add_index "cause_balances", ["cause_id", "balance_type"], name: "index_cause_balances_on_cause_id_and_balance_type", using: :btree
@@ -225,6 +225,13 @@ ActiveRecord::Schema.define(version: 20151023225207) do
   end
 
   add_index "distributors", ["distributor_identifier"], name: "index_distributors_on_distributor_identifier", unique: true, using: :btree
+
+  create_table "global_settings", force: :cascade do |t|
+    t.date     "current_period", null: false
+    t.text     "other"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
 
   create_table "kula_fees", force: :cascade do |t|
     t.integer  "partner_identifier"

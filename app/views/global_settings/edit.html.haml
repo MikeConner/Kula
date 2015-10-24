@@ -1,0 +1,8 @@
+%h1 Global Settings
+= form_for @settings do |f|
+  = render :partial => 'shared/error_messages', :locals => { :errors => @settings.errors, :name => 'Settings' }
+  = render :partial => 'settings_fields', :locals => { :f => f }
+  %br
+  = f.submit 'Update Settings'
+%br
+= link_to 'Back', site_admin_path

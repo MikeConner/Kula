@@ -46,3 +46,7 @@ kula.kula_fees.create(:distributor_identifier => 20, :distributor_rate => 0.1, :
 kula.kula_fees.create(:distributor_identifier => 23, :distributor_rate => 0, :us_charity_rate => 0.1, :us_charity_kf_rate => 0.025, :us_school_rate => 0.1, :us_school_kf_rate => 0.025, :intl_charity_rate => 0.1, :intl_charity_kf_rate => 0.085)
 kula.kula_fees.create(:distributor_identifier => 25, :distributor_rate => 0, :us_charity_rate => 0.1, :us_charity_kf_rate => 0.025, :us_school_rate => 0.1, :us_school_kf_rate => 0.025, :intl_charity_rate => 0.1, :intl_charity_kf_rate => 0.085)
 coke.kula_fees.create!(:us_school_rate => 0, :us_school_kf_rate => 0, :us_charity_rate => 0, :us_charity_kf_rate => 0, :intl_charity_rate => 0, :intl_charity_kf_rate => 0)
+
+GlobalSetting.destroy_all
+
+GlobalSetting.create!(:current_period => Date.parse("2011-11-01"))

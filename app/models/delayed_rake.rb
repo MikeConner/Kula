@@ -10,6 +10,13 @@
 #  updated_at     :datetime         not null
 #
 
+# CHARTER
+#   Mechanism for running arbitrary rake tasks in a DelayedJob, and reporting on their status
+#
+# USAGE
+#
+# NOTES AND WARNINGS
+#
 class DelayedRake < ActiveRecord::Base  
   IMPORT_TX_TASK = 'db:stepwise_import_transactions'
 

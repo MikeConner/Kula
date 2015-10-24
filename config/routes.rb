@@ -29,6 +29,7 @@ Rails.application.routes.draw do
   end
   
   resources :delayed_rakes, :only => [:index]
+  resources :global_settings, :only => [:edit, :update]
   
   # Static pages
   get "/site_admin" => "static_pages#admin_index"

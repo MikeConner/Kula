@@ -22,7 +22,7 @@
 #  total               :decimal(8, 2)    default(0.0), not null
 #  created_at          :datetime
 #  updated_at          :datetime
-#  prior_year_rollover :decimal(8, 2)
+#  prior_year_rollover :decimal(8, 2)    default(0.0), not null
 #
 
 require 'csv'
