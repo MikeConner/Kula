@@ -3,6 +3,10 @@
     %ul.title-area
       %li.name
         = link_to(image_tag("kula.png", height: 45), root_path)
+        - if !current_user.nil? and current_user.super_admin?
+          %span{:style => 'color:white'}
+            &nbsp;&nbsp;
+            = Rails.env
       / Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone
       %li.toggle-topbar.menu-icon
         %a{:href => "#"}

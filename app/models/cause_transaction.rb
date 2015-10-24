@@ -87,4 +87,18 @@ class CauseTransaction < ActiveRecord::Base
                  ORDER BY year, month
     EOT
   end
+  
+  def self.query_step3
+    <<-EOT
+     SELECT cause_id, amount, EXTRACT(month FROM created) as month, EXTRACT(year FROM created) as year,
+          (SELECT sum(amount) FROM replicated_balance_transactions bt3 
+            WHERE bt3.session_uuid = bt2.session_uuid AND partner_id != 13 AND type = 2 AND
+                  bt3.transaction_id <= bt2.transaction_id+2 AND bt3.transaction_id >= bt2.transaction_id-2) AS NonCCAmountEarn 
+            FROM replicated_balance_transactions bt2 WHERE transaction_id IN
+                (SELECT burn_balance_transaction_id FROM replicated_burn_links 
+                    WHERE earn_balance_transaction_id IN 
+                        (SELECT transaction_id FROM replicated_balance_transactions WHERE partner_id = 13)
+                 ) AND partner_id = ##PARTNER_ID
+    EOT
+  end
 end

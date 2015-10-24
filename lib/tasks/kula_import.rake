@@ -303,6 +303,50 @@ namespace :db do
     
     puts "STEP 3"
     sql = CauseTransaction.query_step3
+    # Right now this is just for Coke
+    partner = Partner.find_by_name("My Coke Rewards")
+    sql.gsub!('##PARTNER_ID', partner.id.to_s)
+    
+    rate = partner.current_kula_rate.mcr_cc_rate || 0.0
+    
+    transactions = ActiveRecord::Base.connection.execute(sql)
+    puts "Read #{transactions.count} credit card transactions"
+    
+    transactions.each do |tx|
+      next if tx['NonCCAmountEarn'].blank?
+
+      month = tx['month'].to_i
+      year = tx['year'].to_i
+      cause_id = tx['cause_id'].to_i
+
+      keys = {:partner_id => partner.id, 
+              :cause_id => cause_id, 
+              :year => year, 
+              :balance_type => CauseBalance::CREDIT_CARD_FEE}
+      balance = CauseBalance.where(keys).first
+      
+      if balance.nil?
+        balance = CauseBalance.create!(keys)
+      end
+      
+      calculated_fee = rate * (tx['amount'].to_f - tx['NonCCAmountEarn'].to_f)
+      
+      ct_keys = {:partner_identifier => partner.id,
+                 :cause_identifier => cause_id,
+                 :month => month,
+                 :year => year}
+                 
+      ActiveRecord::Base.transaction do
+        existing_tx = CauseTransaction.where(ct_keys).first      
+        if existing_tx.nil?
+          CauseTransaction.create!(ct_keys.update(:calc_credit_card_fee => calculated_fee))
+        else
+          existing_tx.update_attribute(:calc_credit_card_fee, calculated_fee)
+        end
+        
+        update_balance(balance, tx['month'], calculated_fee)
+      end
+    end
     
     # Total Cause Balances
     Rake::Task["db:total_cause_balances"].invoke   
