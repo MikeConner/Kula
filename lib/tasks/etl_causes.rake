@@ -130,7 +130,7 @@ task :partner_codes_replicate => :environment do
   Kiba.run(job_definition)
 end
 
-
+# No longer needed?
 task :partner_transaction_fields_replicate => :environment do
   etl_filename = 'etl/partner_transaction_fields.etl'
   script_content = IO.read(etl_filename)
