@@ -23,8 +23,6 @@ development:
 test_dev:
   <<: *default
   host: kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
-  username: captain
-  password: MonkeY1984
   database: kula_pg_dev
 
 # Warning: The database defined as "test" will be erased and
@@ -32,7 +30,7 @@ test_dev:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: kula_test
+  host: kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
 
 replica:
   <<: *default

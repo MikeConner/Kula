@@ -23,3 +23,5 @@ db/schema.rb
 !.elasticbeanstalk/*.global.yml
 
 .elasticbeanstalkBACKUP/config.yml
+
+.elasticbeanstalkEAST/config.yml
