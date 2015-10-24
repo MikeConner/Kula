@@ -329,7 +329,7 @@ namespace :db do
         balance = CauseBalance.create!(keys)
       end
       
-      calculated_fee = rate * (tx['amount'].to_f - tx['NonCCAmountEarn'].to_f)
+      calculated_fee = (rate * (tx['amount'].to_f - tx['NonCCAmountEarn'].to_f)).round(2)
       
       ct_keys = {:partner_identifier => partner.id,
                  :cause_identifier => cause_id,

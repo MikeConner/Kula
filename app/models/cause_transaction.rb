@@ -7,17 +7,17 @@
 #  cause_identifier     :integer          not null
 #  month                :integer          not null
 #  year                 :integer          not null
-#  gross_amount         :decimal(8, 2)
-#  net_amount           :decimal(8, 2)
-#  donee_amount         :decimal(8, 2)
-#  discounts_amount     :decimal(6, 2)
-#  fees_amount          :decimal(6, 2)
-#  calc_kula_fee        :decimal(6, 2)
-#  calc_foundation_fee  :decimal(6, 2)
-#  calc_distributor_fee :decimal(6, 2)
+#  gross_amount         :decimal(8, 2)    default(0.0)
+#  net_amount           :decimal(8, 2)    default(0.0)
+#  donee_amount         :decimal(8, 2)    default(0.0)
+#  discounts_amount     :decimal(8, 2)    default(0.0)
+#  fees_amount          :decimal(8, 2)    default(0.0)
+#  calc_kula_fee        :decimal(8, 2)    default(0.0)
+#  calc_foundation_fee  :decimal(8, 2)    default(0.0)
+#  calc_distributor_fee :decimal(8, 2)    default(0.0)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
-#  calc_credit_card_fee :decimal(6, 2)
+#  calc_credit_card_fee :decimal(8, 2)    default(0.0)
 #
 
 class CauseTransaction < ActiveRecord::Base
