@@ -19,7 +19,7 @@ development:
   <<: *default
 
 
-# This is the ghetto writeable version of the read-only replica of the production database
+# This is region west version of the same db... this will go away soon
 test_dev:
   <<: *default
   host: kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
