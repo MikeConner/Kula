@@ -22,9 +22,10 @@ development:
 # This is the ghetto writeable version of the read-only replica of the production database
 test_dev:
   <<: *default
+  host: kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
   username: captain
   password: MonkeY1984
-  database: kula
+  database: kula_pg_dev
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
