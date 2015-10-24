@@ -11,6 +11,7 @@
       %th Intl Charity
       %th Distributor
       %th Discount
+      %th Credit Card
       %th Dates
   %tbody
     - @fees.each do |fee|
@@ -33,4 +34,8 @@
         - else
           %td= fee.distributor.name
           %td== #{fee.distributor_rate * 100}%
+        - if fee.mcr_cc_rate.nil?
+          %td N/A
+        - else
+          %td== #{fee.mcr_cc_rate * 100}%
         %td= fee.date_display

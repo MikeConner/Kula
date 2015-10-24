@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151024005432) do
+ActiveRecord::Schema.define(version: 20151024033535) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,6 +82,7 @@ ActiveRecord::Schema.define(version: 20151024005432) do
     t.decimal  "calc_distributor_fee", precision: 6, scale: 2
     t.datetime "created_at",                                   null: false
     t.datetime "updated_at",                                   null: false
+    t.decimal  "calc_credit_card_fee", precision: 6, scale: 2
   end
 
   add_index "cause_transactions", ["cause_identifier"], name: "index_cause_transactions_on_cause_identifier", using: :btree
@@ -239,14 +240,15 @@ ActiveRecord::Schema.define(version: 20151024005432) do
     t.date     "expiration_date"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.decimal  "us_school_rate",         precision: 6, scale: 4
-    t.decimal  "us_charity_rate",        precision: 6, scale: 4
-    t.decimal  "intl_charity_rate",      precision: 6, scale: 4
-    t.decimal  "us_school_kf_rate",      precision: 6, scale: 4
-    t.decimal  "us_charity_kf_rate",     precision: 6, scale: 4
-    t.decimal  "intl_charity_kf_rate",   precision: 6, scale: 4
-    t.decimal  "distributor_rate",       precision: 6, scale: 4
+    t.decimal  "us_school_rate",         precision: 6, scale: 4, default: 0.0
+    t.decimal  "us_charity_rate",        precision: 6, scale: 4, default: 0.0
+    t.decimal  "intl_charity_rate",      precision: 6, scale: 4, default: 0.0
+    t.decimal  "us_school_kf_rate",      precision: 6, scale: 4, default: 0.0
+    t.decimal  "us_charity_kf_rate",     precision: 6, scale: 4, default: 0.0
+    t.decimal  "intl_charity_kf_rate",   precision: 6, scale: 4, default: 0.0
+    t.decimal  "distributor_rate",       precision: 6, scale: 4, default: 0.0
     t.integer  "distributor_identifier"
+    t.decimal  "mcr_cc_rate",            precision: 6, scale: 4, default: 0.0
   end
 
   create_table "partners", primary_key: "partner_identifier", force: :cascade do |t|

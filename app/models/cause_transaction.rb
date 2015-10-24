@@ -17,6 +17,7 @@
 #  calc_distributor_fee :decimal(6, 2)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
+#  calc_credit_card_fee :decimal(6, 2)
 #
 
 class CauseTransaction < ActiveRecord::Base
@@ -27,7 +28,7 @@ class CauseTransaction < ActiveRecord::Base
                     :inclusion => { :in => 1..12 }
   validates :year, :numericality => { :only_integer => true, :greater_than => 2000 }
   validates_numericality_of :gross_amount, :net_amount, :donee_amount, :discounts_amount, :fees_amount
-  validates_numericality_of :calc_kula_fee, :calc_foundation_fee, :calc_distributor_fee
+  validates_numericality_of :calc_kula_fee, :calc_foundation_fee, :calc_distributor_fee, :calc_credit_card_fee
 
   def self.query_step1
     <<-EOT

@@ -47,7 +47,7 @@ class CausesController < ApplicationController
       end
        
       unless @partner_balances[current_partner].has_key?(balance.year)
-        @partner_balances[current_partner][balance.year] = { :payments => 0, :adjustments => 0, :amount_due => 0, :donee => 0, :kula_fee => 0, :foundation_fee => 0, :distributor_fee => 0, :net => 0, :discount => 0, :gross => 0 }        
+        @partner_balances[current_partner][balance.year] = { :payments => 0, :adjustments => 0, :amount_due => 0, :donee => 0, :kula_fee => 0, :foundation_fee => 0, :distributor_fee => 0, :credit_card_fee => 0, :net => 0, :discount => 0, :gross => 0 }        
       end
       
       case balance.balance_type
@@ -67,6 +67,8 @@ class CausesController < ApplicationController
         @partner_balances[current_partner][balance.year][:distributor_fee] += balance.total
       when CauseBalance::FOUNDATION_FEE
         @partner_balances[current_partner][balance.year][:foundation_fee] += balance.total
+      when CauseBalance::CREDIT_CARD_FEE
+        @partner_balances[current_partner][balance.year][:credit_card_fee] += balance.total
       when CauseBalance::DONEE_AMOUNT
         @partner_balances[current_partner][balance.year][:donee] += balance.total
         @partner_balances[current_partner][balance.year][:amount_due] += balance.total

@@ -8,14 +8,15 @@
 #  expiration_date        :date
 #  created_at             :datetime
 #  updated_at             :datetime
-#  us_school_rate         :decimal(6, 4)
-#  us_charity_rate        :decimal(6, 4)
-#  intl_charity_rate      :decimal(6, 4)
-#  us_school_kf_rate      :decimal(6, 4)
-#  us_charity_kf_rate     :decimal(6, 4)
-#  intl_charity_kf_rate   :decimal(6, 4)
-#  distributor_rate       :decimal(6, 4)
+#  us_school_rate         :decimal(6, 4)    default(0.0)
+#  us_charity_rate        :decimal(6, 4)    default(0.0)
+#  intl_charity_rate      :decimal(6, 4)    default(0.0)
+#  us_school_kf_rate      :decimal(6, 4)    default(0.0)
+#  us_charity_kf_rate     :decimal(6, 4)    default(0.0)
+#  intl_charity_kf_rate   :decimal(6, 4)    default(0.0)
+#  distributor_rate       :decimal(6, 4)    default(0.0)
 #  distributor_identifier :integer
+#  mcr_cc_rate            :decimal(6, 4)    default(0.0)
 #
 
 describe KulaFee do

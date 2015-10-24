@@ -45,7 +45,7 @@ kula.kula_fees.create(:distributor_identifier => 17, :distributor_rate => 0, :us
 kula.kula_fees.create(:distributor_identifier => 20, :distributor_rate => 0.1, :us_charity_rate => 0.1, :us_charity_kf_rate => 0.025, :us_school_rate => 0.1, :us_school_kf_rate => 0.025, :intl_charity_rate => 0.1, :intl_charity_kf_rate => 0.085)
 kula.kula_fees.create(:distributor_identifier => 23, :distributor_rate => 0, :us_charity_rate => 0.1, :us_charity_kf_rate => 0.025, :us_school_rate => 0.1, :us_school_kf_rate => 0.025, :intl_charity_rate => 0.1, :intl_charity_kf_rate => 0.085)
 kula.kula_fees.create(:distributor_identifier => 25, :distributor_rate => 0, :us_charity_rate => 0.1, :us_charity_kf_rate => 0.025, :us_school_rate => 0.1, :us_school_kf_rate => 0.025, :intl_charity_rate => 0.1, :intl_charity_kf_rate => 0.085)
-coke.kula_fees.create!(:us_school_rate => 0, :us_school_kf_rate => 0, :us_charity_rate => 0, :us_charity_kf_rate => 0, :intl_charity_rate => 0, :intl_charity_kf_rate => 0)
+coke.kula_fees.create!(:mcr_cc_rate => 0.08)
 
 GlobalSetting.destroy_all
 

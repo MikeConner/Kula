@@ -32,13 +32,14 @@ class CauseBalance < ActiveRecord::Base
   GROSS = 'Gross'
   DISCOUNT = 'Discount' # Discount fee
   NET = 'Net'
+  ADJUSTMENT = 'Adjustment'
+  DONEE_AMOUNT = 'Donee Amount'
   KULA_FEE = 'Kula Fee'
   FOUNDATION_FEE = 'Foundation Fee'
   DISTRIBUTOR_FEE = 'Distributor Fee'
-  ADJUSTMENT = 'Adjustment'
-  DONEE_AMOUNT = 'Donee Amount'
+  CREDIT_CARD_FEE = 'Credit Fee'
   
-  BALANCE_TYPES = [PAYMENT, GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, ADJUSTMENT, DONEE_AMOUNT]
+  BALANCE_TYPES = [PAYMENT, GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, CREDIT_CARD_FEE, ADJUSTMENT, DONEE_AMOUNT]
   MAX_TYPE_LEN = 16
     
   belongs_to :partner
@@ -51,7 +52,7 @@ class CauseBalance < ActiveRecord::Base
   validates_numericality_of :prior_year_rollover, :allow_nil => true
   
   scope :payments, -> { where("balance_type = ?", PAYMENT).group(:year, :partner_id) }
-  scope :transactional, -> { where("balance_type in (?)", [GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, DONEE_AMOUNT]) }
+  scope :transactional, -> { where("balance_type in (?)", [GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, CREDIT_CARD_FEE, DONEE_AMOUNT]) }
   
   def self.generate_payment_batch(user_id, partner, month, year, has_ach, minimum_due = 10)
     # Get the ids of those with ACH info; this should be smaller

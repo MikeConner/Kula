@@ -220,7 +220,8 @@ namespace :db do
                           :fees_amount => tx['kulafees'].to_f,
                           :calc_kula_fee => kula_fee,
                           :calc_foundation_fee => foundation_fee,
-                          :calc_distributor_fee => 0})          
+                          :calc_distributor_fee => 0,
+                          :calc_credit_card_fee => 0})          
           end
         end
       end
@@ -274,7 +275,8 @@ namespace :db do
                                          :us_school_rate => 0.1, 
                                          :us_school_kf_rate => 0.025, 
                                          :intl_charity_rate => 0.1, 
-                                         :intl_charity_kf_rate => 0.025)
+                                         :intl_charity_kf_rate => 0.025,
+                                         :mcr_cc_rate => 0)
           puts "Added previously unknown distributor: #{distributor_id}"
         end
         
@@ -298,6 +300,9 @@ namespace :db do
         end
       end
     end         
+    
+    puts "STEP 3"
+    sql = CauseTransaction.query_step3
     
     # Total Cause Balances
     Rake::Task["db:total_cause_balances"].invoke   
@@ -371,6 +376,14 @@ def update_cause_balances(r)
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::DISTRIBUTOR_FEE)
     update_balance(balance, r[:month], r[:calc_distributor_fee])
+  end
+
+  unless 0.0 == r[:calc_credit_card_fee].to_f
+    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
+                                             :cause_id => r[:cause_identifier], 
+                                             :year => r[:year], 
+                                             :balance_type => CauseBalance::CREDIT_CARD_FEE)
+    update_balance(balance, r[:month], r[:calc_credit_card_fee])
   end
   
   unless 0.0 == r[:donee_amount]
