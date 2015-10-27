@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151024054910) do
+ActiveRecord::Schema.define(version: 20151027175214) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -262,19 +262,19 @@ ActiveRecord::Schema.define(version: 20151024054910) do
 
   create_table "payments", force: :cascade do |t|
     t.integer  "batch_id"
-    t.string   "status",         limit: 16,                          default: "Pending", null: false
-    t.decimal  "amount",                     precision: 8, scale: 2,                     null: false
+    t.string   "status",         limit: 16,                          default: "Outstanding", null: false
+    t.decimal  "amount",                     precision: 8, scale: 2,                         null: false
     t.datetime "date"
     t.string   "confirmation",   limit: 255
-    t.string   "payment_method", limit: 8,                           default: "Check",   null: false
+    t.string   "payment_method", limit: 8,                           default: "Check",       null: false
     t.string   "address",        limit: 255
     t.text     "comment"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "cause_id",                                                               null: false
-    t.integer  "check_num",                                                              null: false
-    t.integer  "month",                                                                  null: false
-    t.integer  "year",                                                                   null: false
+    t.integer  "cause_id",                                                                   null: false
+    t.integer  "check_num",                                                                  null: false
+    t.integer  "month",                                                                      null: false
+    t.integer  "year",                                                                       null: false
   end
 
   add_index "payments", ["batch_id"], name: "index_payments_on_batch_id", using: :btree
