@@ -40,7 +40,7 @@ namespace :db do
     end
 
     puts "Making #{payments.count} payments"
-=begin    
+ 
     ActiveRecord::Base.transaction do  
       begin        
         batch = Batch.create!(:user_id => user.id, :partner_id => partner.id, :name => 'Generate Payment Batch task', :date => Time.now)
@@ -55,12 +55,19 @@ namespace :db do
                                  :month => month,
                                  :year => year)
           num += 1
+          
+          balance = CauseBalance.find_or_create_by(:partner_id => partner.id, 
+                                                   :cause_id => payment[:cause_id], 
+                                                   :year => year, 
+                                                   :balance_type => CauseBalance::PAYMENT)
+          
+          # Put in payments as negative
+          balance.update_balance(month, -1 * payment[:amount])
         end
       rescue ActiveRecord::Rollback => ex
         puts ex.inspect
       end
     end
-=end
   end
   
   def sum_months(balance, month)
