@@ -265,19 +265,23 @@ namespace :db do
       if partner.nil?
         puts "Could not find partner #{partner_id}"
       else
-        fee = partner.current_kula_rate(distributor_id, Date.parse("#{year}-#{month}-01"))
-        if fee.nil?
-          # If unknown distributor, add in a 0 fee entry
-          fee = partner.kula_fees.create(:distributor_identifier => distributor_id, 
-                                         :distributor_rate => 0, 
-                                         :us_charity_rate => 0.1, 
-                                         :us_charity_kf_rate => 0.025, 
-                                         :us_school_rate => 0.1, 
-                                         :us_school_kf_rate => 0.025, 
-                                         :intl_charity_rate => 0.1, 
-                                         :intl_charity_kf_rate => 0.025,
-                                         :mcr_cc_rate => 0)
-          puts "Added previously unknown distributor: #{distributor_id}"
+        fee = nil
+        
+        unless (0 == year) or (0 == month)
+          fee = partner.current_kula_rate(distributor_id, Date.parse("#{year}-#{month}-01"))
+          if fee.nil?
+            # If unknown distributor, add in a 0 fee entry
+            fee = partner.kula_fees.create(:distributor_identifier => distributor_id, 
+                                           :distributor_rate => 0, 
+                                           :us_charity_rate => 0.1, 
+                                           :us_charity_kf_rate => 0.025, 
+                                           :us_school_rate => 0.1, 
+                                           :us_school_kf_rate => 0.025, 
+                                           :intl_charity_rate => 0.1, 
+                                           :intl_charity_kf_rate => 0.025,
+                                           :mcr_cc_rate => 0)
+            puts "Added previously unknown distributor: #{distributor_id}"
+          end
         end
         
         if fee.nil?
