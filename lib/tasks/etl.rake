@@ -1,3 +1,4 @@
+#causes are full-replicate as of today 10/2015
 task :causes_replicate => :environment do
   start_time = Time.now
   etl_filename = 'etl/causes.etl'
@@ -44,7 +45,7 @@ task :causes_replicate => :environment do
 end
 
 
-
+#burn Links we can do incremental replication by getting max{burn_id} and asking for anything above that.  Assumption that id is auto-incrementing
 task :burn_links_replicate => :environment do
   start_time = Time.now
   etl_filename = 'etl/burn_links.etl'
@@ -92,7 +93,7 @@ task :burn_links_replicate => :environment do
 end
 
 
-
+#Users are full replicate as of today 10/2015
 task :users_replicate => :environment do
   start_time = Time.now
   etl_filename = 'etl/users.etl'
@@ -138,7 +139,7 @@ task :users_replicate => :environment do
     puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 
 end
-
+#balances are full replicate as of today 10/2015
 task :balances_replicate => :environment do
   #TODO We will update this to store possibly in a different format - For now we'll do a full replication - should be fast enough no batching
   start_time = Time.now
@@ -148,7 +149,8 @@ task :balances_replicate => :environment do
   Kiba.run(job_definition)
 end
 
-
+#this needs to be batched for memory Usage
+#this needs to have incrementals as well
 task :balance_transactions_replicate => :environment do
   etl_filename = 'etl/balance_transactions.etl'
   script_content = IO.read(etl_filename)
@@ -159,7 +161,7 @@ end
 
 
 
-
+#batching AND incremental
 task :partner_codes_replicate => :environment do
   etl_filename = 'etl/partner_codes.etl'
   script_content = IO.read(etl_filename)
@@ -168,14 +170,7 @@ task :partner_codes_replicate => :environment do
   Kiba.run(job_definition)
 end
 
-# No longer needed?
-task :partner_transaction_fields_replicate => :environment do
-  etl_filename = 'etl/partner_transaction_fields.etl'
-  script_content = IO.read(etl_filename)
-  # pass etl_filename to line numbers on errors
-  job_definition = Kiba.parse(script_content, etl_filename)
-  Kiba.run(job_definition)
-end
+
 
 
 task :partner_transactions_replicate => :environment do
@@ -188,6 +183,17 @@ end
 
 task :partner_user_map_replicate => :environment do
   etl_filename = 'etl/partner_user_map.etl'
+  script_content = IO.read(etl_filename)
+  # pass etl_filename to line numbers on errors
+  job_definition = Kiba.parse(script_content, etl_filename)
+  Kiba.run(job_definition)
+end
+
+
+
+# No longer needed?
+task :partner_transaction_fields_replicate => :environment do
+  etl_filename = 'etl/partner_transaction_fields.etl'
   script_content = IO.read(etl_filename)
   # pass etl_filename to line numbers on errors
   job_definition = Kiba.parse(script_content, etl_filename)

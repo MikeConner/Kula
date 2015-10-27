@@ -25,11 +25,4 @@ class BurnLinkSource
       yield(row)
     end
   end
-
-
-
-
-
-
-
 end
