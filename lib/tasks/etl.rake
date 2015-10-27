@@ -44,55 +44,6 @@ task :causes_replicate => :environment do
   puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
 
-
-#burn Links we can do incremental replication by getting max{burn_id} and asking for anything above that.  Assumption that id is auto-incrementing
-task :burn_links_replicate => :environment do
-  start_time = Time.now
-  etl_filename = 'etl/burn_links.etl'
-  script_content = IO.read(etl_filename)
-  # pass etl_filename to line numbers on errors
-  job_definition = Kiba.parse(script_content, etl_filename)
-
-    ENV['BATCH_SIZE'] = "50000"
-    ENV['LAST_BURN_ID'] = ""
-    config = YAML.load(IO.read('config/database.yml'))
-    @mysql = Mysql2::Client.new(config['replica'])
-    rowCount = @mysql.query('select count(*) as cnt from burn_links')
-
-
-    num_rows = rowCount.first['cnt'].to_i
-
-    puts "--------------------------------------------"
-    puts "Clearing Replicated Table"
-    puts "--------------------------------------------"
-
-    ActiveRecord::Base.establish_connection(Rails.env).connection
-    ActiveRecord::Base.connection.execute("DELETE FROM replicated_burn_links;")
-
-    puts "Table Clear"
-    puts "--------------------------------------------"
-    puts "#{num_rows} total rows"
-
-
-    blocks = num_rows / ENV['BATCH_SIZE'].to_i
-    remainder = num_rows % ENV['BATCH_SIZE'].to_i
-
-    blocks.times do
-      Kiba.run(job_definition)
-      ENV['LAST_BURN_ID'] = ActiveRecord::Base.connection.execute("SELECT MAX(burn_link_id) as max FROM replicated_burn_links").first['max']
-    end
-    ENV['BATCH_SIZE'] = remainder.to_s #TODO: JEFF, I Changed this from [ENF'LAST_ID'] to BATCH_SIZE... check my logic
-    Kiba.run(job_definition)
-
-
-    end_time = Time.now
-    duration_in_minutes = (end_time - start_time)/60
-    puts ""
-    puts "*** End CAUSES REPLICATION #{end_time}***"
-    puts "*** Duration (min): #{duration_in_minutes.round(2)}"
-end
-
-
 #Users are full replicate as of today 10/2015
 task :users_replicate => :environment do
   start_time = Time.now
@@ -148,6 +99,101 @@ task :balances_replicate => :environment do
   job_definition = Kiba.parse(script_content, etl_filename)
   Kiba.run(job_definition)
 end
+# Assumption that id is auto-incrementing
+task :burn_links_full_replicate => :environment do
+  start_time = Time.now
+  etl_filename = 'etl/burn_links.etl'
+  script_content = IO.read(etl_filename)
+  # pass etl_filename to line numbers on errors
+  job_definition = Kiba.parse(script_content, etl_filename)
+
+    ENV['BATCH_SIZE'] = "50000"
+    ENV['LAST_BURN_ID'] = ""
+    config = YAML.load(IO.read('config/database.yml'))
+    @mysql = Mysql2::Client.new(config['replica'])
+    rowCount = @mysql.query('select count(*) as cnt from burn_links')
+
+
+    num_rows = rowCount.first['cnt'].to_i
+
+    puts "--------------------------------------------"
+    puts "Clearing Replicated Table"
+    puts "--------------------------------------------"
+
+    ActiveRecord::Base.establish_connection(Rails.env).connection
+    ActiveRecord::Base.connection.execute("DELETE FROM replicated_burn_links;")
+
+    puts "Table Clear"
+    puts "--------------------------------------------"
+    puts "#{num_rows} total rows"
+
+
+    blocks = num_rows / ENV['BATCH_SIZE'].to_i
+    remainder = num_rows % ENV['BATCH_SIZE'].to_i
+
+    blocks.times do
+      Kiba.run(job_definition)
+      ENV['LAST_BURN_ID'] = ActiveRecord::Base.connection.execute("SELECT MAX(burn_link_id) as max FROM replicated_burn_links").first['max']
+    end
+    ENV['BATCH_SIZE'] = remainder.to_s #TODO: JEFF, I Changed this from [ENF'LAST_ID'] to BATCH_SIZE... check my logic
+    Kiba.run(job_definition)
+
+
+    end_time = Time.now
+    duration_in_minutes = (end_time - start_time)/60
+    puts ""
+    puts "*** End CAUSES REPLICATION #{end_time}***"
+    puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+task :burn_links_inc_replicate => :environment do
+  start_time = Time.now
+  etl_filename = 'etl/burn_links.etl'
+  script_content = IO.read(etl_filename)
+  job_definition = Kiba.parse(script_content, etl_filename)
+
+  ENV['BATCH_SIZE'] = "50000"
+  config = YAML.load(IO.read('config/database.yml'))
+  @mysql = Mysql2::Client.new(config['replica'])
+
+  puts "--------------------------------------------"
+  puts "Finding Last Burn ID from last replication"
+  puts "--------------------------------------------"
+
+  ActiveRecord::Base.establish_connection(Rails.env).connection
+  ENV['LAST_BURN_ID'] = ActiveRecord::Base.connection.execute("SELECT MAX(burn_link_id) as max FROM replicated_burn_links").first['max']
+
+  puts "Last ID: #{ENV['LAST_BURN_ID']}"
+  puts "--------------------------------------------"
+
+  rowCount = @mysql.query("select count(*) as cnt from burn_links where burn_link_id > #{ENV['LAST_BURN_ID']} "  )
+  num_rows = rowCount.first['cnt'].to_i
+
+  puts "#{num_rows} total rows"
+  puts "--------------------------------------------"
+
+    blocks = num_rows / ENV['BATCH_SIZE'].to_i
+    remainder = num_rows % ENV['BATCH_SIZE'].to_i
+
+    blocks.times do
+      Kiba.run(job_definition)
+      ENV['LAST_BURN_ID'] = ActiveRecord::Base.connection.execute("SELECT MAX(burn_link_id) as max FROM replicated_burn_links").first['max']
+    end
+    ENV['BATCH_SIZE'] = remainder.to_s #TODO: JEFF, I Changed this from [ENF'LAST_ID'] to BATCH_SIZE... check my logic
+    Kiba.run(job_definition)
+
+
+    end_time = Time.now
+    duration_in_minutes = (end_time - start_time)/60
+    puts ""
+    puts "*** End BURN LINKS INCREMENTAL REPLICATION #{end_time}***"
+    puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+
+
+
+
 
 #this needs to be batched for memory Usage
 #this needs to have incrementals as well

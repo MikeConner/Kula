@@ -1,12 +1,5 @@
-# put this at the top of your script
 require_relative '../config/environment'
-
-# then declare your Kiba ETL script
-
-#!/usr/bin/env ruby
-
 $:.unshift "#{File.dirname(__FILE__)}/lib"
-
 require 'balance_source'
 require 'balance_destination'
 
@@ -34,8 +27,6 @@ pre_process do
 
 end
 
-#transform FilterMD5
-
 transform do |row|
   print "."
   newrow = {}
@@ -50,11 +41,11 @@ transform do |row|
   newrow
 end
 
+destination BalanceDestination, conn_url
+
 post_process do
   end_time = Time.now
   duration_in_minutes = (end_time - start_time)/60
   puts "*** End BALANCES REPLICATION #{end_time}***"
   puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
-
-destination BalanceDestination, conn_url
