@@ -99,6 +99,17 @@ task :balances_replicate => :environment do
   job_definition = Kiba.parse(script_content, etl_filename)
   Kiba.run(job_definition)
 end
+
+
+
+task :partner_user_map_replicate => :environment do
+  etl_filename = 'etl/partner_user_map.etl'
+  script_content = IO.read(etl_filename)
+  # pass etl_filename to line numbers on errors
+  job_definition = Kiba.parse(script_content, etl_filename)
+  Kiba.run(job_definition)
+end
+
 # Assumption that id is auto-incrementing
 task :burn_links_full_replicate => :environment do
   start_time = Time.now
@@ -190,10 +201,6 @@ task :burn_links_inc_replicate => :environment do
 end
 
 
-
-
-
-
 #this needs to be batched for memory Usage
 #this needs to have incrementals as well
 task :balance_transactions_full_replicate => :environment do
@@ -239,9 +246,59 @@ task :balance_transactions_full_replicate => :environment do
   puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
 
+task :balance_transactions_inc_replicate => :environment do
+  start_time = Time.now
+  etl_filename = 'etl/balance_transactions.etl'
+  script_content = IO.read(etl_filename)
+  # pass etl_filename to line numbers on errors
+  job_definition = Kiba.parse(script_content, etl_filename)
+
+  ENV['BATCH_SIZE'] = "50000"
+  ENV['LAST_TXN_ID'] = ""
+  config = YAML.load(IO.read('config/database.yml'))
+  @mysql = Mysql2::Client.new(config['replica'])
 
 
-#batching AND incremental
+  puts "--------------------------------------------"
+  puts "Finding Last Txn ID from last replication"
+  puts "--------------------------------------------"
+
+  ActiveRecord::Base.establish_connection(Rails.env).connection
+  ENV['LAST_TXN_ID'] = ActiveRecord::Base.connection.execute("SELECT max(transaction_id) as max from replicated_balance_transactions").first['max']
+
+  puts "Last ID: #{ENV['LAST_TXN_ID']}"
+  puts "--------------------------------------------"
+
+  rowCount = @mysql.query("select count(*) as cnt from balance_transactions where transaction_id > #{ENV['LAST_TXN_ID']} "  )
+  num_rows = rowCount.first['cnt'].to_i
+
+  puts "#{num_rows} total rows"
+  puts "--------------------------------------------"
+
+
+
+
+
+
+
+  blocks = num_rows / ENV['BATCH_SIZE'].to_i
+  remainder = num_rows % ENV['BATCH_SIZE'].to_i
+  blocks.times do
+    Kiba.run(job_definition)
+    ENV['LAST_TXN_ID'] = ActiveRecord::Base.connection.execute("SELECT max(transaction_id) as max from replicated_balance_transactions").first['max']
+  end
+  ENV['BATCH_SIZE'] = remainder.to_s
+  Kiba.run(job_definition)
+
+
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts ""
+  puts "*** End BALANCE TRANSACTION FULL REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+end
+
+#batching AND incremental (later, very quick right now)
 task :partner_codes_replicate => :environment do
   etl_filename = 'etl/partner_codes.etl'
   script_content = IO.read(etl_filename)
@@ -253,7 +310,8 @@ end
 
 
 
-task :partner_transactions_replicate => :environment do
+task :partner_transactions_full_replicate => :environment do
+  start_time = Time.now
   etl_filename = 'etl/partner_transactions.etl'
   script_content = IO.read(etl_filename)
   # pass etl_filename to line numbers on errors
@@ -261,13 +319,6 @@ task :partner_transactions_replicate => :environment do
   Kiba.run(job_definition)
 end
 
-task :partner_user_map_replicate => :environment do
-  etl_filename = 'etl/partner_user_map.etl'
-  script_content = IO.read(etl_filename)
-  # pass etl_filename to line numbers on errors
-  job_definition = Kiba.parse(script_content, etl_filename)
-  Kiba.run(job_definition)
-end
 
 
 
@@ -277,5 +328,7 @@ task :partner_transaction_fields_replicate => :environment do
   script_content = IO.read(etl_filename)
   # pass etl_filename to line numbers on errors
   job_definition = Kiba.parse(script_content, etl_filename)
-  Kiba.run(job_definition)
+
+  puts "no longer used - here for reference.  Stop trying to run me!"
+  #Kiba.run(job_definition)
 end
