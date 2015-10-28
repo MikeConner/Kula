@@ -211,7 +211,7 @@ task :balance_transactions_full_replicate => :environment do
   job_definition = Kiba.parse(script_content, etl_filename)
 
   ENV['BATCH_SIZE'] = "50000"
-  ENV['LAST_TXN_ID'] = ""
+  ENV['LAST_TXN_ID'] = "0"
   config = YAML.load(IO.read('config/database.yml'))
   @mysql = Mysql2::Client.new(config['replica'])
   rowCount = @mysql.query('select count(*) as cnt from balance_transactions')
@@ -319,7 +319,7 @@ task :partner_transactions_full_replicate => :environment do
 
 
   ENV['BATCH_SIZE'] = "50000"
-  ENV['LAST_P_TXN_ID'] = ""
+  ENV['LAST_P_TXN_ID'] = "0"
   config = YAML.load(IO.read('config/database.yml'))
   @mysql = Mysql2::Client.new(config['replica'])
   rowCount = @mysql.query('select count(*) as cnt from partner_transaction')
