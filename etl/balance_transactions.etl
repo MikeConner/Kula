@@ -21,14 +21,8 @@ conn_url = "postgresql://#{connect_yaml['username']}:#{connect_yaml['password']}
 start_time = Time.now
 pre_process do
   puts "*** START BALANCES TRANSACTION REPLICATION #{start_time}***"
-  puts "--------------------------------------------"
-  puts "Clearing Replicated Table"
-  puts "--------------------------------------------"
 
-  @conn = PG.connect(conn_url)
-  @conn.exec("delete from replicated_balance_transactions")
-
-  puts "Table Clear"
+ 
 
   puts "--------------------------------------------"
 

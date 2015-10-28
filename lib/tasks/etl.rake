@@ -104,46 +104,45 @@ task :burn_links_full_replicate => :environment do
   start_time = Time.now
   etl_filename = 'etl/burn_links.etl'
   script_content = IO.read(etl_filename)
-  # pass etl_filename to line numbers on errors
   job_definition = Kiba.parse(script_content, etl_filename)
 
-    ENV['BATCH_SIZE'] = "50000"
-    ENV['LAST_BURN_ID'] = ""
-    config = YAML.load(IO.read('config/database.yml'))
-    @mysql = Mysql2::Client.new(config['replica'])
-    rowCount = @mysql.query('select count(*) as cnt from burn_links')
+  ENV['BATCH_SIZE'] = "50000"
+  ENV['LAST_BURN_ID'] = ""
+  config = YAML.load(IO.read('config/database.yml'))
+  @mysql = Mysql2::Client.new(config['replica'])
+  rowCount = @mysql.query('select count(*) as cnt from burn_links')
 
 
-    num_rows = rowCount.first['cnt'].to_i
+  num_rows = rowCount.first['cnt'].to_i
 
-    puts "--------------------------------------------"
-    puts "Clearing Replicated Table"
-    puts "--------------------------------------------"
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
 
-    ActiveRecord::Base.establish_connection(Rails.env).connection
-    ActiveRecord::Base.connection.execute("DELETE FROM replicated_burn_links;")
+  ActiveRecord::Base.establish_connection(Rails.env).connection
+  ActiveRecord::Base.connection.execute("DELETE FROM replicated_burn_links;")
 
-    puts "Table Clear"
-    puts "--------------------------------------------"
-    puts "#{num_rows} total rows"
+  puts "Table Clear"
+  puts "--------------------------------------------"
+  puts "#{num_rows} total rows"
 
 
-    blocks = num_rows / ENV['BATCH_SIZE'].to_i
-    remainder = num_rows % ENV['BATCH_SIZE'].to_i
+  blocks = num_rows / ENV['BATCH_SIZE'].to_i
+  remainder = num_rows % ENV['BATCH_SIZE'].to_i
 
-    blocks.times do
-      Kiba.run(job_definition)
-      ENV['LAST_BURN_ID'] = ActiveRecord::Base.connection.execute("SELECT MAX(burn_link_id) as max FROM replicated_burn_links").first['max']
-    end
-    ENV['BATCH_SIZE'] = remainder.to_s #TODO: JEFF, I Changed this from [ENF'LAST_ID'] to BATCH_SIZE... check my logic
+  blocks.times do
     Kiba.run(job_definition)
+    ENV['LAST_BURN_ID'] = ActiveRecord::Base.connection.execute("SELECT MAX(burn_link_id) as max FROM replicated_burn_links").first['max']
+  end
+  ENV['BATCH_SIZE'] = remainder.to_s #TODO: JEFF, I Changed this from [ENF'LAST_ID'] to BATCH_SIZE... check my logic
+  Kiba.run(job_definition)
 
 
-    end_time = Time.now
-    duration_in_minutes = (end_time - start_time)/60
-    puts ""
-    puts "*** End CAUSES REPLICATION #{end_time}***"
-    puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts ""
+  puts "*** End CAUSES REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
 
 task :burn_links_inc_replicate => :environment do
@@ -197,12 +196,47 @@ end
 
 #this needs to be batched for memory Usage
 #this needs to have incrementals as well
-task :balance_transactions_replicate => :environment do
+task :balance_transactions_full_replicate => :environment do
+  start_time = Time.now
   etl_filename = 'etl/balance_transactions.etl'
   script_content = IO.read(etl_filename)
   # pass etl_filename to line numbers on errors
   job_definition = Kiba.parse(script_content, etl_filename)
+
+  ENV['BATCH_SIZE'] = "50000"
+  ENV['LAST_TXN_ID'] = ""
+  config = YAML.load(IO.read('config/database.yml'))
+  @mysql = Mysql2::Client.new(config['replica'])
+  rowCount = @mysql.query('select count(*) as cnt from balance_transactions')
+  num_rows = rowCount.first['cnt'].to_i
+
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
+
+  ActiveRecord::Base.establish_connection(Rails.env).connection
+  ActiveRecord::Base.connection.execute("DELETE FROM replicated_balance_transactions;")
+
+  puts "Table Clear"
+  puts "--------------------------------------------"
+  puts "#{num_rows} total rows"
+
+
+  blocks = num_rows / ENV['BATCH_SIZE'].to_i
+  remainder = num_rows % ENV['BATCH_SIZE'].to_i
+  blocks.times do
+    Kiba.run(job_definition)
+    ENV['LAST_TXN_ID'] = ActiveRecord::Base.connection.execute("SELECT max(transaction_id) as max from replicated_balance_transactions").first['max']
+  end
+  ENV['BATCH_SIZE'] = remainder.to_s
   Kiba.run(job_definition)
+
+
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts ""
+  puts "*** End BALANCE TRANSACTION FULL REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
 end
 
 
