@@ -4,18 +4,20 @@ require 'uri'
 
 
 class PartnerTransactionSource
-  # connect_url should look like;
-  # mysql://user:password@localhost/dbname
+  DEFAULT_BATCH_SIZE = 10000
 
 
   def initialize(connect_hash)
     @mysql = Mysql2::Client.new(connect_hash)
+    @batch_size = ENV['BATCH_SIZE'].to_i || DEFAULT_BATCH_SIZE
+    @last_p_txn_id = ENV['LAST_P_TXN_ID']
   end
 
-#connect_hash(connect_url)
+
   def each
-    results = @mysql.query("SELECT pt.*,
-	ptcf1.value as points,
+
+    query = "SELECT pt.*,
+	   ptcf1.value as points,
     ptcf2.value as user__id,
     ptcf3.value as amount,
     ptcf4.value as currency,
@@ -126,11 +128,19 @@ class PartnerTransactionSource
 	LEFT OUTER JOIN kula.partner_transaction_field ptcf48 on ptcf48.partner_transaction_id = pt.partner_transaction_id and  ptcf48.name = 'final_balance'
 	LEFT OUTER JOIN kula.partner_transaction_field ptcf49 on ptcf49.partner_transaction_id = pt.partner_transaction_id and  ptcf49.name = 'billing.billing-id'
 
-	LEFT OUTER JOIN kula.partner_transaction_field ptcf50 on ptcf50.partner_transaction_id = pt.partner_transaction_id and  ptcf50.name = 'shipping.shipping-id'", as: :hash, symbolize_keys: true)
-    results.each do |row|
+	LEFT OUTER JOIN kula.partner_transaction_field ptcf50 on ptcf50.partner_transaction_id = pt.partner_transaction_id and  ptcf50.name = 'shipping.shipping-id' "
 
+    unless @last_p_txn_id.nil?
+      query += " WHERE pt.partner_transaction_id > #{@last_p_txn_id}"
+    end
+    query += " ORDER BY pt.partner_transaction_id ASC LIMIT #{@batch_size}"
+    puts query
+    results = @mysql.query(query, as: :hash, symbolize_keys: true)
+    results.each do |row|
       yield(row)
     end
+
+ 
   end
 
 

@@ -316,10 +316,92 @@ task :partner_transactions_full_replicate => :environment do
   script_content = IO.read(etl_filename)
   # pass etl_filename to line numbers on errors
   job_definition = Kiba.parse(script_content, etl_filename)
+
+
+  ENV['BATCH_SIZE'] = "50000"
+  ENV['LAST_P_TXN_ID'] = ""
+  config = YAML.load(IO.read('config/database.yml'))
+  @mysql = Mysql2::Client.new(config['replica'])
+  rowCount = @mysql.query('select count(*) as cnt from partner_transaction')
+  num_rows = rowCount.first['cnt'].to_i
+
+  puts "--------------------------------------------"
+  puts "Clearing Replicated Table"
+  puts "--------------------------------------------"
+
+  ActiveRecord::Base.establish_connection(Rails.env).connection
+  ActiveRecord::Base.connection.execute("DELETE FROM replicated_partner_transaction;")
+
+  puts "Table Clear"
+  puts "--------------------------------------------"
+  puts "#{num_rows} total rows"
+
+
+  blocks = num_rows / ENV['BATCH_SIZE'].to_i
+  remainder = num_rows % ENV['BATCH_SIZE'].to_i
+  blocks.times do
+    Kiba.run(job_definition)
+    ENV['LAST_P_TXN_ID'] = ActiveRecord::Base.connection.execute("SELECT max(partner_transaction_id) as max from replicated_partner_transaction").first['max']
+  end
+  ENV['BATCH_SIZE'] = remainder.to_s
   Kiba.run(job_definition)
+
+
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts ""
+  puts "*** End PARTNER TRANSACTION FULL REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+
 end
 
 
+task :partner_transactions_inc_replicate => :environment do
+  start_time = Time.now
+  etl_filename = 'etl/partner_transactions.etl'
+  script_content = IO.read(etl_filename)
+  # pass etl_filename to line numbers on errors
+  job_definition = Kiba.parse(script_content, etl_filename)
+
+
+  ENV['BATCH_SIZE'] = "50000"
+  ENV['LAST_P_TXN_ID'] = ""
+  config = YAML.load(IO.read('config/database.yml'))
+  @mysql = Mysql2::Client.new(config['replica'])
+
+  puts "--------------------------------------------"
+  puts "Finding Last Txn ID from last replication"
+  puts "--------------------------------------------"
+
+  ActiveRecord::Base.establish_connection(Rails.env).connection
+  ENV['LAST_P_TXN_ID'] = ActiveRecord::Base.connection.execute("SELECT max(partner_transaction_id) from replicated_partner_transaction").first['max']
+
+  puts "Last ID: #{ENV['LAST_P_TXN_ID']}"
+  puts "--------------------------------------------"
+
+  rowCount = @mysql.query("select count(*) as cnt from replicated_partner_transaction where partner_transaction_id > #{ENV['LAST_P_TXN_ID']} "  )
+  num_rows = rowCount.first['cnt'].to_i
+
+  puts "#{num_rows} total rows"
+  puts "--------------------------------------------"
+
+  blocks = num_rows / ENV['BATCH_SIZE'].to_i
+  remainder = num_rows % ENV['BATCH_SIZE'].to_i
+  blocks.times do
+    Kiba.run(job_definition)
+    ENV['LAST_P_TXN_ID'] = ActiveRecord::Base.connection.execute("SELECT max(partner_transaction_id) as max from replicated_partner_transaction").first['max']
+  end
+  ENV['BATCH_SIZE'] = remainder.to_s
+  Kiba.run(job_definition)
+
+
+  end_time = Time.now
+  duration_in_minutes = (end_time - start_time)/60
+  puts ""
+  puts "*** End PARTNER TRANSACTION INC REPLICATION #{end_time}***"
+  puts "*** Duration (min): #{duration_in_minutes.round(2)}"
+
+end
 
 
 # No longer needed?

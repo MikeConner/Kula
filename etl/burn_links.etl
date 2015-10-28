@@ -22,13 +22,12 @@ start_time = Time.now
 pre_process do
   puts "*** START BURN LINKS REPLICATION #{start_time}***"
 
- 
+
 
   puts "--------------------------------------------"
 
 end
 
-#transform FilterMD5
 
 transform do |row|
   print "."
