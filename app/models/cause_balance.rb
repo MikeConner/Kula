@@ -39,6 +39,9 @@ class CauseBalance < ActiveRecord::Base
   DISTRIBUTOR_FEE = 'Distributor Fee'
   CREDIT_CARD_FEE = 'Credit Fee'
   
+  DEFAULT_ACH_PAYMENT_THRESHOLD = 10
+  DEFAULT_CHECK_PAYMENT_THRESHOLD = 25
+  
   BALANCE_TYPES = [PAYMENT, GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, CREDIT_CARD_FEE, ADJUSTMENT, DONEE_AMOUNT]
   MAX_TYPE_LEN = 16
     
@@ -139,6 +142,37 @@ class CauseBalance < ActiveRecord::Base
       end
     end
   end
+
+  def update_balance(month, amount)
+    case month
+    when 1
+      update_attribute(:jan, self.jan + amount)
+    when 2
+      update_attribute(:feb, self.feb + amount)
+    when 3
+      update_attribute(:mar, self.mar + amount)
+    when 4
+      update_attribute(:apr, self.apr + amount)
+    when 5
+      update_attribute(:may, self.may + amount)
+    when 6
+      update_attribute(:jun, self.jun + amount)
+    when 7
+      update_attribute(:jul, self.jul + amount)
+    when 8
+      update_attribute(:aug, self.aug + amount)
+    when 9
+      update_attribute(:sep, self.sep + amount)
+    when 10
+      update_attribute(:oct, self.oct + amount)
+    when 11
+      update_attribute(:nov, self.nov + amount)
+    when 12
+      update_attribute(:dec, self.dec + amount)
+    else
+      raise "Invalid month #{month}"
+    end                          
+  end
   
 private
   def self.get_sum_clause(month)
@@ -168,5 +202,82 @@ private
     when 12
       "SUM(jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov+dec)"
     end
+  end
+
+  def self.payment_batch_check_query
+    <<-EOT
+      SELECT 
+        SUM(prior_year_rollover) AS prior_year,cause_id,
+        SUM(jan) AS jan_sum,
+        SUM(feb) AS feb_sum,
+        SUM(mar) AS mar_sum,
+        SUM(apr) AS apr_sum,
+        SUM(may) AS may_sum,
+        SUM(jun) AS jun_sum,
+        SUM(jul) AS jul_sum,
+        SUM(aug) AS aug_sum,
+        SUM(sep) AS sep_sum,
+        SUM(oct) AS oct_sum,
+        SUM(nov) AS nov_sum,
+        SUM(dec) AS dec_sum
+      FROM cause_balances
+      WHERE year = ##YEAR AND partner_id = ##PARTNER_ID AND balance_type IN ('Donee Amount','Payment','Adjustment') 
+      GROUP BY cause_id
+    EOT
+  end
+  
+  def self.payment_batch_ach_query
+    <<-EOT
+      SELECT 
+        SUM(prior_year_rollover) AS prior_year,b.cause_id,
+        SUM(jan) AS jan_sum,
+        SUM(feb) AS feb_sum,
+        SUM(mar) AS mar_sum,
+        SUM(apr) AS apr_sum,
+        SUM(may) AS may_sum,
+        SUM(jun) AS jun_sum,
+        SUM(jul) AS jul_sum,
+        SUM(aug) AS aug_sum,
+        SUM(sep) AS sep_sum,
+        SUM(oct) AS oct_sum,
+        SUM(nov) AS nov_sum,
+        SUM(dec) AS dec_sum
+      FROM cause_balances b
+      INNER JOIN causes c ON b.cause_id = c.cause_identifier 
+      WHERE year = ##YEAR AND partner_id = ##PARTNER_ID AND c.has_ach_info = 1 AND balance_type IN ('Donee Amount','Payment','Adjustment') 
+      GROUP BY b.cause_id
+    EOT
+  end
+  
+  def self.cause_index_query
+    <<-EOT
+      SELECT partner_id, cb.cause_id, c.org_name, 
+        SUM(prior_year_rollover) AS prior_year_total,
+        SUM(jan) AS jan_total,
+        SUM(feb) AS feb_total,
+        SUM(mar) AS mar_total, 
+        SUM(apr) as apr_total,
+        SUM(may) as may_total, 
+        SUM(jun) as jun_total, 
+        SUM(jul) as jul_total,
+        SUM(aug) as aug_total,
+        SUM(sep) as sep_total,
+        SUM(oct) as oct_total,
+        SUM(nov) as nov_total,
+        SUM(dec) AS dec_total, 
+        SUM(prior_year_rollover) + SUM(jan) +SUM(feb) +SUM(mar)  AS q1_total,
+        SUM(prior_year_rollover) + SUM(jan) +SUM(feb) +SUM(mar) + SUM(apr) + SUM(may) + SUM(jun) AS q2_total,
+        SUM(prior_year_rollover) + SUM(jan) +SUM(feb) +SUM(mar) + SUM(apr) + SUM(may) + SUM(jun) + SUM(jul) + SUM(aug) + SUM(sep) AS q3_total,
+        SUM(prior_year_rollover) + SUM(jan) +SUM(feb) +SUM(mar) + SUM(apr) + SUM(may) + SUM(jun) + SUM(jul) + SUM(aug) + SUM(sep) + SUM(oct) + SUM(nov)+ SUM(dec) AS q4_total
+       
+        FROM cause_balances cb
+        INNER JOIN causes c ON c.cause_identifier = cb.cause_id
+      
+        WHERE year = ##YEAR AND balance_type in ('Payment', 'Adjustment', 'Donee Amount') 
+              ##NAME_FILTER ##PARTNER_FILTER ##ACH_FILTER
+       
+        GROUP BY partner_id, cb.cause_id, c.org_name
+        ORDER BY partner_id
+    EOT
   end
 end

@@ -1,0 +1,38 @@
+== Batch #{f.object.batch.id}
+%br
+== Cause: #{f.object.cause.org_name}
+%br
+== Payment Date: #{f.object.date.try(:strftime, ApplicationHelper::DATE_FORMAT)}
+%br
+%br
+-#
+  = f.hidden_field :batch_id, :value => f.object.batch_id
+  = f.hidden_field :cause_id, :value => f.object.cause_id
+  = f.hidden_field :date, :value => f.object.date
+.field
+  = f.label :payment_method
+  = f.select :payment_method, options_for_select(Payment::VALID_METHODS, f.object.payment_method), {}, :onchange => 'update_status_options($(this).attr("id"))'
+.field
+  = f.label :status
+  - if f.object.check_payment?
+    = f.select :status, options_for_select(Payment::VALID_CHECK_STATUSES, f.object.status)
+  - else
+    = f.select :status, options_for_select(Payment::VALID_ACH_STATUSES, f.object.status)
+.field
+  = label_tag :period_date, 'Month and year of period to apply this payment to'
+  = date_select :period_date, :add_month_numbers => true, :discard_day => true
+.field
+  = f.label :amount
+  = f.text_field :amount
+.field
+  = f.label :confirmation
+  = f.text_field :confirmation
+.field
+  = f.label :address
+  = f.text_field :address
+.field
+  = f.label :check_num
+  = f.number_field :check_num
+.field
+  = f.label :comment
+  = f.text_area :comment, :size => '40x3'

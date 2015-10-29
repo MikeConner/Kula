@@ -20,6 +20,7 @@
         %th Status
         %th Amount
         %th Comment
+        %th
     %tbody
       - payments.each do |payment|
         %tr
@@ -35,3 +36,5 @@
           %td= payment.status
           %td= number_to_currency(payment.amount)
           %td= payment.comment
+          %td= link_to 'Edit', edit_payment_path(payment)
+          %td= link_to 'Delete', payment, :method => :delete, :data => { :confirm => 'Are you sure?' }

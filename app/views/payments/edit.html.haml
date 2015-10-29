@@ -1,0 +1,6 @@
+%h1 Edit Payment
+= form_for @payment do |f|
+  = render :partial => 'shared/error_messages', :locals => { :errors => @payment.errors, :name => 'Payment' }
+  = render :partial => 'payment_fields', :locals => { :f => f }
+  %br
+  = f.submit 'Update Payment'

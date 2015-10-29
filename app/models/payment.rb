@@ -4,7 +4,7 @@
 #
 #  id             :integer          not null, primary key
 #  batch_id       :integer
-#  status         :string(16)       default("Pending"), not null
+#  status         :string(16)       default("Outstanding"), not null
 #  amount         :decimal(8, 2)    not null
 #  date           :datetime
 #  confirmation   :string(255)

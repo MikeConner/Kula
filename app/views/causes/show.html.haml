@@ -1,7 +1,10 @@
 - if @partner_balances.empty?
   %h1 No balances for this cause
 - else
-  %h1= @cause.nil? ? nil : @cause.org_name
+  %h1
+    = @cause.nil? ? nil : @cause.org_name
+    - if 1 == @cause.has_ach_info
+      (ACH)
   - @partner_balances.each do |partner_id, balance_data|
     %table.table.zebra-striped
       %caption= Partner.find_by_partner_identifier(partner_id).name

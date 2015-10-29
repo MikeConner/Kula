@@ -19,7 +19,7 @@ namespace :db do
           balance = CauseBalance.find_or_create_by(:partner_id => partner_id, :cause_id => cause_id, :year => year, :balance_type => CauseBalance::PAYMENT)
           
           # Put in payments as negative
-          update_balance(balance, month, -1 * payment)
+          balance.update_balance(month, -1 * payment)
         end
       rescue Exception => ex
         puts ex.inspect  
@@ -383,7 +383,7 @@ def update_cause_balances(r)
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::GROSS)
-    update_balance(balance, r[:month], r[:gross_amount])
+    balance.update_balance(r[:month], r[:gross_amount])
   end
   
   unless 0.0 == r[:discounts_amount].to_f
@@ -391,7 +391,7 @@ def update_cause_balances(r)
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::DISCOUNT)
-    update_balance(balance, r[:month], r[:discounts_amount].to_f)
+    balance.update_balance(r[:month], r[:discounts_amount].to_f)
   end
   
   unless 0.0 == r[:net_amount].to_f
@@ -399,7 +399,7 @@ def update_cause_balances(r)
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::NET)
-    update_balance(balance, r[:month], r[:net_amount].to_f)
+    balance.update_balance(r[:month], r[:net_amount].to_f)
   end
   
   unless 0.0 == r[:calc_kula_fee].to_f
@@ -407,7 +407,7 @@ def update_cause_balances(r)
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::KULA_FEE)
-    update_balance(balance, r[:month], r[:calc_kula_fee])
+    balance.update_balance(r[:month], r[:calc_kula_fee])
   end
 
   unless 0.0 == r[:calc_foundation_fee].to_f 
@@ -415,7 +415,7 @@ def update_cause_balances(r)
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::FOUNDATION_FEE)
-    update_balance(balance, r[:month], r[:calc_foundation_fee])
+    balance.update_balance(r[:month], r[:calc_foundation_fee])
   end
 
   unless 0.0 == r[:calc_distributor_fee].to_f
@@ -423,7 +423,7 @@ def update_cause_balances(r)
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::DISTRIBUTOR_FEE)
-    update_balance(balance, r[:month], r[:calc_distributor_fee])
+    balance.update_balance(r[:month], r[:calc_distributor_fee])
   end
 
   unless 0.0 == r[:calc_credit_card_fee].to_f
@@ -431,7 +431,7 @@ def update_cause_balances(r)
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::CREDIT_CARD_FEE)
-    update_balance(balance, r[:month], r[:calc_credit_card_fee])
+    balance.update_balance(r[:month], r[:calc_credit_card_fee])
   end
   
   unless 0.0 == r[:donee_amount]
@@ -439,7 +439,7 @@ def update_cause_balances(r)
                                              :cause_id => r[:cause_identifier], 
                                              :year => r[:year], 
                                              :balance_type => CauseBalance::DONEE_AMOUNT)
-    update_balance(balance, r[:month], r[:donee_amount].to_f)  
+    balance.update_balance(r[:month], r[:donee_amount].to_f)  
   end
 end
 
@@ -480,36 +480,4 @@ def clear_balances(b, current_date, latest_date)
   end
   
   b.update_attribute(:total, b.jan + b.feb + b.mar + b.apr + b.may + b.jun + b.jul + b.aug + b.sep + b.oct + b.nov + b.dec)
-end
-
-def update_balance(balance, month, amount)
-  #puts "Updating #{balance.inspect} on #{month} for #{amount}"
-  case month
-  when 1
-    balance.update_attribute(:jan, balance.jan + amount)
-  when 2
-    balance.update_attribute(:feb, balance.feb + amount)
-  when 3
-    balance.update_attribute(:mar, balance.mar + amount)
-  when 4
-    balance.update_attribute(:apr, balance.apr + amount)
-  when 5
-    balance.update_attribute(:may, balance.may + amount)
-  when 6
-    balance.update_attribute(:jun, balance.jun + amount)
-  when 7
-    balance.update_attribute(:jul, balance.jul + amount)
-  when 8
-    balance.update_attribute(:aug, balance.aug + amount)
-  when 9
-    balance.update_attribute(:sep, balance.sep + amount)
-  when 10
-    balance.update_attribute(:oct, balance.oct + amount)
-  when 11
-    balance.update_attribute(:nov, balance.nov + amount)
-  when 12
-    balance.update_attribute(:dec, balance.dec + amount)
-  else
-    raise "Invalid month #{month}"
-  end                          
 end

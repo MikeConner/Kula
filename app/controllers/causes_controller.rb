@@ -3,32 +3,45 @@ class CausesController < ApplicationController
 
   def index
     @cause_name = (params[:cause_name] || "").gsub('*', '%')
-    @min_balance = params[:min_balance].to_f
+    @partner_id = params[:partner].to_i
+    @has_ach = params[:has_ach].to_i
+    if params[:min_balance].blank?
+      @min_balance = 1 == @has_ach ? CauseBalance::DEFAULT_ACH_PAYMENT_THRESHOLD : CauseBalance::DEFAULT_CHECK_PAYMENT_THRESHOLD
+    else
+      @min_balance = params[:min_balance].to_f
+    end
     
-    where_clause = @cause_name.blank? ? '' : "WHERE org_name LIKE '%#{@cause_name}%'"
-    sql = 'SELECT causes.cause_identifier, causes.cause_id, causes.org_name,' +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}', '#{CauseBalance::PAYMENT}', '#{CauseBalance::ADJUSTMENT}')) as balance_due," + 
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::DONEE_AMOUNT}')) as donated_balance," +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::PAYMENT}')) as payments_balance," +
-          "(SELECT sum(total) FROM cause_balances where cause_balances.cause_id = causes.CAUSE_IDENTIFIER and balance_type in('#{CauseBalance::ADJUSTMENT}')) as adj_balance" +
-          " FROM causes #{where_clause} ORDER BY org_name;"
-
+    where_clause = @cause_name.blank? ? '' : " AND org_name LIKE '%#{@cause_name}%'"
+    base_sql = CauseBalance.cause_index_query
+    current_year = GlobalSetting.first.current_period.year
+    
+    sql = base_sql.gsub('##NAME_FILTER', where_clause).gsub('##YEAR', current_year.to_s)
+    if 0 == @partner_id
+      sql.gsub!('##PARTNER_FILTER', '')
+    else
+      sql.gsub!('##PARTNER_FILTER', " AND partner_id = #{@partner_id}")
+    end
+        
+    if 1 == @has_ach
+      sql.gsub!('##ACH_FILTER', ' AND c.has_ach_info = 1')
+    else
+      sql.gsub!('##ACH_FILTER', '')
+    end
     @cause_data = []
+        
+    partner_names = Partner.all.inject({}) { |s, p| s.update(p.id => p.name) }
     
     records = ActiveRecord::Base.connection.execute(sql)
     records.each do |line|
-      due = line['balance_due'].to_f
-      donated = line['donated_balance'].to_f
-      payments = line['payments_balance'].to_f
-      unless 0 == payments
-        payments *= -1
-      end
-      adjustments = line['adj_balance'].to_f
+      next unless (0 == @min_balance) or (line['q4_total'].to_f >= @min_balance)
       
-      next if due.nil? and donated.nil? and payments.nil? and adjustments.nil?
-      next unless (0 == @min_balance) or (due >= @min_balance)
-      
-      @cause_data.push({:name => line['org_name'], :path => cause_path(line['cause_identifier']), :due => due, :donated => donated, :payments => payments, :adjustments => adjustments})
+      @cause_data.push({:cause_name => line['org_name'], 
+                        :cause_path => cause_path(line['cause_id']), 
+                        :partner_name => partner_names[line['partner_id'].to_i],
+                        :q1 => line['q1_total'].to_f,
+                        :q2 => line['q2_total'].to_f,
+                        :q3 => line['q3_total'].to_f, 
+                        :q4 => line['q4_total'].to_f, })
     end
  
     @causes = @cause_data.paginate(:page => params[:page])

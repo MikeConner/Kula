@@ -7,15 +7,19 @@
         %p
           Cause Name
           = text_field_tag :cause_name, @cause_name, :title => I18n.t('cause_filter_instructions')
-      -# 
-        .large-3.columns
-          %p 
-            Partner
-            = select_tag 'partner', options_from_collection_for_select(Partner.order(:display_name), 'partner_identifier', 'display_name', @partner_id), :prompt => 'Select a Partner'
+      .large-3.columns
+        %p 
+          Partner
+          = select_tag 'partner', options_from_collection_for_select(Partner.order(:display_name), 'partner_identifier', 'display_name', @partner_id), :prompt => 'Select a Partner'
       .large-3.columns
         %p 
           Balance Due
           = number_field_tag :min_balance, @min_balance, :min => 0
+      .large-3.columns
+        %p
+          %br
+          = check_box_tag :has_ach
+          Supports ACH
       = submit_tag 'Filter', :class => "btn btn-large btn-primary"
       %br
 - if @causes.empty?
@@ -30,20 +34,20 @@
     %col{:width => "75"}/
     %thead
       %tr
+        %th Partner
         %th Cause
-        %th Due
-        %th Donated
-        %th Payments
-        %th Adjustments
+        %th Q1
+        %th Q2
+        %th Q3
+        %th Q4
     %tbody
       - @causes.each do |cause|
         %tr
-          - color = cause[:adjustments] < 0 ? "color:red" : ""
-          %td= link_to cause[:name], cause[:path]
-          %td= number_to_currency(cause[:due])
-          %td= number_to_currency(cause[:donated])
-          %td= number_to_currency(cause[:payments])
-          %td{:style => color}
-            = number_to_currency(cause[:adjustments].abs)
+          %td= cause[:partner_name]
+          %td= link_to cause[:cause_name], cause[:cause_path]
+          %td= number_to_currency(cause[:q1])
+          %td= number_to_currency(cause[:q2])
+          %td= number_to_currency(cause[:q3])
+          %td= number_to_currency(cause[:q4])
   
   %center= foundation_paginate @causes
