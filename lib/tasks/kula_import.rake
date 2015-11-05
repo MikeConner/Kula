@@ -79,6 +79,7 @@ namespace :db do
         # If both nil, fall through and it will use the full date range
         current_date = Date.parse("#{year_param}-01-01")
         latest_date = current_date + 1.year
+        very_latest_date = latest_date.end_of_month
       end
     else
       # Month is valid - year must also be valid or it's an error
@@ -87,6 +88,7 @@ namespace :db do
       else
         current_date = Date.parse("#{year_param}-#{month_param.to_s.rjust(2,'0')}-01")
         latest_date = current_date + 1.month
+        very_latest_date = latest_date.end_of_month
       end
     end
 
@@ -95,7 +97,9 @@ namespace :db do
     # If no start/end defined, fall through and use full range (start_date and end_date must be defined together, so only one nil check suffices)
     if all_time
       current_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created LIMIT 1').first['created']).beginning_of_month
+      # We have month resolution on these transactions, but sometimes compare date ranges. Go from beginning of earliest and end of latest month to ensure we catch them all on deletion
       latest_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created DESC LIMIT 1').first['created']).beginning_of_month
+      very_latest_date = latest_date.end_of_month
     end
           
     # Permissions issue using Sprockets on elastic beanstalk  
@@ -110,7 +114,7 @@ namespace :db do
         CauseTransaction.delete_all
         CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
       else
-        CauseTransaction.select { |tx| (current_date..latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.delete_all
+        CauseTransaction.select { |tx| (current_date..very_latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.delete_all
         balances = CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").select { |b| (current_date.year..latest_date.year).include? b.year }
         balances.each do |b|
           clear_balances(b, current_date, latest_date)
@@ -121,7 +125,7 @@ namespace :db do
         CauseTransaction.where(:partner_identifier => partner_id).delete_all      
         CauseBalance.where(:partner_id => partner_id).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
       else
-        CauseTransaction.where(:partner_identifier => partner_id).select { |tx| (current_date..latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.delete_all
+        CauseTransaction.where(:partner_identifier => partner_id).select { |tx| (current_date..very_latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.delete_all
         balances = CauseBalance.where(:partner_id => partner_id).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").select { |b| (current_date.year..latest_date.year).include? b.year }
         balances.each do |b|
           clear_balances(b, current_date, latest_date)
