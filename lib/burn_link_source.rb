@@ -20,7 +20,7 @@ class BurnLinkSource
       query += " WHERE burn_link_id > '#{@last_burn_id}'"
     end
     query += " ORDER BY burn_link_id ASC LIMIT #{@batch_size}"
-    puts query
+    #puts query
     results = @mysql.query(query, as: :hash, symbolize_keys: true)
     results.each do |row|
       yield(row)

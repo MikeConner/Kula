@@ -22,7 +22,7 @@ class UserSource
       query += " WHERE user_id > '#{@last_user_id}'"
     end
     query += " ORDER BY user_id ASC LIMIT #{@batch_size}"
-    puts query
+    #puts query
     results = @mysql.query(query, as: :hash, symbolize_keys: true)
     results.each do |row|
       yield(row)
@@ -32,7 +32,7 @@ class UserSource
 
 
 
- 
+
 
 
 end

@@ -134,13 +134,13 @@ class PartnerTransactionSource
       query += " WHERE pt.partner_transaction_id > #{@last_p_txn_id}"
     end
     query += " ORDER BY pt.partner_transaction_id ASC LIMIT #{@batch_size}"
-    puts query
+     
     results = @mysql.query(query, as: :hash, symbolize_keys: true)
     results.each do |row|
       yield(row)
     end
 
- 
+
   end
 
 

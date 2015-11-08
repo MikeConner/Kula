@@ -20,7 +20,7 @@ class CauseSource
       query += " WHERE cause_id > '#{@last_cause_id}'"
     end
     query += " ORDER BY cause_id ASC LIMIT #{@batch_size}"
-    puts query
+    #puts query
     results = @mysql.query(query, as: :hash, symbolize_keys: true)
     results.each do |row|
       yield(row)

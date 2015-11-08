@@ -18,7 +18,7 @@ class BalanceTransactionSource
       query += " WHERE transaction_id > #{@last_txn_id}"
     end
     query += " ORDER BY transaction_id ASC LIMIT #{@batch_size}"
-    puts query
+    #puts query
     results = @mysql.query(query, as: :hash, symbolize_keys: true)
     results.each do |row|
       yield(row)
