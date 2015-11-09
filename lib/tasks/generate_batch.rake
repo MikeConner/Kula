@@ -17,8 +17,9 @@ namespace :db do
 
     payment_type = filter_by_ach ? 'ACH' : 'Check'
     
-    puts "Generating #{payment_type} batch for user #{user.email}, partner #{partner.display_name}, for #{month}/#{year}, with threshold #{threshold}"
-
+    description = "#{payment_type} batch for user #{user.email}, partner #{partner.display_name}, for #{month}/#{year}, with threshold #{threshold}"
+    puts description
+    
     sql = filter_by_ach ? CauseBalance.payment_batch_ach_query : CauseBalance.payment_batch_check_query
     sql.gsub!('##YEAR', args[:year]).gsub!('##PARTNER_ID', args[:partner_id])                         
 
@@ -43,7 +44,11 @@ namespace :db do
  
     ActiveRecord::Base.transaction do  
       begin        
-        batch = Batch.create!(:user_id => user.id, :partner_id => partner.id, :name => 'Generate Payment Batch task', :date => Time.now)
+        batch = Batch.create!(:user_id => user.id, 
+                              :partner_id => partner.id, 
+                              :name => 'Generate Payment Batch task', 
+                              :description => description, 
+                              :date => Time.now)
         
         num = 1000
         
