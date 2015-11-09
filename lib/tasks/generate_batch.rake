@@ -46,7 +46,7 @@ namespace :db do
       begin        
         batch = Batch.create!(:user_id => user.id, 
                               :partner_id => partner.id, 
-                              :name => 'Generate Payment Batch task', 
+                              :name => "Generated Payment Batch for #{partner.name} (#{payments.count})", 
                               :description => description, 
                               :date => Time.now)
         
