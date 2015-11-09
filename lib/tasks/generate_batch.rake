@@ -42,36 +42,38 @@ namespace :db do
 
     puts "Making #{payments.count} payments"
  
-    ActiveRecord::Base.transaction do  
-      begin        
-        batch = Batch.create!(:user_id => user.id, 
-                              :partner_id => partner.id, 
-                              :name => "Generated payments for #{partner.name} (#{payments.count})", 
-                              :description => description, 
-                              :date => Time.now)
-        
-        num = 1000
-        
-        payments.each do |payment|
-          batch.payments.create!(:amount => payment[:amount], 
-                                 :cause_id => payment[:cause_id], 
-                                 :payment_method => filter_by_ach ? Payment::ACH : Payment::CHECK,
-                                 :check_num => num,
-                                 :date => Date.today,
-                                 :month => month,
-                                 :year => year)
-          num += 1
+    unless 0 == payments.count
+      ActiveRecord::Base.transaction do  
+        begin        
+          batch = Batch.create!(:user_id => user.id, 
+                                :partner_id => partner.id, 
+                                :name => "Generated payments for #{partner.name} (#{payments.count})", 
+                                :description => description, 
+                                :date => Time.now)
           
-          balance = CauseBalance.find_or_create_by(:partner_id => partner.id, 
-                                                   :cause_id => payment[:cause_id], 
-                                                   :year => year, 
-                                                   :balance_type => CauseBalance::PAYMENT)
+          num = 1000
           
-          # Put in payments as negative
-          balance.update_balance(month, -1 * payment[:amount])
+          payments.each do |payment|
+            batch.payments.create!(:amount => payment[:amount], 
+                                   :cause_id => payment[:cause_id], 
+                                   :payment_method => filter_by_ach ? Payment::ACH : Payment::CHECK,
+                                   :check_num => num,
+                                   :date => Date.today,
+                                   :month => month,
+                                   :year => year)
+            num += 1
+            
+            balance = CauseBalance.find_or_create_by(:partner_id => partner.id, 
+                                                     :cause_id => payment[:cause_id], 
+                                                     :year => year, 
+                                                     :balance_type => CauseBalance::PAYMENT)
+            
+            # Put in payments as negative
+            balance.update_balance(month, -1 * payment[:amount])
+          end
+        rescue ActiveRecord::Rollback => ex
+          puts ex.inspect
         end
-      rescue ActiveRecord::Rollback => ex
-        puts ex.inspect
       end
     end
   end
