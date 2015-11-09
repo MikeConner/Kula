@@ -86,6 +86,28 @@
             %td= number_to_currency(tx.calc_distributor_fee)
             %td= number_to_currency(tx.calc_credit_card_fee)
             %td= number_to_currency(tx.donee_amount)
+    - transactions = @original_tx[partner_id]
+    %table.table.zebra-striped
+      %caption Original Transactions
+      %thead
+        %tr
+          %th Date
+          %th User
+          %th City 
+          %th Region
+          %th Country 
+          %th Postal Code
+          %th Amount
+      %tbody
+        - transactions.each do |tx|
+          %tr
+            %td= Date.parse(tx['created']).try(:strftime, ApplicationHelper::DATE_FORMAT)
+            %td== #{tx['first_name']} #{tx['last_name']}
+            %td= tx['city']
+            %td= tx['region']
+            %td= tx['country']
+            %td= tx['postal_code']
+            %td= number_to_currency(tx['amount'].to_f)
   - if @payment_data.empty?
     %h2 No Payments
   - else

@@ -54,15 +54,23 @@ class CausesController < ApplicationController
     
     @partner_balances = Hash.new
     @tx_data = Hash.new
+    @original_tx = Hash.new
+    
     @payment_data = @cause.payments
     @adjustment_data = @cause.adjustments
-    
+      
     CauseBalance.where(:cause_id => params[:id]).each do |balance|
       current_partner = balance.partner_id
       
       unless @partner_balances.has_key?(current_partner)
         @partner_balances[current_partner] = Hash.new 
         @tx_data[current_partner] = @cause.cause_transactions.where(:partner_identifier => current_partner).order('year, month')
+        sql = 'SELECT u.first_name, u.last_name, u.city, u.region, u.country, u.postal_code, amount, created ' +
+                'FROM replicated_balance_transactions bt ' +
+                  'JOIN replicated_users u ON u.user_id = bt.user_id ' +  
+                    "WHERE cause_id = '#{params[:id]}' AND partner_id = #{current_partner} " + 
+                      'ORDER BY created'
+        @original_tx[current_partner] = ActiveRecord::Base.connection.execute(sql)
       end
        
       unless @partner_balances[current_partner].has_key?(balance.year)
