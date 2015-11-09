@@ -134,25 +134,25 @@ class BatchesController < ApplicationController
     
     ActiveRecord::Base.transaction do
       @batch.payments.each do |p|
-        balance = CauseBalance.where(:partner_id => @batch.partner_id, :cause_id => p.cause_id, :year => p.date.year, :balance_type => CauseBalance::PAYMENT).first
+        balance = CauseBalance.where(:partner_id => @batch.partner_id, :cause_id => p.cause_id, :year => p.year, :balance_type => CauseBalance::PAYMENT).first
         if balance.nil?
           raise "Cause Balance payment record not found when deleting batch #{@batch.id}, #{p.inspect}"
         end
         
         # payments are negative, so subtracting them cancels the payment
-        adjust_cause_balance(balance, p.date.month, p.amount)
+        adjust_cause_balance(balance, p.month, p.amount)
       end
       @batch.payments.destroy_all
 
       @batch.adjustments.each do |a|
-        balance = CauseBalance.where(:partner_id => @batch.partner_id, :cause_id => a.cause_id, :year => a.date.year, :balance_type => CauseBalance::ADJUSTMENT).first
+        balance = CauseBalance.where(:partner_id => @batch.partner_id, :cause_id => a.cause_id, :year => a.year, :balance_type => CauseBalance::ADJUSTMENT).first
         if balance.nil?
           raise "Cause Balance payment record not found when deleting batch #{@batch.id}, #{a.inspect}"
         end
         
         # payments are negative, so subtracting them cancels the payment
         # adjustments can be either, but still want to subtract them
-        adjust_cause_balance(balance, a.date.month, a.amount)
+        adjust_cause_balance(balance, a.month, a.amount)
       end      
       @batch.adjustments.destroy_all
       @batch.destroy
