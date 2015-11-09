@@ -73,13 +73,21 @@ namespace :db do
     year_param = args[:year].to_i
     month_param = args[:month].to_i
     
+    # Cause transactions have dates; CauseBalances only months/years
+    # When we're calling this, we need to clear corresponding CauseBalances, and it's going to be one of three cases:
+    # All time, in which case we just blow everything away so there's nothing to calculate
+    # Year, no month -- it's an annual range
+    # Year and month -- it's one month
+    # Set this flags and call the right method to update balances
+    yearly_range = false
+    
     # We're given a year
     if 0 == month_param
       unless 0 == year_param
         # If both nil, fall through and it will use the full date range
         current_date = Date.parse("#{year_param}-01-01")
-        latest_date = current_date + 1.year
-        very_latest_date = latest_date.end_of_month
+        latest_date = current_date + 1.year - 1.day
+        yearly_range = true
       end
     else
       # Month is valid - year must also be valid or it's an error
@@ -87,21 +95,19 @@ namespace :db do
         raise "Invalid parameters: must give year and month"
       else
         current_date = Date.parse("#{year_param}-#{month_param.to_s.rjust(2,'0')}-01")
-        latest_date = current_date + 1.month
-        very_latest_date = latest_date.end_of_month
+        latest_date = current_date + 1.month - 1.day
       end
     end
 
     all_time = current_date.nil?
-    
+        
     # If no start/end defined, fall through and use full range (start_date and end_date must be defined together, so only one nil check suffices)
     if all_time
       current_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created LIMIT 1').first['created']).beginning_of_month
       # We have month resolution on these transactions, but sometimes compare date ranges. Go from beginning of earliest and end of latest month to ensure we catch them all on deletion
-      latest_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created DESC LIMIT 1').first['created']).beginning_of_month
-      very_latest_date = latest_date.end_of_month
+      latest_date = Date.parse(ActiveRecord::Base.connection.execute('SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created DESC LIMIT 1').first['created']).end_of_month
     end
-          
+             
     # Permissions issue using Sprockets on elastic beanstalk  
     sql_base = CauseTransaction.query_step1
         
@@ -114,26 +120,48 @@ namespace :db do
         CauseTransaction.delete_all
         CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
       else
-        CauseTransaction.select { |tx| (current_date..very_latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.delete_all
-        balances = CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").select { |b| (current_date.year..latest_date.year).include? b.year }
+        CauseTransaction.select { |tx| (current_date..latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.each do |ct|
+          ct.delete
+        end
+        
+        # Whether annual or monthly, they're all going to be the same year
+        balances = CauseBalance.where(:year => year_param).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')")
         balances.each do |b|
-          clear_balances(b, current_date, latest_date)
+          if yearly_range
+            clear_balances(b)
+          else
+            clear_balances(b, month_param)
+          end
+          
+          b.update_attribute(:total, b.jan + b.feb + b.mar + b.apr + b.may + b.jun + b.jul + b.aug + b.sep + b.oct + b.nov + b.dec)          
         end
       end
     else
       if all_time
-        CauseTransaction.where(:partner_identifier => partner_id).delete_all      
-        CauseBalance.where(:partner_id => partner_id).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
+        CauseTransaction.where(:partner_identifier => partner_id_param).delete_all      
+        CauseBalance.where(:partner_id => partner_id_param).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
       else
-        CauseTransaction.where(:partner_identifier => partner_id).select { |tx| (current_date..very_latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.delete_all
-        balances = CauseBalance.where(:partner_id => partner_id).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").select { |b| (current_date.year..latest_date.year).include? b.year }
+        CauseTransaction.where(:partner_identifier => partner_id_param).select { |tx| (current_date..latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.each do |ct|
+          ct.delete
+        end
+        
+        # Whether annual or monthly, they're all going to be the same year
+        balances = CauseBalance.where(:partner_id => partner_id_param, :year => year_param).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')")
         balances.each do |b|
-          clear_balances(b, current_date, latest_date)
+          # We're already selecting them by year, so no need for extra arguments
+          if yearly_range
+            clear_balances(b)
+          else
+            clear_balances(b, month_param)
+          end
+          
+          b.update_attribute(:total, b.jan + b.feb + b.mar + b.apr + b.may + b.jun + b.jul + b.aug + b.sep + b.oct + b.nov + b.dec)  
         end        
       end
     end
         
     while current_date <= latest_date do
+      # This query is on replicated_balance_transactions, and need to have full date ranges
       start_date = current_date.to_s
       end_date = (current_date + 1.month).to_s
       
@@ -146,8 +174,6 @@ namespace :db do
       else
         sql.gsub!('##PARTNER_CLAUSE', " AND bt.partner_id = #{partner_id_param}")
       end
-      
-      #ActiveRecord::Base.establish_connection(:test_dev).connection unless Rails.env.test_dev?
       
       puts "Reading transactions from source..."
       transactions = ActiveRecord::Base.connection.execute(sql)
@@ -299,7 +325,11 @@ namespace :db do
                 puts "Could not find CauseTransaction: #{tx.inspect} - Creating!"
               else             
                 existing_tx.update_attribute(:calc_distributor_fee, distributor_fee)
-                update_cause_balances(existing_tx.attributes.with_indifferent_access)
+                update_cause_balances({:partner_identifier => partner_id, 
+                                       :cause_identifier => cause_id, 
+                                       :year => year, 
+                                       :month => month,
+                                       :calc_distributor_fee => distributor_fee})
 
                 puts "Added fee #{distributor_fee} to #{existing_tx.id}"
               end
@@ -308,8 +338,9 @@ namespace :db do
         end
       end
     end         
-    
+ 
     puts "STEP 3"
+    
     sql = CauseTransaction.query_step3
     # Right now this is just for Coke
     partner = Partner.find_by_name("My Coke Rewards")
@@ -384,104 +415,104 @@ end
 def update_cause_balances(r)
   unless 0.0 == r[:gross_amount].to_f
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                             :cause_id => r[:cause_identifier], 
-                                             :year => r[:year], 
-                                             :balance_type => CauseBalance::GROSS)
+                                              :cause_id => r[:cause_identifier], 
+                                              :year => r[:year], 
+                                              :balance_type => CauseBalance::GROSS)
     balance.update_balance(r[:month], r[:gross_amount])
   end
   
   unless 0.0 == r[:discounts_amount].to_f
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                             :cause_id => r[:cause_identifier], 
-                                             :year => r[:year], 
-                                             :balance_type => CauseBalance::DISCOUNT)
+                                              :cause_id => r[:cause_identifier], 
+                                              :year => r[:year], 
+                                              :balance_type => CauseBalance::DISCOUNT)
     balance.update_balance(r[:month], r[:discounts_amount].to_f)
   end
   
   unless 0.0 == r[:net_amount].to_f
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                             :cause_id => r[:cause_identifier], 
-                                             :year => r[:year], 
-                                             :balance_type => CauseBalance::NET)
+                                              :cause_id => r[:cause_identifier], 
+                                              :year => r[:year], 
+                                              :balance_type => CauseBalance::NET)
     balance.update_balance(r[:month], r[:net_amount].to_f)
   end
   
   unless 0.0 == r[:calc_kula_fee].to_f
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                             :cause_id => r[:cause_identifier], 
-                                             :year => r[:year], 
-                                             :balance_type => CauseBalance::KULA_FEE)
+                                              :cause_id => r[:cause_identifier], 
+                                              :year => r[:year], 
+                                              :balance_type => CauseBalance::KULA_FEE)
     balance.update_balance(r[:month], r[:calc_kula_fee])
   end
 
   unless 0.0 == r[:calc_foundation_fee].to_f 
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                             :cause_id => r[:cause_identifier], 
-                                             :year => r[:year], 
-                                             :balance_type => CauseBalance::FOUNDATION_FEE)
+                                              :cause_id => r[:cause_identifier], 
+                                              :year => r[:year], 
+                                              :balance_type => CauseBalance::FOUNDATION_FEE)
     balance.update_balance(r[:month], r[:calc_foundation_fee])
   end
 
   unless 0.0 == r[:calc_distributor_fee].to_f
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                             :cause_id => r[:cause_identifier], 
-                                             :year => r[:year], 
-                                             :balance_type => CauseBalance::DISTRIBUTOR_FEE)
+                                              :cause_id => r[:cause_identifier], 
+                                              :year => r[:year], 
+                                              :balance_type => CauseBalance::DISTRIBUTOR_FEE)
     balance.update_balance(r[:month], r[:calc_distributor_fee])
   end
 
   unless 0.0 == r[:calc_credit_card_fee].to_f
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                             :cause_id => r[:cause_identifier], 
-                                             :year => r[:year], 
-                                             :balance_type => CauseBalance::CREDIT_CARD_FEE)
+                                              :cause_id => r[:cause_identifier], 
+                                              :year => r[:year], 
+                                              :balance_type => CauseBalance::CREDIT_CARD_FEE)
     balance.update_balance(r[:month], r[:calc_credit_card_fee])
   end
   
   unless 0.0 == r[:donee_amount]
     balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                             :cause_id => r[:cause_identifier], 
-                                             :year => r[:year], 
-                                             :balance_type => CauseBalance::DONEE_AMOUNT)
+                                              :cause_id => r[:cause_identifier], 
+                                              :year => r[:year], 
+                                              :balance_type => CauseBalance::DONEE_AMOUNT)
     balance.update_balance(r[:month], r[:donee_amount].to_f)  
   end
 end
 
-def clear_balances(b, current_date, latest_date)
-  for month in 1..12 do
-    test_date = Date.parse("#{b.year}-#{month.to_s.rjust(2, '0')}-01")
-    
-    if (current_date..latest_date).include? test_date
-      case month
-      when 1
-        b.update_attribute(:jan, 0)
-      when 2
-        b.update_attribute(:feb, 0)
-      when 3
-        b.update_attribute(:mar, 0)
-      when 4
-        b.update_attribute(:apr, 0)
-      when 5
-        b.update_attribute(:may, 0)
-      when 6
-        b.update_attribute(:jun, 0)
-      when 7
-        b.update_attribute(:jul, 0)
-      when 8
-        b.update_attribute(:aug, 0)
-      when 9
-        b.update_attribute(:sep, 0)
-      when 10
-        b.update_attribute(:oct, 0)
-      when 11
-        b.update_attribute(:nov, 0)
-      when 12
-        b.update_attribute(:dec, 0)
-      else
-        raise "Invalid month #{month}"
-      end                          
+# If month is nil, clear for the whole year
+# DOES NOT UPDATE TOTAL -- need to do that externally
+def clear_balances(b, month = nil)
+  if month.nil?
+    for m in 1..12 do
+      clear_balances(b, m)
     end
+  else
+    case month
+    when 1
+      b.update_attribute(:jan, 0)
+    when 2
+      b.update_attribute(:feb, 0)
+    when 3
+      b.update_attribute(:mar, 0)
+    when 4
+      b.update_attribute(:apr, 0)
+    when 5
+      b.update_attribute(:may, 0)
+    when 6
+      b.update_attribute(:jun, 0)
+    when 7
+      b.update_attribute(:jul, 0)
+    when 8
+      b.update_attribute(:aug, 0)
+    when 9
+      b.update_attribute(:sep, 0)
+    when 10
+      b.update_attribute(:oct, 0)
+    when 11
+      b.update_attribute(:nov, 0)
+    when 12
+      b.update_attribute(:dec, 0)
+    else
+      raise "Invalid month #{month}"
+    end                              
   end
-  
-  b.update_attribute(:total, b.jan + b.feb + b.mar + b.apr + b.may + b.jun + b.jul + b.aug + b.sep + b.oct + b.nov + b.dec)
 end
