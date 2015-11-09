@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151027175214) do
+ActiveRecord::Schema.define(version: 20151109055342) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 20151027175214) do
   create_table "batches", force: :cascade do |t|
     t.integer  "partner_id"
     t.integer  "user_id"
-    t.string   "name",        limit: 64
+    t.string   "name",        limit: 128
     t.datetime "date"
     t.string   "description", limit: 255
     t.datetime "created_at"
