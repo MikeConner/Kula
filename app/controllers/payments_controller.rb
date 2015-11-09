@@ -18,8 +18,11 @@ class PaymentsController < ApplicationController
   
   def update
     @payment = Payment.find(params[:id])
-
+    params[:payment][:year] = params[:period]['(1i)'].to_i    
+    params[:payment][:month] = params[:period]['(2i)'].to_i
+    
     if @payment.update_attributes(payment_params)      
+      
       redirect_to payments_path, notice: 'Payment was successfully updated.'
     else
       @period_date = Date.parse("#{@payment.year}-#{@payment.month.to_s.rjust(2, '0')}-01")

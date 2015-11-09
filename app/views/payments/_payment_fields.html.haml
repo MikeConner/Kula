@@ -19,8 +19,8 @@
   - else
     = f.select :status, options_for_select(Payment::VALID_ACH_STATUSES, f.object.status)
 .field
-  = label_tag :period_date, 'Month and year of period to apply this payment to'
-  = date_select :period_date, :add_month_numbers => true, :discard_day => true
+  = label_tag :period, 'Month and year of period to apply this payment to'
+  = date_select :period, nil, :selected => period_date, :add_month_numbers => true, :discard_day => true
 .field
   = f.label :amount
   = f.text_field :amount
