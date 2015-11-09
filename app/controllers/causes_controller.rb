@@ -51,12 +51,18 @@ class CausesController < ApplicationController
 
   def show
     @cause = Cause.find_by_cause_identifier(params[:id])
+    
     @partner_balances = Hash.new
+    @tx_data = Hash.new
+    @payment_data = @cause.payments
+    @adjustment_data = @cause.adjustments
+    
     CauseBalance.where(:cause_id => params[:id]).each do |balance|
       current_partner = balance.partner_id
       
       unless @partner_balances.has_key?(current_partner)
         @partner_balances[current_partner] = Hash.new 
+        @tx_data[current_partner] = @cause.cause_transactions.where(:partner_identifier => current_partner).order('year, month')
       end
        
       unless @partner_balances[current_partner].has_key?(balance.year)

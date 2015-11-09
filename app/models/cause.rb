@@ -114,7 +114,10 @@ class Cause < ActiveRecord::Base
   MAX_LARGE = 128
   
   has_many :cause_balances, :dependent => :restrict_with_exception
-
+  has_many :cause_transactions, :dependent => :restrict_with_exception, :foreign_key => 'cause_identifier'
+  has_many :payments, :dependent => :restrict_with_exception
+  has_many :adjustments, :dependent => :restrict_with_exception
+  
   validates_presence_of :name, :cause_type, :country
   validates_inclusion_of :has_ach_info, :in => [true, false]
   validates_inclusion_of :cause_type, :in => VALID_TYPES
