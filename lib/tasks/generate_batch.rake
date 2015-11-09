@@ -57,6 +57,7 @@ namespace :db do
                                  :cause_id => payment[:cause_id], 
                                  :payment_method => filter_by_ach ? Payment::ACH : Payment::CHECK,
                                  :check_num => num,
+                                 :date => Date.today,
                                  :month => month,
                                  :year => year)
           num += 1
