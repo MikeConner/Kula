@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151109055342) do
+ActiveRecord::Schema.define(version: 20151114024839) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,16 +73,17 @@ ActiveRecord::Schema.define(version: 20151109055342) do
     t.integer  "month",                                                      null: false
     t.integer  "year",                                                       null: false
     t.decimal  "gross_amount",         precision: 8, scale: 2, default: 0.0
-    t.decimal  "net_amount",           precision: 8, scale: 2, default: 0.0
-    t.decimal  "donee_amount",         precision: 8, scale: 2, default: 0.0
-    t.decimal  "discounts_amount",     precision: 8, scale: 2, default: 0.0
-    t.decimal  "fees_amount",          precision: 8, scale: 2, default: 0.0
+    t.decimal  "legacy_net",           precision: 8, scale: 2, default: 0.0
+    t.decimal  "legacy_donee",         precision: 8, scale: 2, default: 0.0
+    t.decimal  "legacy_discounts",     precision: 8, scale: 2, default: 0.0
+    t.decimal  "legacy_fees",          precision: 8, scale: 2, default: 0.0
     t.decimal  "calc_kula_fee",        precision: 8, scale: 2, default: 0.0
     t.decimal  "calc_foundation_fee",  precision: 8, scale: 2, default: 0.0
     t.decimal  "calc_distributor_fee", precision: 8, scale: 2, default: 0.0
     t.datetime "created_at",                                                 null: false
     t.datetime "updated_at",                                                 null: false
     t.decimal  "calc_credit_card_fee", precision: 8, scale: 2, default: 0.0
+    t.decimal  "donee_amount",         precision: 8, scale: 2
   end
 
   add_index "cause_transactions", ["cause_identifier"], name: "index_cause_transactions_on_cause_identifier", using: :btree
@@ -315,6 +316,10 @@ ActiveRecord::Schema.define(version: 20151109055342) do
     t.datetime "updated"
   end
 
+  add_index "replicated_burn_links", ["burn_balance_transaction_id", "type"], name: "D", using: :btree
+  add_index "replicated_burn_links", ["burn_balance_transaction_id"], name: "C", using: :btree
+  add_index "replicated_burn_links", ["cut_payee_id"], name: "B", using: :btree
+
   create_table "replicated_partner_codes", primary_key: "code", force: :cascade do |t|
     t.integer  "balance_transaction_id"
     t.integer  "partner_id",                                                            null: false
@@ -329,6 +334,8 @@ ActiveRecord::Schema.define(version: 20151109055342) do
     t.datetime "activated"
     t.integer  "batch_partner_id"
   end
+
+  add_index "replicated_partner_codes", ["batch_partner_id"], name: "A", using: :btree
 
   create_table "replicated_partner_transaction", primary_key: "partner_transaction_id", force: :cascade do |t|
     t.integer  "balance_transaction_id"

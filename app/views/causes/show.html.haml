@@ -16,8 +16,6 @@
       %col{:width => "50"}/
       %col{:width => "50"}/
       %col{:width => "50"}/
-      %col{:width => "50"}/
-      %col{:width => "50"}/
       %col{:width => "100"}/
       %thead
         %tr
@@ -25,8 +23,6 @@
           %th Payments 
           %th Adjustments 
           %th Gross
-          %th Discount 
-          %th Net 
           %th Kula Fees
           %th Foundation Fees
           %th Distributor Fees
@@ -42,8 +38,6 @@
             %td{:style => balances[:adjustments] < 0 ? 'color:red' : ''} 
               = number_to_currency(balances[:adjustments].abs)
             %td= number_to_currency(balances[:gross])
-            %td= number_to_currency(balances[:discount])
-            %td= number_to_currency(balances[:net])
             %td= number_to_currency(balances[:kula_fee])
             %td= number_to_currency(balances[:foundation_fee])
             %td= number_to_currency(balances[:distributor_fee])
@@ -66,8 +60,10 @@
           %th Year
           %th Month 
           %th Gross
-          %th Discount 
-          %th Net 
+          %th Discount (Legacy)
+          %th Net (Legacy)
+          %th Donee Amount (Legacy)
+          %th Fees (Legacy)
           %th Kula Fees
           %th Foundation Fees
           %th Distributor Fees
@@ -79,8 +75,10 @@
             %td= tx.year
             %td= tx.month
             %td= number_to_currency(tx.gross_amount)
-            %td= number_to_currency(tx.discounts_amount)
-            %td= number_to_currency(tx.net_amount)
+            %td= number_to_currency(tx.legacy_discounts)
+            %td= number_to_currency(tx.legacy_net)
+            %td= number_to_currency(tx.legacy_donee)
+            %td= number_to_currency(tx.legacy_fees)
             %td= number_to_currency(tx.calc_kula_fee)
             %td= number_to_currency(tx.calc_foundation_fee)
             %td= number_to_currency(tx.calc_distributor_fee)

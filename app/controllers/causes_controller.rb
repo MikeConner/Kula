@@ -84,10 +84,6 @@ class CausesController < ApplicationController
         @partner_balances[current_partner][balance.year][:amount_due] += balance.total
       when CauseBalance::GROSS
         @partner_balances[current_partner][balance.year][:gross] += balance.total
-      when CauseBalance::DISCOUNT
-        @partner_balances[current_partner][balance.year][:discount] += balance.total
-      when CauseBalance::NET
-        @partner_balances[current_partner][balance.year][:net] += balance.total
       when CauseBalance::KULA_FEE
         @partner_balances[current_partner][balance.year][:kula_fee] += balance.total
       when CauseBalance::DISTRIBUTOR_FEE

@@ -72,7 +72,7 @@ namespace :db do
     #   Or neither
     year_param = args[:year].to_i
     month_param = args[:month].to_i
-    
+ 
     # Cause transactions have dates; CauseBalances only months/years
     # When we're calling this, we need to clear corresponding CauseBalances, and it's going to be one of three cases:
     # All time, in which case we just blow everything away so there's nothing to calculate
@@ -120,20 +120,19 @@ namespace :db do
         CauseTransaction.delete_all
         CauseBalance.where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
       else
-        CauseTransaction.select { |tx| (current_date..latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.each do |ct|
-          ct.delete
+        if yearly_range
+          CauseTransaction.where(:year => year_param).delete_all
+        else
+          CauseTransaction.where(:year => year_param, :month => month_param).delete_all
         end
         
         # Whether annual or monthly, they're all going to be the same year
         balances = CauseBalance.where(:year => year_param).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')")
-        balances.each do |b|
-          if yearly_range
-            clear_balances(b)
-          else
-            clear_balances(b, month_param)
-          end
-          
-          b.update_attribute(:total, b.jan + b.feb + b.mar + b.apr + b.may + b.jun + b.jul + b.aug + b.sep + b.oct + b.nov + b.dec)          
+        if yearly_range
+          balances.delete_all
+        else
+          clear_balances(balances, month_param)
+          ActiveRecord::Base.connection.execute("UPDATE cause_balances SET total=jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov+dec WHERE year = #{year_param}")
         end
       end
     else
@@ -141,22 +140,20 @@ namespace :db do
         CauseTransaction.where(:partner_identifier => partner_id_param).delete_all      
         CauseBalance.where(:partner_id => partner_id_param).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')").delete_all
       else
-        CauseTransaction.where(:partner_identifier => partner_id_param).select { |tx| (current_date..latest_date).include? Date.parse("#{tx.year}-#{tx.month.to_s.rjust(2, '0')}-01") }.each do |ct|
-          ct.delete
+        if yearly_range
+          CauseTransaction.where(:partner_identifier => partner_id_param, :year => year_param).delete_all
+        else
+          CauseTransaction.where(:partner_identifier => partner_id_param, :year => year_param, :month => month_param).delete_all
         end
         
         # Whether annual or monthly, they're all going to be the same year
         balances = CauseBalance.where(:partner_id => partner_id_param, :year => year_param).where("NOT balance_type IN ('#{CauseBalance::PAYMENT}','#{CauseBalance::ADJUSTMENT}')")
-        balances.each do |b|
-          # We're already selecting them by year, so no need for extra arguments
-          if yearly_range
-            clear_balances(b)
-          else
-            clear_balances(b, month_param)
-          end
-          
-          b.update_attribute(:total, b.jan + b.feb + b.mar + b.apr + b.may + b.jun + b.jul + b.aug + b.sep + b.oct + b.nov + b.dec)  
-        end        
+        if yearly_range
+          balances.delete_all
+        else
+          clear_balances(balances, month_param)
+          ActiveRecord::Base.connection.execute("UPDATE cause_balances SET total=jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov+dec WHERE year = #{year_param} AND partner_id = #{partner_id_param}")
+        end
       end
     end
         
@@ -190,9 +187,9 @@ namespace :db do
           puts "Committing batch #{idx}"
           ActiveRecord::Base.transaction do  
             records.each do |r|
-              CauseTransaction.create!(r)
-              
-              update_cause_balances(r)
+              ct = CauseTransaction.create!(r)
+               
+              update_cause_balances(ct)
             end           
             records = []
           end       
@@ -211,7 +208,7 @@ namespace :db do
         else
           # distributor is always nil
           fee = partner.current_kula_rate(nil, Date.parse("#{year}-#{month}-01"))
-          
+                    
           if fee.nil?
             puts "Could not find fee for cause #{cid} P=#{partner_id}, C=#{cid} Date:#{month}/#{year}"
           else
@@ -219,49 +216,33 @@ namespace :db do
             usa = 'US' == tx['country'].strip
             cause_type = tx['causetype'].to_i
             cause_name = tx['causename']
-            
-            if Cause::SCHOOL_TYPE == cause_type
-              total_rate = fee.us_school_rate + fee.us_school_kf_rate
-              total_fee = total_rate * gross
-              
-              kula_fee = 0 == total_rate ? 0 : fee.us_school_rate / total_rate * total_fee
-              foundation_fee = total_fee - kula_fee
-            else
-              total_rate = usa ? fee.us_charity_rate + fee.us_charity_kf_rate : fee.intl_charity_rate + fee.intl_charity_kf_rate
-              total_fee = total_rate * gross
-              
-              if 0 == total_rate
-                kula_fee = 0
-              else
-                kula_fee = (usa ? fee.us_charity_rate / total_rate : fee.intl_charity_rate / total_rate) * total_fee 
-              end
-              
-              foundation_fee = total_fee - kula_fee
-            end
-                        
+
+            fees = calculate_fees(fee, cause_type, gross, usa)
+                                    
             records.push({:partner_identifier => partner_id,
                           :cause_identifier => cid,
                           :month => month,
                           :year => year,
                           :gross_amount => gross,
-                          :net_amount => tx['netamount'].to_f,
-                          :donee_amount => tx['doneeamount'].to_f,
-                          :discounts_amount => tx['discountamount'].to_f,
-                          :fees_amount => tx['kulafees'].to_f,
-                          :calc_kula_fee => kula_fee,
-                          :calc_foundation_fee => foundation_fee,
+                          :legacy_net => tx['netamount'].to_f,
+                          :legacy_donee => tx['doneeamount'].to_f,
+                          :legacy_discounts => tx['discountamount'].to_f,
+                          :legacy_fees => tx['kulafees'].to_f,
+                          :donee_amount => gross - fees[:calc_kula_fee] - fees[:calc_foundation_fee],
+                          :calc_kula_fee => fees[:calc_kula_fee],
+                          :calc_foundation_fee => fees[:calc_foundation_fee],
                           :calc_distributor_fee => 0,
                           :calc_credit_card_fee => 0})          
           end
         end
       end
-      
+
       puts "Committing last batch of #{records.count}"
       ActiveRecord::Base.transaction do  
         records.each do |r|
-          CauseTransaction.create!(r)
+          ct = CauseTransaction.create!(r)
           
-          update_cause_balances(r)
+          update_cause_balances(ct)
         end
       end
      
@@ -274,7 +255,7 @@ namespace :db do
     if 0 == partner_id_param
       sql.gsub!('##PARTNER_CLAUSE', '')
     else
-      sql_base.gsub!('##PARTNER_CLAUSE', " AND bt.partner_id = #{partner_id_param}")
+      sql.gsub!('##PARTNER_CLAUSE', " AND bt.partner_id = #{partner_id_param}")
     end
     
     transactions = ActiveRecord::Base.connection.execute(sql)
@@ -290,7 +271,7 @@ namespace :db do
       existing_tx = CauseTransaction.where(:partner_identifier => partner_id,
                                            :cause_identifier => cause_id,
                                            :month => month,
-                                           :year => year).first      
+                                           :year => year).first   
       partner = Partner.find(partner_id)
       if partner.nil?
         puts "Could not find partner #{partner_id}"
@@ -299,6 +280,7 @@ namespace :db do
         
         unless (0 == year) or (0 == month)
           fee = partner.current_kula_rate(distributor_id, Date.parse("#{year}-#{month}-01"))
+          
           if fee.nil?
             # If unknown distributor, add in a 0 fee entry
             fee = partner.kula_fees.create(:distributor_identifier => distributor_id, 
@@ -323,14 +305,41 @@ namespace :db do
             ActiveRecord::Base.transaction do
               if existing_tx.nil?
                 puts "Could not find CauseTransaction: #{tx.inspect} - Creating!"
-              else             
-                existing_tx.update_attribute(:calc_distributor_fee, distributor_fee)
-                update_cause_balances({:partner_identifier => partner_id, 
-                                       :cause_identifier => cause_id, 
-                                       :year => year, 
-                                       :month => month,
-                                       :calc_distributor_fee => distributor_fee})
+              else     
+                cause = Cause.find(existing_tx.cause_identifier)
+                usa = 'US' == cause.country.strip
+                cause_type = cause.cause_type
+                gross = existing_tx.gross_amount
 
+                # In step 1, we calculated fees ignoring the distributor_id (for performance reasons)
+                # Now in step 2, we realize there's a distributor, and need to add in that fee *plus* 
+                #   recalculate and overwrite the old fees.
+                # This is easy in CauseTransaction, but CauseBalance is trickier because we've already
+                #   added the "old" fees in. So, for kula and foundation fees, we need to duplicate 
+                #   getting the original step 1 fee (no distributor), then get the new fee, and
+                #   adjust CauseBalance with the difference
+                #
+                step1_fee = partner.current_kula_rate(nil, Date.parse("#{year}-#{month}-01"))
+                step1_fees = calculate_fees(step1_fee, cause_type, gross, usa)
+                step1_donee_amount = gross - step1_fees[:calc_kula_fee] - step1_fees[:calc_foundation_fee]
+                
+                fees = calculate_fees(fee, cause_type, gross, usa)
+                donee_amount = gross - fees[:calc_kula_fee] - fees[:calc_foundation_fee] - distributor_fee
+                
+                # Overwrite with current values
+                existing_tx.update_attributes(fees.merge(:calc_distributor_fee => distributor_fee, 
+                                                         :donee_amount => donee_amount))
+
+                # new_tx is just a temporary object so that I can call update_cause_balances 
+                #   with modified values, without affecting the real transaction
+                new_tx = existing_tx.dup
+                new_tx.assign_attributes(:donee_amount => donee_amount - step1_donee_amount,
+                                         :calc_kula_fee => fees[:calc_kula_fee] - step1_fees[:calc_kula_fee],
+                                         :calc_foundation_fee => fees[:calc_foundation_fee] - step1_fees[:calc_foundation_fee])
+                
+                # Already added old fees in; need to subtract what was added before              
+                update_cause_balances(new_tx)
+ 
                 puts "Added fee #{distributor_fee} to #{existing_tx.id}"
               end
             end
@@ -362,13 +371,9 @@ namespace :db do
               :cause_id => cause_id, 
               :year => year, 
               :balance_type => CauseBalance::CREDIT_CARD_FEE}
-      balance = CauseBalance.where(keys).first
-      
-      if balance.nil?
-        balance = CauseBalance.create!(keys)
-      end
-      
-      calculated_fee = (rate * (tx['amount'].to_f - tx['NonCCAmountEarn'].to_f)).round(2)
+      balance = CauseBalance.where(keys).first || CauseBalance.create!(keys)
+            
+      calc_credit_card_fee = (rate * (tx['amount'].to_f - tx['NonCCAmountEarn'].to_f)).round(2)
       
       ct_keys = {:partner_identifier => partner.id,
                  :cause_identifier => cause_id,
@@ -376,21 +381,51 @@ namespace :db do
                  :year => year}
                  
       ActiveRecord::Base.transaction do
-        existing_tx = CauseTransaction.where(ct_keys).first      
-        if existing_tx.nil?
-          CauseTransaction.create!(ct_keys.update(:calc_credit_card_fee => calculated_fee))
-        else
-          existing_tx.update_attribute(:calc_credit_card_fee, calculated_fee)
-        end
+        tx = CauseTransaction.where(ct_keys).first      
+        raise 'Transaction not found' if tx.nil?
         
+        old_donee_amount = tx.donee_amount
+        
+        donee_amount = tx.gross_amount - tx.calc_kula_fee - tx.calc_foundation_fee - tx.calc_distributor_fee - calc_credit_card_fee
+        existing_tx.update_attributes(:calc_credit_card_fee => calc_credit_card_fee,
+                                      :donee_amount => donee_amount)
+
+        # Update credit card CauseBalance
         update_balance(balance, tx['month'], calculated_fee)
+        balance = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DONEE_AMOUNT)).first
+        update_balance(balance, tx['month'], donee_amount - old_donee_amount)        
       end
     end
     
     # Total Cause Balances
     Rake::Task["db:total_cause_balances"].invoke   
   end
-  
+
+  def calculate_fees(fee, cause_type, gross, usa)
+    result = Hash.new
+    
+    if Cause::SCHOOL_TYPE == cause_type
+      total_rate = fee.us_school_rate + fee.us_school_kf_rate
+      total_fee = total_rate * gross
+      
+      result[:calc_kula_fee] = 0 == total_rate ? 0 : fee.us_school_rate / total_rate * total_fee
+      result[:calc_foundation_fee] = total_fee - result[:calc_kula_fee]
+    else
+      total_rate = usa ? fee.us_charity_rate + fee.us_charity_kf_rate : fee.intl_charity_rate + fee.intl_charity_kf_rate
+      total_fee = total_rate * gross
+      
+      if 0 == total_rate
+        result[:calc_kula_fee] = 0
+      else
+        result[:calc_kula_fee] = (usa ? fee.us_charity_rate / total_rate : fee.intl_charity_rate / total_rate) * total_fee 
+      end
+      
+      result[:calc_foundation_fee] = total_fee - result[:calc_kula_fee]
+    end
+    
+    result
+  end
+      
   task :total_cause_balances => :environment do
     #ActiveRecord::Base.establish_connection(:production).connection unless Rails.env.production?    
     ActiveRecord::Base.connection.execute('UPDATE cause_balances SET total=jan+feb+mar+apr+may+jun+jul+aug+sep+oct+nov+dec')
@@ -412,107 +447,83 @@ namespace :db do
   end
 end
 
-def update_cause_balances(r)
-  unless 0.0 == r[:gross_amount].to_f
-    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                              :cause_id => r[:cause_identifier], 
-                                              :year => r[:year], 
-                                              :balance_type => CauseBalance::GROSS)
-    balance.update_balance(r[:month], r[:gross_amount])
+def update_cause_balances(ct)
+  unless 0.0 == ct.gross_amount
+    keys = {:partner_id => ct.partner_identifier, 
+            :cause_id => ct.cause_identifier, 
+            :year => ct.year, 
+            :balance_type => CauseBalance::GROSS}
+            
+    balance = CauseBalance.find_by(keys) || CauseBalance.create!(keys)
+    balance.set_balance(ct.month, ct.gross_amount)  
   end
   
-  unless 0.0 == r[:discounts_amount].to_f
-    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                              :cause_id => r[:cause_identifier], 
-                                              :year => r[:year], 
-                                              :balance_type => CauseBalance::DISCOUNT)
-    balance.update_balance(r[:month], r[:discounts_amount].to_f)
-  end
-  
-  unless 0.0 == r[:net_amount].to_f
-    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                              :cause_id => r[:cause_identifier], 
-                                              :year => r[:year], 
-                                              :balance_type => CauseBalance::NET)
-    balance.update_balance(r[:month], r[:net_amount].to_f)
-  end
-  
-  unless 0.0 == r[:calc_kula_fee].to_f
-    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                              :cause_id => r[:cause_identifier], 
-                                              :year => r[:year], 
-                                              :balance_type => CauseBalance::KULA_FEE)
-    balance.update_balance(r[:month], r[:calc_kula_fee])
-  end
-
-  unless 0.0 == r[:calc_foundation_fee].to_f 
-    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                              :cause_id => r[:cause_identifier], 
-                                              :year => r[:year], 
-                                              :balance_type => CauseBalance::FOUNDATION_FEE)
-    balance.update_balance(r[:month], r[:calc_foundation_fee])
-  end
-
-  unless 0.0 == r[:calc_distributor_fee].to_f
-    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                              :cause_id => r[:cause_identifier], 
-                                              :year => r[:year], 
-                                              :balance_type => CauseBalance::DISTRIBUTOR_FEE)
-    balance.update_balance(r[:month], r[:calc_distributor_fee])
-  end
-
-  unless 0.0 == r[:calc_credit_card_fee].to_f
-    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                              :cause_id => r[:cause_identifier], 
-                                              :year => r[:year], 
-                                              :balance_type => CauseBalance::CREDIT_CARD_FEE)
-    balance.update_balance(r[:month], r[:calc_credit_card_fee])
-  end
-  
-  unless 0.0 == r[:donee_amount]
-    balance = CauseBalance.find_or_create_by!(:partner_id => r[:partner_identifier], 
-                                              :cause_id => r[:cause_identifier], 
-                                              :year => r[:year], 
+  unless 0.0 == ct.donee_amount
+    balance = CauseBalance.find_or_create_by!(:partner_id => ct.partner_identifier, 
+                                              :cause_id => ct.cause_identifier, 
+                                              :year => ct.year, 
                                               :balance_type => CauseBalance::DONEE_AMOUNT)
-    balance.update_balance(r[:month], r[:donee_amount].to_f)  
+    balance.update_balance(ct.month, ct.donee_amount)  
   end
+
+  unless 0.0 == ct.calc_kula_fee
+    balance = CauseBalance.find_or_create_by!(:partner_id => ct.partner_identifier, 
+                                              :cause_id => ct.cause_identifier, 
+                                              :year => ct.year, 
+                                              :balance_type => CauseBalance::KULA_FEE)
+    balance.update_balance(ct.month, ct.calc_kula_fee)
+  end
+
+  unless 0.0 == ct.calc_foundation_fee
+    balance = CauseBalance.find_or_create_by!(:partner_id => ct.partner_identifier, 
+                                              :cause_id => ct.cause_identifier, 
+                                              :year => ct.year, 
+                                              :balance_type => CauseBalance::FOUNDATION_FEE)
+    balance.update_balance(ct.month, ct.calc_foundation_fee)
+  end
+
+  unless 0.0 == ct.calc_distributor_fee
+    balance = CauseBalance.find_or_create_by!(:partner_id => ct.partner_identifier, 
+                                              :cause_id => ct.cause_identifier, 
+                                              :year => ct.year, 
+                                              :balance_type => CauseBalance::DISTRIBUTOR_FEE)
+    balance.update_balance(ct.month, ct.calc_distributor_fee)
+  end
+
+  unless 0.0 == ct.calc_credit_card_fee
+    balance = CauseBalance.find_or_create_by!(:partner_id => ct.partner_identifier, 
+                                              :cause_id => ct.cause_identifier, 
+                                              :year => ct.year, 
+                                              :balance_type => CauseBalance::CREDIT_CARD_FEE)
+    balance.update_balance(ct.month, ct.calc_credit_card_fee)
+  end  
 end
 
-# If month is nil, clear for the whole year
-# DOES NOT UPDATE TOTAL -- need to do that externally
-def clear_balances(b, month = nil)
-  if month.nil?
-    for m in 1..12 do
-      clear_balances(b, m)
-    end
-  else
-    case month
-    when 1
-      b.update_attribute(:jan, 0)
-    when 2
-      b.update_attribute(:feb, 0)
-    when 3
-      b.update_attribute(:mar, 0)
-    when 4
-      b.update_attribute(:apr, 0)
-    when 5
-      b.update_attribute(:may, 0)
-    when 6
-      b.update_attribute(:jun, 0)
-    when 7
-      b.update_attribute(:jul, 0)
-    when 8
-      b.update_attribute(:aug, 0)
-    when 9
-      b.update_attribute(:sep, 0)
-    when 10
-      b.update_attribute(:oct, 0)
-    when 11
-      b.update_attribute(:nov, 0)
-    when 12
-      b.update_attribute(:dec, 0)
-    else
-      raise "Invalid month #{month}"
-    end                              
+def clear_balances(balances, month)
+  case month
+  when 1
+    balances.update_all(:jan => 0)
+  when 2
+    balances.update_all(:feb => 0)
+  when 3
+    balances.update_all(:mar => 0)
+  when 4
+    balances.update_all(:apr => 0)
+  when 5
+    balances.update_all(:may => 0)
+  when 6
+    balances.update_all(:jun => 0)
+  when 7
+    balances.update_all(:jul => 0)
+  when 8
+    balances.update_all(:aug => 0)
+  when 9
+    balances.update_all(:sep => 0)
+  when 10
+    balances.update_all(:oct => 0)
+  when 11
+    balances.update_all(:nov => 0)
+  when 12
+    balances.update_all(:dec => 0)
   end
-end
+end  

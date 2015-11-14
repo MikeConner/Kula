@@ -8,16 +8,17 @@
 #  month                :integer          not null
 #  year                 :integer          not null
 #  gross_amount         :decimal(8, 2)    default(0.0)
-#  net_amount           :decimal(8, 2)    default(0.0)
-#  donee_amount         :decimal(8, 2)    default(0.0)
-#  discounts_amount     :decimal(8, 2)    default(0.0)
-#  fees_amount          :decimal(8, 2)    default(0.0)
+#  legacy_net           :decimal(8, 2)    default(0.0)
+#  legacy_donee         :decimal(8, 2)    default(0.0)
+#  legacy_discounts     :decimal(8, 2)    default(0.0)
+#  legacy_fees          :decimal(8, 2)    default(0.0)
 #  calc_kula_fee        :decimal(8, 2)    default(0.0)
 #  calc_foundation_fee  :decimal(8, 2)    default(0.0)
 #  calc_distributor_fee :decimal(8, 2)    default(0.0)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  calc_credit_card_fee :decimal(8, 2)    default(0.0)
+#  donee_amount         :decimal(8, 2)
 #
 
 class CauseTransaction < ActiveRecord::Base
@@ -27,7 +28,7 @@ class CauseTransaction < ActiveRecord::Base
   validates :month, :numericality => { :only_integer => true },
                     :inclusion => { :in => 1..12 }
   validates :year, :numericality => { :only_integer => true, :greater_than => 2000 }
-  validates_numericality_of :gross_amount, :net_amount, :donee_amount, :discounts_amount, :fees_amount
+  validates_numericality_of :gross_amount, :legacy_net, :legacy_donee, :legacy_discounts, :legacy_fees, :donee_amount
   validates_numericality_of :calc_kula_fee, :calc_foundation_fee, :calc_distributor_fee, :calc_credit_card_fee
 
   def self.query_step1

@@ -30,8 +30,6 @@ require 'csv'
 class CauseBalance < ActiveRecord::Base
   PAYMENT = 'Payment'
   GROSS = 'Gross'
-  DISCOUNT = 'Discount' # Discount fee
-  NET = 'Net'
   ADJUSTMENT = 'Adjustment'
   DONEE_AMOUNT = 'Donee Amount'
   KULA_FEE = 'Kula Fee'
@@ -42,7 +40,7 @@ class CauseBalance < ActiveRecord::Base
   DEFAULT_ACH_PAYMENT_THRESHOLD = 10
   DEFAULT_CHECK_PAYMENT_THRESHOLD = 25
   
-  BALANCE_TYPES = [PAYMENT, GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, CREDIT_CARD_FEE, ADJUSTMENT, DONEE_AMOUNT]
+  BALANCE_TYPES = [PAYMENT, GROSS, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, CREDIT_CARD_FEE, ADJUSTMENT, DONEE_AMOUNT]
   MAX_TYPE_LEN = 16
     
   belongs_to :partner
@@ -55,7 +53,7 @@ class CauseBalance < ActiveRecord::Base
   validates_numericality_of :prior_year_rollover, :allow_nil => true
   
   scope :payments, -> { where("balance_type = ?", PAYMENT).group(:year, :partner_id) }
-  scope :transactional, -> { where("balance_type in (?)", [GROSS, DISCOUNT, NET, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, CREDIT_CARD_FEE, DONEE_AMOUNT]) }
+  scope :transactional, -> { where("balance_type in (?)", [GROSS, KULA_FEE, FOUNDATION_FEE, DISTRIBUTOR_FEE, CREDIT_CARD_FEE, DONEE_AMOUNT]) }
   
   def self.generate_payment_batch(user_id, partner, month, year, has_ach, minimum_due = 10)
     # Get the ids of those with ACH info; this should be smaller
@@ -169,6 +167,37 @@ class CauseBalance < ActiveRecord::Base
       update_attribute(:nov, self.nov + amount)
     when 12
       update_attribute(:dec, self.dec + amount)
+    else
+      raise "Invalid month #{month}"
+    end                          
+  end
+
+  def set_balance(month, amount)
+    case month
+    when 1
+      update_attribute(:jan, amount)
+    when 2
+      update_attribute(:feb, amount)
+    when 3
+      update_attribute(:mar, amount)
+    when 4
+      update_attribute(:apr, amount)
+    when 5
+      update_attribute(:may, amount)
+    when 6
+      update_attribute(:jun, amount)
+    when 7
+      update_attribute(:jul, amount)
+    when 8
+      update_attribute(:aug, amount)
+    when 9
+      update_attribute(:sep, amount)
+    when 10
+      update_attribute(:oct, amount)
+    when 11
+      update_attribute(:nov, amount)
+    when 12
+      update_attribute(:dec, amount)
     else
       raise "Invalid month #{month}"
     end                          
