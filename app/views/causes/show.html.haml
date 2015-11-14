@@ -60,30 +60,31 @@
           %th Year
           %th Month 
           %th Gross
-          %th Discount (Legacy)
-          %th Net (Legacy)
-          %th Donee Amount (Legacy)
-          %th Fees (Legacy)
+          %th Distributor Fees
           %th Kula Fees
           %th Foundation Fees
-          %th Distributor Fees
           %th Credit Card Fees
           %th Donee Amount
+          %th Discount (Legacy)
+          %th Net (Legacy)
+          %th Fees (Legacy)
+          %th Donee Amount (Legacy)
       %tbody
         - transactions.each do |tx|
           %tr
             %td= tx.year
             %td= tx.month
             %td= number_to_currency(tx.gross_amount)
-            %td= number_to_currency(tx.legacy_discounts)
-            %td= number_to_currency(tx.legacy_net)
-            %td= number_to_currency(tx.legacy_donee)
-            %td= number_to_currency(tx.legacy_fees)
+            %td= number_to_currency(tx.calc_distributor_fee)
             %td= number_to_currency(tx.calc_kula_fee)
             %td= number_to_currency(tx.calc_foundation_fee)
-            %td= number_to_currency(tx.calc_distributor_fee)
             %td= number_to_currency(tx.calc_credit_card_fee)
-            %td= number_to_currency(tx.donee_amount)
+            %td
+              %strong= number_to_currency(tx.donee_amount)
+            %td= number_to_currency(tx.legacy_discounts)
+            %td= number_to_currency(tx.legacy_net)
+            %td= number_to_currency(tx.legacy_fees)
+            %td= number_to_currency(tx.legacy_donee)
     - transactions = @original_tx[partner_id]
     %table.table.zebra-striped
       %caption Original Transactions
