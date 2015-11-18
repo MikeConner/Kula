@@ -1,17 +1,10 @@
-# SQLite version 3.x
-#   gem install sqlite3
-#
-#   Ensure the SQLite 3 gem is defined in your Gemfile
-#   gem 'sqlite3'
-#
-#    kula-rds-dev.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
 
 default: &default
   <<: *default
   adapter: postgresql
   username: captain
   password: MonkeY1984
-  host: kuladev.cvexvqum9p8s.us-east-1.rds.amazonaws.com
+  host: kulaopsdevdb.cy81pqkhj2kc.us-east-1.rds.amazonaws.com
   port: 5432
   database: kula_pg_dev
 
