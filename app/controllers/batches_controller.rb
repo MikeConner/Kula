@@ -36,6 +36,13 @@ class BatchesController < ApplicationController
         v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier rescue nil
         v[:year] = v['year(1i)']
         v[:month] = v['month(2i)']
+        # Extra fields are confusing the nested attributes
+        v.delete('month(1i)')
+        v.delete('month(2i)')
+        v.delete('month(3i)')
+        v.delete('year(1i)')
+        v.delete('year(2i)')
+        v.delete('year(3i)')
       end
     end
     
@@ -44,8 +51,17 @@ class BatchesController < ApplicationController
         v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier rescue nil
         v[:year] = v['year(1i)']
         v[:month] = v['month(2i)']
+        # Extra fields are confusing the nested attributes
+        v.delete('month(1i)')
+        v.delete('month(2i)')
+        v.delete('month(3i)')
+        v.delete('year(1i)')
+        v.delete('year(2i)')
+        v.delete('year(3i)')
       end
     end
+    
+    Rails.logger.info batch_params
     
     @batch = Batch.new(batch_params)
     
