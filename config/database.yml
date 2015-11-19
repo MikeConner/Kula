@@ -15,7 +15,7 @@ development:
 # This is region west version of the same db... this will go away soon
 test_dev:
   <<: *default
-  host: kulatestdb.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
+  host: kulaopsdevdb.cy81pqkhj2kc.us-east-1.rds.amazonaws.com
   database: kula_pg_dev
 
 # Warning: The database defined as "test" will be erased and
