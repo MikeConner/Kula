@@ -56,4 +56,4 @@ group :production do
   gem 'rails_12factor', '0.0.3'
 end
 
-gem 'bcrypt-ruby', '3.1.5'
+gem 'bcrypt', '3.1.10'
