@@ -26,6 +26,8 @@
       = f.select :status, options_for_select(Payment::VALID_CHECK_STATUSES, f.object.status)
     - else
       = f.select :status, options_for_select(Payment::VALID_ACH_STATUSES, f.object.status)
+    = f.label :check_num
+    = f.number_field :check_num
   .large-2.columns
     = f.label :confirmation
     = f.text_field :confirmation

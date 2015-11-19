@@ -11,7 +11,7 @@
   = f.hidden_field :date, :value => f.object.date
 .field
   = f.label :payment_method
-  = f.select :payment_method, options_for_select(Payment::VALID_METHODS, f.object.payment_method), {}, :onchange => 'update_status_options($(this).attr("id"))'
+  = f.select :payment_method, options_for_select(Payment::VALID_METHODS, f.object.payment_method), {}, :disabled => true, :onchange => 'update_status_options($(this).attr("id"))'
 .field
   = f.label :status
   - if f.object.check_payment?
@@ -20,10 +20,10 @@
     = f.select :status, options_for_select(Payment::VALID_ACH_STATUSES, f.object.status)
 .field
   = label_tag :period, 'Month and year of period to apply this payment to'
-  = date_select :period, nil, :selected => period_date, :add_month_numbers => true, :discard_day => true
+  = date_select :period, nil, :selected => period_date, :add_month_numbers => true, :discard_day => true, :disabled => true
 .field
   = f.label :amount
-  = f.text_field :amount
+  = f.text_field :amount, :disabled => true
 .field
   = f.label :confirmation
   = f.text_field :confirmation
@@ -31,7 +31,7 @@
   = f.label :address
   = f.text_field :address
 .field
-  = f.label :check_num
+  = f.label :check_num, 'Check number / ACH identifier'
   = f.number_field :check_num
 .field
   = f.label :comment
