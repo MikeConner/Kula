@@ -33,13 +33,17 @@ class BatchesController < ApplicationController
     # Convert before passing to batch creation
     if params[:batch].has_key?(:payments_attributes)
       params[:batch][:payments_attributes].each do |k, v|
-        v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier
+        v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier rescue nil
+        v[:year] = v['year(1i)']
+        v[:month] = v['month(2i)']
       end
     end
     
     if params[:batch].has_key?(:adjustments_attributes)
       params[:batch][:adjustments_attributes].each do |k, v|
-        v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier
+        v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier rescue nil
+        v[:year] = v['year(1i)']
+        v[:month] = v['month(2i)']
       end
     end
     
