@@ -23,7 +23,7 @@ test_dev:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  host: kulatestdb.cgql7wtq7xwt.us-west-2.rds.amazonaws.com
+  host : kulaopstestdb.cy81pqkhj2kc.us-east-1.rds.amazonaws.com
 
 replica:
   <<: *default
