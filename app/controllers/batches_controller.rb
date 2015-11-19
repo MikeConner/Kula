@@ -171,12 +171,10 @@ class BatchesController < ApplicationController
 private
   def batch_params
     params.require(:batch).permit(:partner_id, :user_id, :name, :date, :description,
-                                  :payments_attributes => [:status, :amount, :date, :confirmation,
+                                  :payments_attributes => [:status, :amount, :date, :confirmation, :year, :month,
                                                            :payment_method, :address, :comment, :cause_id, :check_num,
-                                                           'month(1i)', 'month(2i)', 'month(3i)', 'year(1i)', 'year(2i)', 'year(3i)',
                                                            :_destroy],
-                                  :adjustments_attributes => [:amount, :date, :comment, :cause_id,
-                                                              'month(1i)', 'month(2i)', 'month(3i)', 'year(1i)', 'year(2i)', 'year(3i)',
+                                  :adjustments_attributes => [:amount, :date, :comment, :cause_id, :year, :month,
                                                               :_destroy])
   end
   
