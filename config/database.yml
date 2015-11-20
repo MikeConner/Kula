@@ -29,7 +29,7 @@ replica:
   <<: *default
   host: prod-3-read-replica-for-prod-operations.cx7mhivmut45.us-east-1.rds.amazonaws.com
   username: operations
-  password: vwxcwe3G5gcN83bT
+  password: T78huKsU3Vk2aEA9
   database: kula
   port: 3306
   sslca: config/rds-ca.pem
