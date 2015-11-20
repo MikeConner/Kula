@@ -19,11 +19,12 @@
 #
 class DelayedRake < ActiveRecord::Base  
   IMPORT_TX_TASK = 'db:stepwise_import_transactions'
-
+  ETL_REPLICATE_TASK = 'etl:replicate_all'
+  CLOSE_YEAR_TASK = 'db:close_year'
+  GENERATE_PAYMENT_BATCH_TASK = 'db:generate_payment_batch'
+  
   attr_accessor :delayed_job 
-  
-  scope :import_transactions, -> { where("name = '#{IMPORT_TX_TASK}'") }
-  
+    
   def started_at 
     ensure_job
     
@@ -52,8 +53,10 @@ class DelayedRake < ActiveRecord::Base
   
   def args
     s = ""
-    YAML::load(self.params).each do |k, v|
-      s += "#{k}=#{v} " unless v.blank?
+    unless self.params.blank?
+      YAML::load(self.params).each do |k, v|
+        s += "#{k}=#{v} " unless v.blank?
+      end
     end
     
     s    
@@ -63,6 +66,12 @@ class DelayedRake < ActiveRecord::Base
     case self.name
     when IMPORT_TX_TASK
       "Import Transactions"
+    when ETL_REPLICATE_TASK  
+      "ETL Table Replication"
+    when CLOSE_YEAR_TASK
+      "Close Year"
+    when GENERATE_PAYMENT_BATCH_TASK
+      "Generate Payment Batch"
     else
       "Unknown"
     end
@@ -84,14 +93,14 @@ class DelayedRake < ActiveRecord::Base
   end
   handle_asynchronously :run_task  
     
-  def self.active_import_transaction?
-    (import_transactions.map(&:job_identifier) & jobs_in_progress.map(&:id)).count > 0
-  end
-  
-  def self.active_jobs
+  def self.active_jobs(name = nil)
      active_ids = jobs_in_progress.map(&:id) & DelayedRake.all.map(&:job_identifier)
      
-     DelayedRake.where('job_identifier in (?)', active_ids).order(:name)
+     if name.nil?
+       DelayedRake.where('job_identifier in (?)', active_ids).order(:name)
+     else
+       DelayedRake.where('job_identifier in (?)', active_ids).where(:name => name)
+     end
   end
   
   def self.failed_jobs

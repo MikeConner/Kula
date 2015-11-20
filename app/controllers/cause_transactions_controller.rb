@@ -13,12 +13,12 @@ class CauseTransactionsController < ApplicationController
       month = params['date']['month']
     end
     
-    dr = DelayedRake.create!(:name => "db:stepwise_import_transactions")
+    dr = DelayedRake.create!(:name => DelayedRake::IMPORT_TX_TASK)
     dr.set_params({:partner_id => params['partner_id'], :year => year, :month => month})
     
     dr.update_attribute(:job_identifier, dr.run_task.id)
 
-    redirect_to site_admin_path
+    redirect_to delayed_rakes_path
   end
   
 private

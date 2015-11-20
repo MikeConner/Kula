@@ -1,6 +1,6 @@
-%h1 Active Jobs
+%h1 Jobs
 - if @active_jobs.empty?
-  %h2 None
+  %h2 No Active Jobs
 - else
   %table.table.zebra-striped
     %thead
@@ -23,7 +23,7 @@
 %br
 %br
 - if @failed_jobs.empty?
-  %h2 None
+  %h2 No Failed Jobs
 - else
   %h1 Failed Jobs
   %table.table.zebra-striped

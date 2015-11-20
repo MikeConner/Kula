@@ -2,18 +2,68 @@
 %h1 Kula System Administration
 %p Please select from the menu on the left
 
-%h2 Import Transactions
-- if @active_import
-  = link_to 'Check status of import', delayed_rakes_path
-- else
-  = form_tag import_cause_transactions_path do
-    = select_tag :partner_id, options_from_collection_for_select(@partners, 'partner_identifier', 'display_name'), :prompt => 'Select a Partner'
-    .field
-      = label_tag :year
-      = number_field_tag :year, Date.today.year
-    .field
-      = label_tag :month
-      = select_month(Date.today, :prompt => 'Select a Month')
-    .actions  
-      = submit_tag 'Import'
-      = submit_tag CauseTransaction::LAST_MONTH_LABEL
+- if @active_jobs
+  = link_to 'Check status of running jobs', delayed_rakes_path
+  %br
+  %br
+%table.table
+  %thead
+    %tr
+      %th Task
+      %th Parameters
+  %tbody
+    %tr
+      %td ETL Replication
+      %td
+        = form_tag replicate_delayed_rakes_path do
+          .actions  
+            - disabled = !DelayedRake.active_jobs(DelayedRake::ETL_REPLICATE_TASK).empty?
+            = submit_tag 'Replicate Tables', :disabled => disabled
+    %tr
+      %td Import Cause Transactions
+      %td
+        = form_tag import_cause_transactions_path do
+          = select_tag :partner_id, options_from_collection_for_select(@partners, 'partner_identifier', 'display_name'), :prompt => 'Select a Partner'
+          .field
+            = label_tag :year
+            = number_field_tag :year, Date.today.year
+          .field
+            = label_tag :month
+            = select_month(Date.today, :prompt => 'Select a Month')
+          .actions  
+            - disabled = !DelayedRake.active_jobs(DelayedRake::IMPORT_TX_TASK).empty?
+            = submit_tag 'Import', :disabled => disabled
+            = submit_tag CauseTransaction::LAST_MONTH_LABEL, :disabled => disabled
+    %tr
+      %td Close year
+      %td
+        = form_tag close_year_delayed_rakes_path do
+          .field
+            = label_tag :year
+            = number_field_tag :year, Date.today.year
+          .actions  
+            - disabled = !DelayedRake.active_jobs(DelayedRake::CLOSE_YEAR_TASK).empty?
+            = submit_tag 'Close Year', :disabled => disabled
+    %tr
+      %td Generate payment batch
+      %td
+        = form_tag generate_payment_batch_delayed_rakes_path do
+          = select_tag :partner_id, options_from_collection_for_select(@partners, 'partner_identifier', 'display_name'), :prompt => 'Select a Partner'
+          .field
+            = label_tag :year
+            = number_field_tag :year, Date.today.year
+          .field
+            = label_tag :month
+            = select_month(Date.today, :prompt => 'Select a Month')
+          .field
+            = radio_button_tag :ach, Payment::ACH
+            = Payment::ACH
+            &nbsp;&nbsp;
+            = radio_button_tag :ach, Payment::CHECK, true
+            = Payment::CHECK
+          .field
+            = label_tag :threshold
+            = number_field_tag :threshold, CauseBalance::DEFAULT_CHECK_PAYMENT_THRESHOLD
+          .actions  
+            - disabled = !DelayedRake.active_jobs(DelayedRake::GENERATE_PAYMENT_BATCH_TASK).empty?
+            = submit_tag 'Generate Payment Batch', :disabled => disabled

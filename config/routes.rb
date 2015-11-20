@@ -31,7 +31,14 @@ Rails.application.routes.draw do
     post 'import', :on => :collection
   end
   
-  resources :delayed_rakes, :only => [:index]
+  resources :delayed_rakes, :only => [:index] do
+    collection do
+      post 'replicate'
+      post 'close_year'
+      post 'generate_payment_batch'
+    end
+  end
+  
   resources :global_settings, :only => [:edit, :update]
   
   # Static pages

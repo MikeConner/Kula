@@ -15,7 +15,7 @@ namespace :db do
     user = User.find(args[:user_id])
     partner = Partner.find(args[:partner_id])
 
-    payment_type = filter_by_ach ? 'ACH' : 'Check'
+    payment_type = filter_by_ach ? Payment::ACH : Payment::CHECK
     
     description = "#{payment_type} batch for user #{user.email}, partner #{partner.display_name}, for #{month}/#{year}, with threshold #{threshold}"
     puts description
