@@ -8,7 +8,10 @@ Rails.application.routes.draw do
   root :to => 'static_pages#home'
 
   resources :payments, :except => [:new, :create]
-  resources :batches, :except => [:edit, :update]
+  resources :batches, :except => [:edit, :update] do
+    get 'export', :on => :member
+  end
+  
   resources :partners, :only => [:index, :edit, :update] do
     member do
       get 'debt'

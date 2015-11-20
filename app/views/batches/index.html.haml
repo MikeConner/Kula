@@ -22,6 +22,7 @@
                   %th # Adjustments
                   %th User
                   %th
+                  %th
               %tbody
                 - @batches.each do |batch|
                   %tr
@@ -33,4 +34,5 @@
                     %td= number_with_delimiter(batch.payments.count)
                     %td= batch.adjustments.count
                     %td== #{batch.user.email} (#{batch.user.role})
+                    %td= link_to 'Export', export_batch_path(batch)
                     %td= link_to 'Delete', batch, :method => :delete, :data => { :confirm => "Are you sure?" }

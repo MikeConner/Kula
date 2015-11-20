@@ -4,7 +4,7 @@ class BatchesController < ApplicationController
   
   # GET /batches
   def index
-    @batches = Batch.order('created_at DESC')
+    @batches = Batch.order('created_at DESC').includes(:payments, :adjustments)
     
     render :layout => 'admin'
   end
@@ -184,7 +184,40 @@ class BatchesController < ApplicationController
     redirect_to batches_path, :notice => 'Batch was successfully deleted'
   end
   
+  def export
+    batch = Batch.find(params[:id])
+    payments = batch.payments.group('payments.id', :cause_id, :status).order('amount DESC').includes(:cause)
+    adjustments = batch.adjustments.group('adjustments.id', :cause_id).order('amount DESC').includes(:cause)
+    
+    csv_data = "Type,amount,status,date,month,year,check_num,payment_method,address,confirmation,org_name,org_email,org_phone,org_fax,address1,address2,address3,school?,international?,has_ach?,comment\n"
+    payments.each do |payment|
+      csv_data += "Payment,#{payment.amount},#{payment.status},#{payment.date.try(:strftime, ApplicationHelper::CSV_DATE_FORMAT)},"
+      csv_data += "#{payment.month},#{payment.year},#{payment.check_num},#{payment.payment_method},#{csv_sanitize(payment.address)},#{payment.confirmation},"
+      cause = payment.cause
+      csv_data += "#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
+      csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_ach_info?},#{csv_sanitize(payment.comment)}\n"
+    end
+
+    adjustments.each do |adjustment|
+      csv_data += "Adjustment,#{adjustment.amount},,#{adjustment.date.try(:strftime, ApplicationHelper::CSV_DATE_FORMAT)},"
+      csv_data += "#{adjustment.month},#{adjustment.year},,,,,"
+      cause = adjustment.cause
+      csv_data += "#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
+      csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_ach_info?},#{csv_sanitize(adjustment.comment)}\n"
+    end
+    
+    send_data csv_data, :filename => "batch-#{batch.id}.csv"
+  end
+
 private
+  def csv_sanitize(str)
+    if str.blank?
+      "-"
+    else
+      str.gsub(',', ';')
+    end
+  end
+  
   def batch_params
     params.require(:batch).permit(:partner_id, :user_id, :name, :date, :description,
                                   :payments_attributes => [:status, :amount, :date, :confirmation, :year, :month,
