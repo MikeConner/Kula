@@ -36,5 +36,8 @@
           %td= payment.status
           %td= number_to_currency(payment.amount)
           %td= payment.comment
-          %td= link_to 'Edit', edit_payment_path(payment)
+          - if payment.deleted?
+            %td= link_to 'Show', payment_path(payment)
+          - else
+            %td= link_to 'Edit', edit_payment_path(payment)
           %td= link_to 'Delete', payment, :method => :delete, :data => { :confirm => 'Are you sure?' }

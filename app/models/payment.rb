@@ -28,6 +28,7 @@ class Payment < ActiveRecord::Base
   REISSUED = 'Reissued'
   RETURNED = 'Returned'
   VOID = 'Void'
+  DELETED = 'Deleted'
   
   ACH = 'ACH'
   CHECK = 'Check'
@@ -40,8 +41,8 @@ class Payment < ActiveRecord::Base
   belongs_to :cause
   has_one :partner, :through => :batch
   
-  validates_inclusion_of :status, :in => VALID_CHECK_STATUSES, :if => :check_payment?
-  validates_inclusion_of :status, :in => VALID_ACH_STATUSES, :if => :ach_payment?
+  validates_inclusion_of :status, :in => VALID_CHECK_STATUSES + [DELETED], :if => :check_payment?
+  validates_inclusion_of :status, :in => VALID_ACH_STATUSES + [DELETED], :if => :ach_payment?
   
   validates :amount, :numericality => { :greater_than => 0 }
   validates_inclusion_of :payment_method, :in => VALID_METHODS
@@ -53,5 +54,9 @@ class Payment < ActiveRecord::Base
   
   def ach_payment?
     Payment::ACH == self.payment_method
+  end
+  
+  def deleted?
+    DELETED == self.status
   end
 end

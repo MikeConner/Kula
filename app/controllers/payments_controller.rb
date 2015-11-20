@@ -9,6 +9,13 @@ class PaymentsController < ApplicationController
     render :layout => 'admin'
   end
   
+  def show
+    @payment = Payment.find(params[:id])
+    @period_date = Date.parse("#{@payment.year}-#{@payment.month.to_s.rjust(2, '0')}-01")
+    
+    render :layout => 'admin'
+  end
+  
   def edit
     @payment = Payment.find(params[:id])
     @period_date = Date.parse("#{@payment.year}-#{@payment.month.to_s.rjust(2, '0')}-01")
@@ -32,7 +39,7 @@ class PaymentsController < ApplicationController
       end
  
       if @payment.save!   
-        redirect_to payments_path, notice: 'Payment was successfully updated.' and return
+        redirect_to payment_path(@payment), notice: 'Payment was successfully updated.' and return
       end
       
       rescue ActiveRecord::Rollback => ex
@@ -46,24 +53,38 @@ class PaymentsController < ApplicationController
   end
   
   def destroy
-    @payment = Payment.find(params[:id])
-    @payment.destroy
-    
+    payment = Payment.find(params[:id])
+    ActiveRecord::Base.transaction do
+    begin   
+      payment.batch.adjustments.create!(:amount => -payment.amount, 
+                                        :date => Date.today, 
+                                        :cause_id => payment.cause_id, 
+                                        :month => payment.month, 
+                                        :year => payment.year,
+                                        :comment => "Status change; Deleted payment #{payment.id}")
+      payment.update_attribute(:status, Payment::DELETED)
+      
+      rescue ActiveRecord::Rollback => ex
+        Rails.logger.error ex.message
+      end
+    end
+   
     redirect_to payments_path, :alert => 'Payment successfully deleted.'    
   end
   
 private 
   def process_status_change(payment, old_status)
     if payment.check_payment?
-      actionable = [Payment.CANCELLED, Payment.VOID]
+      actionable = [Payment::CANCELLED, Payment::VOID]
       # going to/from CANCELLED/VOID?
       # If the set intersection is 0, CANCELLED/VOID is not involved and we don't need to worry about it
       # If the set intersection is 2, we're going between CANCELLED and VOID, and again don't need to worry about it
       # If the set intersection is 1, we're going between one of these two "actionable" statuses and something else,
       #   so we need to add an adjustment
-      unless 1 == (actionable & [payment.status, old_status]).count
+      
+      if actionable.include?(payment.status) ^ actionable.include?(old_status)
         # If going from Cancelled/Void to something else, positive adjustment; otherwise a negative adjustment
-        sign = actionable.include?(old_status) ? 1 : -1
+        sign = actionable.include?(payment.status) ? -1 : 1
         
         payment.batch.adjustments.create!(:amount => payment.amount * sign, 
                                           :date => Date.today, 
@@ -74,9 +95,9 @@ private
       end
     else
       # We know the statuses aren't equal, so if one is RETURNED we need to make an adjustment
-      if [payment.status, old_status].include? Payment.RETURNED
+      if [payment.status, old_status].include? Payment::RETURNED
         # If going from Returned to something else, positive adjustment; otherwise a negative adjustment
-        sign = old_status == Payment.RETURNED ? 1 : -1
+        sign = old_status == Payment::RETURNED ? 1 : -1
         
         payment.batch.adjustments.create!(:amount => payment.amount * sign, 
                                           :date => Date.today, 

@@ -1,0 +1,28 @@
+%table.table.zebra-striped
+  %caption Payment Detail
+  %col{:width => "25"}/
+  %col{:width => "100"}/
+  %col{:width => "75"}/
+  %col{:width => "50"}/
+  %col{:width => "50"}/
+  %col{:width => "50"}/
+  %col{:width => "200"}/
+  %thead
+    %tr
+      %th Batch
+      %th Cause
+      %th Date
+      %th Method
+      %th Status
+      %th Amount
+      %th Comment
+  %tbody
+    %tr
+      %td= @payment.batch_id
+      %td= @payment.cause.org_name
+      %td= @payment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
+      %td= @payment.payment_method
+      %td= @payment.status
+      %td= number_to_currency(@payment.amount)
+      %td= @payment.comment
+= link_to 'Back', payments_path(:partner => @payment.partner.id)

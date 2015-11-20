@@ -7,8 +7,8 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root :to => 'static_pages#home'
 
-  resources :payments, :only => [:index, :edit, :update, :destroy]
-  resources :batches, :only => [:index, :show, :new, :create, :destroy]
+  resources :payments, :except => [:new, :create]
+  resources :batches, :except => [:edit, :update]
   resources :partners, :only => [:index, :edit, :update] do
     member do
       get 'debt'
