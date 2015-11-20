@@ -348,7 +348,7 @@ namespace :etl do
     puts "Last ID: #{ENV['LAST_P_TXN_ID']}"
     puts "--------------------------------------------"
 
-    rowCount = @mysql.query("select count(*) as cnt from replicated_partner_transaction where partner_transaction_id > #{ENV['LAST_P_TXN_ID']} "  )
+    rowCount = @mysql.query("select count(*) as cnt from partner_transaction where partner_transaction_id > #{ENV['LAST_P_TXN_ID']} "  )
     num_rows = rowCount.first['cnt'].to_i
 
     puts "#{num_rows} total rows"
