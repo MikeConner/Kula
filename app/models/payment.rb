@@ -47,6 +47,9 @@ class Payment < ActiveRecord::Base
   validates :amount, :numericality => { :greater_than => 0 }
   validates_inclusion_of :payment_method, :in => VALID_METHODS
   validates_presence_of :check_num
+  validates :month, :numericality => { :only_integer => true },
+                    :inclusion => { :in => 1..12 }
+  validates :year, :numericality => { :only_integer => true, :greater_than => 2000 }
 
   def check_payment?
     Payment::CHECK == self.payment_method

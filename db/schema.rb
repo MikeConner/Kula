@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151114024839) do
+ActiveRecord::Schema.define(version: 20151122231318) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -83,7 +83,7 @@ ActiveRecord::Schema.define(version: 20151114024839) do
     t.datetime "created_at",                                                 null: false
     t.datetime "updated_at",                                                 null: false
     t.decimal  "calc_credit_card_fee", precision: 8, scale: 2, default: 0.0
-    t.decimal  "donee_amount",         precision: 8, scale: 2
+    t.decimal  "donee_amount",         precision: 8, scale: 2, default: 0.0
   end
 
   add_index "cause_transactions", ["cause_identifier"], name: "index_cause_transactions_on_cause_identifier", using: :btree
@@ -482,12 +482,6 @@ ActiveRecord::Schema.define(version: 20151114024839) do
     t.string   "role",                   limit: 16
     t.integer  "partner_id"
     t.integer  "cause_id"
-    t.integer  "partner_12_balance",     limit: 8
-    t.integer  "partner_14_balance",     limit: 8
-    t.integer  "partner_22_balance",     limit: 8
-    t.integer  "partner_24_balance",     limit: 8
-    t.integer  "partner_10_balance",     limit: 8
-    t.integer  "partner_11_balance",     limit: 8
   end
 
   add_index "users", ["cause_id"], name: "index_users_on_cause_id", using: :btree

@@ -16,7 +16,25 @@ FactoryGirl.define do
   sequence(:random_latitude) { |n| Faker::Address.latitude }
   sequence(:random_longitude) { |n| Faker::Address.longitude }
 
+  factory :cause_transaction do
+    partner_identifier { FactoryGirl.create(:partner).partner_identifier }
+    cause_identifier { FactoryGirl.create(:cause).cause_id }
+    month { Random.rand(12) + 1 }
+    year { Random.rand(10) + 2001 }
+    gross_amount { Random.rand * 500 }
+    donee_amount { Random.rand * 500 }
+    calc_kula_fee { Random.rand * 10 }
+    calc_foundation_fee { Random.rand * 10 }
+    calc_distributor_fee { Random.rand * 10 }
+    calc_credit_card_fee { Random.rand * 10 }
+  end
+ 
+  factory :global_setting do
+    current_period Date.parse('2014-11-01')
+  end
+  
   factory :distributor do
+    distributor_identifier { Random.rand(100000) + 1 }
     name { generate(:random_name) }
     display_name { generate(:random_name) }
   end
@@ -90,16 +108,18 @@ FactoryGirl.define do
     end
   end
   
-  factory :cause do
-    cause_identifier { generate(:random_phrase) }
-    name { generate(:random_name) }
-    cause_type { [1,2].sample }
-    email { generate(:random_email) }
-    phone { generate(:random_phone) }
-    fax { generate(:random_phone) }
+  factory :cause do    
+    cause_identifier { Random.rand(100000) }
+    cause_id { Random.rand(100000).to_s }    
+    org_name { generate(:random_name) }
+    cause_type { Cause::VALID_TYPES.sample }
+    org_email { generate(:random_email) }
+    org_phone { generate(:random_phone) }
+    org_fax { generate(:random_phone) }
     tax_id { generate(:random_tax_id) }
-    address_1 { generate(:random_street_address) }
-    address_2 { generate(:random_secondary_address) }
+    address1 { generate(:random_street_address) }
+    address2 { generate(:random_secondary_address) }
+    address3 { generate(:random_secondary_address) }
     city { generate(:random_city) }
     region { generate(:random_region) }
     country { generate(:random_country_code) }
@@ -113,6 +133,26 @@ FactoryGirl.define do
     latitude { generate(:random_latitude) }
     longitude { generate(:random_longitude) }
     mission { generate(:random_sentences) }
+    language { ['en', 'fr', 'de'].sample }
+    has_ach_info { [0, 1].sample }
+    source_id { Random.rand(100) }
+    created { Date.today - 6.months }
+    
+    factory :populated_cause do
+      transient do
+        num_transactions 3
+        num_payments 3
+        num_adjustments 2
+        num_balances 2
+      end  
+    
+      after(:create) do |cause, evaluator|
+        FactoryGirl.create_list(:cause_transaction, evaluator.num_transactions, :cause_identifier => cause.cause_identifier)
+        FactoryGirl.create_list(:payment, evaluator.num_payments, :cause => cause)
+        FactoryGirl.create_list(:adjustment, evaluator.num_adjustments, :cause => cause)
+        FactoryGirl.create_list(:cause_balance, evaluator.num_balances, :cause => cause)
+      end
+    end
   end
 
   factory :user do
@@ -189,14 +229,23 @@ FactoryGirl.define do
   
   factory :payment do
     batch
+    cause 
     
-    status { Payment::VALID_STATUSES.sample }
-    payment_method { Payment::VALID_METHODS.sample }
+    status { Payment::VALID_CHECK_STATUSES.sample }
+    payment_method Payment::CHECK
     amount { Random.rand * 1000 + 1 }
     date { Date.today }
     confirmation { SecureRandom.hex(10) }
     address { generate(:random_street_address) }
     comment { generate(:random_sentences) }
+    check_num { Random.rand(1000) + 1 }
+    month { Random.rand(12) + 1 }
+    year { Random.rand(10) + 2001 }
+    
+    factory :ach_payment do
+      payment_method Payment::ACH
+      status { Payment::VALID_ACH_STATUSES.sample }      
+    end
   end
   
   factory :adjustment do
@@ -205,5 +254,7 @@ FactoryGirl.define do
     amount { Random.rand * 1000 + 1 }
     date { Date.today }
     comment { generate(:random_sentences) }
+    month { Random.rand(12) + 1 }
+    year { Random.rand(10) + 2001 }    
   end
 end

@@ -18,18 +18,19 @@
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  calc_credit_card_fee :decimal(8, 2)    default(0.0)
-#  donee_amount         :decimal(8, 2)
+#  donee_amount         :decimal(8, 2)    default(0.0)
 #
 
 class CauseTransaction < ActiveRecord::Base
   LAST_MONTH_LABEL = 'Import Last Month'
   
   validates :partner_identifier, :numericality => { :only_integer => true, :greater_than => 0 }
+  validates :cause_identifier, :numericality => { :only_integer => true, :greater_than => 0 }
   validates :month, :numericality => { :only_integer => true },
                     :inclusion => { :in => 1..12 }
   validates :year, :numericality => { :only_integer => true, :greater_than => 2000 }
-  validates_numericality_of :gross_amount, :legacy_net, :legacy_donee, :legacy_discounts, :legacy_fees, :donee_amount
-  validates_numericality_of :calc_kula_fee, :calc_foundation_fee, :calc_distributor_fee, :calc_credit_card_fee
+  validates_numericality_of :gross_amount, :legacy_net, :legacy_donee, :legacy_discounts, :legacy_fees, :donee_amount, :greater_than_or_equal_to => 0
+  validates_numericality_of :calc_kula_fee, :calc_foundation_fee, :calc_distributor_fee, :calc_credit_card_fee, :greater_than_or_equal_to => 0
 
   def self.query_step1
     <<-EOT

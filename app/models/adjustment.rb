@@ -20,4 +20,7 @@ class Adjustment < ActiveRecord::Base
   has_one :partner, :through => :batch
 
   validates :amount, :numericality => { :only_integer => false }
+  validates :month, :numericality => { :only_integer => true },
+                    :inclusion => { :in => 1..12 }
+  validates :year, :numericality => { :only_integer => true, :greater_than => 2000 }
 end

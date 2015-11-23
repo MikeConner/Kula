@@ -10,17 +10,20 @@
 #
 
 describe Distributor do
-  let(:partner) { FactoryGirl.create(:partner) }
-  let(:distributor) { FactoryGirl.create(:distributor, :partner => partner) }
+  let(:distributor) { FactoryGirl.create(:distributor) }
   
   subject { distributor }
   
   it "should respond to everything" do
-    expect(distributor).to respond_to(:partner)
     expect(distributor).to respond_to(:name)
     expect(distributor).to respond_to(:display_name)
   end
   
   it { should be_valid }
-  its(:partner) { should be == partner }  
+  
+  describe "Missing name" do
+    before { distributor.name = ' ' }
+    
+    it { should_not be_valid }
+  end
 end

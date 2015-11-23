@@ -9,8 +9,34 @@
 #  updated_at     :datetime         not null
 #
 
-require 'rails_helper'
-
-RSpec.describe GlobalSetting, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe GlobalSetting do
+  let(:settings) { FactoryGirl.create(:global_setting) }
+  
+  subject { settings }
+  
+  it "should respond to everything" do
+    expect(settings).to respond_to(:current_period)
+    expect(settings).to respond_to(:other)
+  end
+  
+  it { should be_valid }
+  
+  it "should have no params" do
+    expect(settings.other).to be_nil
+    expect(GlobalSetting.get_params).to be_nil 
+  end
+  
+  describe "Params" do
+    let(:params) {{:a => 1, :b => 'abc'}}
+    
+    before do
+      settings
+      
+      GlobalSetting.set_params(params)
+    end
+    
+    it "should recover them" do
+      expect(GlobalSetting.get_params).to be == params
+    end
+  end
 end

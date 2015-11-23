@@ -18,12 +18,6 @@
 #  role                   :string(16)
 #  partner_id             :integer
 #  cause_id               :integer
-#  partner_12_balance     :integer
-#  partner_14_balance     :integer
-#  partner_22_balance     :integer
-#  partner_24_balance     :integer
-#  partner_10_balance     :integer
-#  partner_11_balance     :integer
 #
 
 class User < ActiveRecord::Base

@@ -27,10 +27,14 @@ describe Adjustment do
     expect(adjustment).to respond_to(:amount)
     expect(adjustment).to respond_to(:date)
     expect(adjustment).to respond_to(:comment)
+    expect(adjustment).to respond_to(:month)
+    expect(adjustment).to respond_to(:year)
+    expect(adjustment).to respond_to(:partner)
   end
   
   its(:batch) { should be == batch }
   its(:cause) { should be == cause }
+  its(:partner) { should be == batch.partner }
   
   it { should be_valid }
   
@@ -41,4 +45,20 @@ describe Adjustment do
       it { should_not be_valid }
     end
   end  
+  
+  describe "Invalid month" do 
+    [0, 2.5, 'abc', nil, ' '].each do |m|
+      before { adjustment.month = m }
+      
+      it { should_not be_valid }
+    end
+  end
+
+  describe "Invalid year" do 
+    [2000, 2012.5, 'abc', nil, ' '].each do |y|
+      before { adjustment.year = y }
+      
+      it { should_not be_valid }
+    end
+  end
 end

@@ -87,8 +87,8 @@ describe Partner do
   
   describe "Inconsistent fees" do
     before do
-      partner.kula_fees.create!(:effective_date => nil, :expiration_date => 1.week.from_now, :rate => 0.05) 
-      partner.kula_fees.create!(:effective_date => Date.today, :expiration_date => 1.year.from_now, :rate => 0.1)
+      partner.kula_fees.create!(:effective_date => nil, :expiration_date => 1.week.from_now, :us_school_rate => 0.05) 
+      partner.kula_fees.create!(:effective_date => Date.today, :expiration_date => 1.year.from_now, :us_school_rate => 0.1)
     end
     
     it "should not allow new one" do
@@ -104,7 +104,7 @@ describe Partner do
     
     it "should be consistent" do
       expect(@fee).to be_valid
-      expect(partner.current_rate).to eq(@fee.rate)
+      expect(partner.current_kula_rate.us_school_rate).to eq(@fee.us_school_rate)
       expect(@fee.valid_on?(10.years.from_now)).to be true
     end
   end
@@ -116,7 +116,7 @@ describe Partner do
     
     it "should be consistent" do
       expect(@fee).to be_valid
-      expect(partner.current_rate).to eq(@fee.rate)
+      expect(partner.current_kula_rate.us_school_rate).to eq(@fee.us_school_rate)
       expect(@fee.valid_on?(10.years.ago)).to be true
       expect(@fee.valid_on?(10.years.from_now)).to be false
     end
@@ -129,7 +129,7 @@ describe Partner do
     
     it "should be consistent" do
       expect(@fee).to be_valid
-      expect(partner.current_rate).to eq(@fee.rate)
+      expect(partner.current_kula_rate.us_school_rate).to eq(@fee.us_school_rate)
       expect(@fee.valid_on?(10.years.ago)).to be false
       expect(@fee.valid_on?(10.years.from_now)).to be true
     end
@@ -142,7 +142,7 @@ describe Partner do
     
     it "should be consistent" do
       expect(@fee).to be_valid
-      expect(partner.current_rate).to eq(@fee.rate)
+      expect(partner.current_kula_rate.us_school_rate).to eq(@fee.us_school_rate)
       expect(@fee.valid_on?(10.years.ago)).to be false
       expect(@fee.valid_on?(10.years.from_now)).to be false
       expect(@fee.valid_on?(Date.today)).to be true
@@ -161,7 +161,7 @@ describe Partner do
       expect(partner.kula_fees.count).to eq(2)
       expect(@old_fee).to be_valid
       expect(@new_fee).to be_valid
-      expect(partner.current_rate).to eq(@old_fee.rate)
+      expect(partner.current_kula_rate.us_school_rate).to eq(@old_fee.us_school_rate)
       expect(@old_fee.valid_on?(10.years.ago)).to be true
       expect(@new_fee.valid_on?(10.years.from_now)).to be true
       expect(@new_fee.valid_on?(10.years.from_now)).to be true

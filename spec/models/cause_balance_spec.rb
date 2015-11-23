@@ -28,7 +28,7 @@
 describe CauseBalance do
   let(:partner) { FactoryGirl.create(:partner) }
   let(:cause) { FactoryGirl.create(:cause) }
-  let(:balance) { FactoryGirl.create(:cause_balance, :partner => partner, :cause => cause) }
+  let(:balance) { FactoryGirl.create(:cause_balance, :partner => partner, :cause => cause, :balance_type => CauseBalance::DONEE_AMOUNT) }
   
   subject { balance }
   
@@ -50,6 +50,7 @@ describe CauseBalance do
     expect(balance).to respond_to(:nov)
     expect(balance).to respond_to(:dec)
     expect(balance).to respond_to(:total)
+    expect(balance).to respond_to(:prior_year_rollover)
   end
   
   its(:partner) { should be == partner }
@@ -65,6 +66,31 @@ describe CauseBalance do
     end
   end
   
+  describe "Payment is negative" do
+    let(:balance) { FactoryGirl.create(:cause_balance, :partner => partner, :cause => cause, :balance_type => CauseBalance::PAYMENT, :total => -20.5) }
+
+    it { should be_valid }
+  end
+
+  describe "Adjustment can be negative" do
+    let(:balance) { FactoryGirl.create(:cause_balance, :partner => partner, :cause => cause, :balance_type => CauseBalance::ADJUSTMENT, :total => -20.5) }
+
+    it { should be_valid }
+  end
+
+  describe "should fail" do
+    CauseBalance::BALANCE_TYPES.each do |bt|
+      next if (CauseBalance::ADJUSTMENT == bt) or (CauseBalance::PAYMENT == bt)
+      
+      before do
+        balance.balance_type = bt
+        balance.total = -Random.rand(100) - 2.5
+      end
+      
+      it { should_not be_valid }
+    end
+  end
+   
   describe "Missing balance_type" do
     before { balance.balance_type = ' ' }
     
@@ -171,5 +197,25 @@ describe CauseBalance do
       
       it { should_not be_valid }
     end
+  end
+
+  describe "Invalid total" do
+    [-1, 'abc', ' ', nil].each do |val|
+      before { balance.total = val }
+      
+      it { should_not be_valid }
+    end
+  end
+
+  describe "Invalid rollover" do
+    before { balance.prior_year_rollover = 'abc' }
+    
+    it { should_not be_valid }
+  end
+
+  describe "Rollover can be negative" do
+    before { balance.prior_year_rollover = -100.26 }
+    
+    it { should be_valid }
   end
 end
