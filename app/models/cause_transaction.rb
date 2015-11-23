@@ -32,6 +32,14 @@ class CauseTransaction < ActiveRecord::Base
   validates_numericality_of :gross_amount, :legacy_net, :legacy_donee, :legacy_discounts, :legacy_fees, :donee_amount, :greater_than_or_equal_to => 0
   validates_numericality_of :calc_kula_fee, :calc_foundation_fee, :calc_distributor_fee, :calc_credit_card_fee, :greater_than_or_equal_to => 0
 
+  def self.query_current_date
+    'SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created LIMIT 1'
+  end
+  
+  def self.query_latest_date
+    'SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created DESC LIMIT 1'
+  end
+  
   def self.query_step1
     <<-EOT
       SELECT

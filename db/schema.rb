@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151122231318) do
+ActiveRecord::Schema.define(version: 20151123042429) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -406,6 +406,24 @@ ActiveRecord::Schema.define(version: 20151122231318) do
     t.integer "user_id",                         null: false
     t.integer "partner_id",                      null: false
     t.string  "partner_identity_id", limit: 255
+  end
+
+  create_table "replicated_tx_balances", force: :cascade do |t|
+    t.integer  "partnerid"
+    t.integer  "month"
+    t.integer  "year"
+    t.decimal  "grossamount"
+    t.decimal  "discountamount"
+    t.decimal  "netamount"
+    t.decimal  "kulafees"
+    t.decimal  "doneeamount"
+    t.integer  "causeid"
+    t.string   "causename"
+    t.string   "country"
+    t.integer  "causetype"
+    t.datetime "created"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
   end
 
   create_table "replicated_users", primary_key: "user_id", force: :cascade do |t|

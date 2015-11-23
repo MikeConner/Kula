@@ -5,6 +5,7 @@ FactoryGirl.define do
   sequence(:random_domain) { |n| Faker::Internet.domain_name }
   sequence(:random_phone) { |n| Faker::PhoneNumber.phone_number }
   sequence(:random_tax_id) { |n| Faker::Company.ein }
+  sequence(:random_company) { |n| Faker::Company.name }
   sequence(:random_street_address) { |n| Faker::Address.street_address }
   sequence(:random_secondary_address) { |n| Faker::Address.secondary_address }
   sequence(:random_city) { |n| Faker::Address.city }
@@ -16,6 +17,22 @@ FactoryGirl.define do
   sequence(:random_latitude) { |n| Faker::Address.latitude }
   sequence(:random_longitude) { |n| Faker::Address.longitude }
 
+  factory :replicated_tx_balance do
+    partnerid { FactoryGirl.create(:partner).partner_identifier }
+    month 6
+    year 2014
+    grossamount 100
+    discountamount 0
+    netamount 100
+    kulafees 5
+    doneeamount 95
+    causeid { FactoryGirl.create(:cause).cause_identifier }
+    causename { generate(:random_company) }
+    country 'US'
+    causetype Cause::CAUSE_TYPE
+    created 6.months.ago
+  end
+  
   factory :cause_transaction do
     partner_identifier { FactoryGirl.create(:partner).partner_identifier }
     cause_identifier { FactoryGirl.create(:cause).cause_id }
