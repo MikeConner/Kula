@@ -55,9 +55,24 @@ class CausesController < ApplicationController
     @partner_balances = Hash.new
     @tx_data = Hash.new
     @original_tx = Hash.new
+    @payment_data = Hash.new
+    @adjustment_data = Hash.new
     
-    @payment_data = @cause.payments
-    @adjustment_data = @cause.adjustments
+    @cause.payments.each do |p|
+      unless @payment_data.has_key?(p.partner.id)
+        @payment_data[p.partner.id] = []
+      end
+      
+      @payment_data[p.partner.id].push(p)
+    end
+
+    @cause.adjustments.each do |a|
+      unless @adjustment_data.has_key?(a.partner.id)
+        @adjustment_data[a.partner.id] = []
+      end
+      
+      @adjustment_data[a.partner.id].push(a)
+    end
       
     CauseBalance.where(:cause_id => params[:id]).each do |balance|
       current_partner = balance.partner_id

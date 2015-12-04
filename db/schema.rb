@@ -83,7 +83,7 @@ ActiveRecord::Schema.define(version: 20151123042429) do
     t.datetime "created_at",                                                 null: false
     t.datetime "updated_at",                                                 null: false
     t.decimal  "calc_credit_card_fee", precision: 8, scale: 2, default: 0.0
-    t.decimal  "donee_amount",         precision: 8, scale: 2, default: 0.0
+    t.decimal  "donee_amount",         precision: 8, scale: 2
   end
 
   add_index "cause_transactions", ["cause_identifier"], name: "index_cause_transactions_on_cause_identifier", using: :btree

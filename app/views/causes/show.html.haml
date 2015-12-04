@@ -6,153 +6,164 @@
     - if 1 == @cause.has_ach_info
       (ACH)
   - @partner_balances.each do |partner_id, balance_data|
-    %table.table.zebra-striped
-      %caption= Partner.find_by_partner_identifier(partner_id).name
-      %col{:width => "50"}/
-      %col{:width => "100"}/
-      %col{:width => "50"}/
-      %col{:width => "50"}/
-      %col{:width => "50"}/
-      %col{:width => "50"}/
-      %col{:width => "50"}/
-      %col{:width => "50"}/
-      %col{:width => "100"}/
-      %thead
-        %tr
-          %th Year
-          %th Payments 
-          %th Adjustments 
-          %th Gross
-          %th Kula Fees
-          %th Foundation Fees
-          %th Distributor Fees
-          %th Credit Card Fees
-          %th Donee Amount
-          %th Amount Due
-          %th
-      %tbody
-        - balance_data.each do |year, balances|
-          %tr
-            %td= year
-            %td= number_to_currency(balances[:payments].abs)
-            %td{:style => balances[:adjustments] < 0 ? 'color:red' : ''} 
-              = number_to_currency(balances[:adjustments].abs)
-            %td= number_to_currency(balances[:gross])
-            %td= number_to_currency(balances[:kula_fee])
-            %td= number_to_currency(balances[:foundation_fee])
-            %td= number_to_currency(balances[:distributor_fee])
-            %td= number_to_currency(balances[:credit_card_fee])
-            %td= number_to_currency(balances[:donee])
-            %td{:style => balances[:amount_due] < 0 ? 'color:red' : ''}
-              = number_to_currency(balances[:amount_due].abs)
-            - if balances[:amount_due] > 0
-              %td 
-                -# TODO: Make payment
-                = button_to 'PAY', causes_path
-            - else
-              %td
-    %br
-    - transactions = @tx_data[partner_id]
-    %table.table.zebra-striped
-      %caption Transaction Summary
-      %thead
-        %tr
-          %th Year
-          %th Month 
-          %th Gross
-          %th Distributor Fees
-          %th Kula Fees
-          %th Foundation Fees
-          %th Credit Card Fees
-          %th Donee Amount
-          %th Discount (Legacy)
-          %th Net (Legacy)
-          %th Fees (Legacy)
-          %th Donee Amount (Legacy)
-      %tbody
-        - transactions.each do |tx|
-          %tr
-            %td= tx.year
-            %td= tx.month
-            %td= number_to_currency(tx.gross_amount)
-            %td= number_to_currency(tx.calc_distributor_fee)
-            %td= number_to_currency(tx.calc_kula_fee)
-            %td= number_to_currency(tx.calc_foundation_fee)
-            %td= number_to_currency(tx.calc_credit_card_fee)
-            %td
-              %strong= number_to_currency(tx.donee_amount)
-            %td= number_to_currency(tx.legacy_discounts)
-            %td= number_to_currency(tx.legacy_net)
-            %td= number_to_currency(tx.legacy_fees)
-            %td= number_to_currency(tx.legacy_donee)
-    - transactions = @original_tx[partner_id]
-    %table.table.zebra-striped
-      %caption Original Transactions
-      %thead
-        %tr
-          %th Date
-          %th User
-          %th City 
-          %th Region
-          %th Country 
-          %th Postal Code
-          %th Amount
-      %tbody
-        - transactions.each do |tx|
-          %tr
-            %td= Date.parse(tx['created']).try(:strftime, ApplicationHelper::DATE_FORMAT)
-            %td== #{tx['first_name']} #{tx['last_name']}
-            %td= tx['city']
-            %td= tx['region']
-            %td= tx['country']
-            %td= tx['postal_code']
-            %td= number_to_currency(tx['amount'].to_f)
-  - if @payment_data.empty?
-    %h2 No Payments
-  - else
-    %table.table.zebra-striped
-      %caption Payments
-      %thead
-        %tr
-          %th Date
-          %th Period 
-          %th Amount
-          %th Status 
-          %th Method
-          %th Check Num
-          %th Batch
-          %th Comment
-      %tbody
-        - @payment_data.each do |payment|
-          %tr
-            %td= payment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
-            %td= "#{payment.month}/#{payment.year}"
-            %td= number_to_currency(payment.amount)
-            %td= payment.status
-            %td= payment.payment_method
-            %td= payment.check_num
-            %td{:title => payment.batch.description}= payment.batch.name
-            %td= payment.comment
-  - if @adjustment_data.empty?
-    %h2 No Adjustments
-  - else
-    %table.table.zebra-striped
-      %caption Adjustments
-      %thead
-        %tr
-          %th Date
-          %th Period 
-          %th Amount
-          %th Batch
-          %th Comment
-      %tbody
-        - @adjustment_data.each do |adjustment|
-          %tr
-            %td= adjustment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
-            %td= "#{adjustment.month}/#{adjustment.year}"
-            %td= number_to_currency(adjustment.amount)
-            %td{:title => adjustment.batch.description}= adjustment.batch.name
-            %td= adjustment.comment
+    - name = Partner.find_by_partner_identifier(partner_id).name
+    .partner
+      %i.fa.fa-plus.fa-5
+        %a.partner_link= name
+      .data{:id => name, :style => "display:none"}
+        %table.table.zebra-striped
+          %caption= name
+          %col{:width => "50"}/
+          %col{:width => "100"}/
+          %col{:width => "50"}/
+          %col{:width => "50"}/
+          %col{:width => "50"}/
+          %col{:width => "50"}/
+          %col{:width => "50"}/
+          %col{:width => "50"}/
+          %col{:width => "100"}/
+          %thead
+            %tr
+              %th Year
+              %th Payments 
+              %th Adjustments 
+              %th Gross
+              %th Kula Fees
+              %th Foundation Fees
+              %th Distributor Fees
+              %th Credit Card Fees
+              %th Donee Amount
+              %th Amount Due
+              %th
+          %tbody
+            - balance_data.each do |year, balances|
+              %tr
+                %td= year
+                %td= number_to_currency(balances[:payments].abs)
+                %td{:style => balances[:adjustments] < 0 ? 'color:red' : ''} 
+                  = number_to_currency(balances[:adjustments].abs)
+                %td= number_to_currency(balances[:gross])
+                %td= number_to_currency(balances[:kula_fee])
+                %td= number_to_currency(balances[:foundation_fee])
+                %td= number_to_currency(balances[:distributor_fee])
+                %td= number_to_currency(balances[:credit_card_fee])
+                %td= number_to_currency(balances[:donee])
+                %td{:style => balances[:amount_due] < 0 ? 'color:red' : ''}
+                  = number_to_currency(balances[:amount_due].abs)
+                - if balances[:amount_due] > 0
+                  %td 
+                    -# TODO: Make payment
+                    = button_to 'PAY', causes_path
+                - else
+                  %td
+        %br
+        - transactions = @tx_data[partner_id]
+        %table.table.zebra-striped
+          %caption Transaction Summary
+          %thead
+            %tr
+              %th Year
+              %th Month 
+              %th Quarter
+              %th Gross
+              %th Distributor Fees
+              %th Kula Fees
+              %th Foundation Fees
+              %th Credit Card Fees
+              %th Donee Amount
+              %th Discount (Legacy)
+              %th Net (Legacy)
+              %th Fees (Legacy)
+              %th Donee Amount (Legacy)
+          %tbody
+            - transactions.each do |tx|
+              %tr
+                %td= tx.year
+                %td= tx.month
+                %td= tx.quarter_display
+                %td= number_to_currency(tx.gross_amount)
+                %td= number_to_currency(tx.calc_distributor_fee)
+                %td= number_to_currency(tx.calc_kula_fee)
+                %td= number_to_currency(tx.calc_foundation_fee)
+                %td= number_to_currency(tx.calc_credit_card_fee)
+                %td
+                  %strong= number_to_currency(tx.donee_amount)
+                %td= number_to_currency(tx.legacy_discounts)
+                %td= number_to_currency(tx.legacy_net)
+                %td= number_to_currency(tx.legacy_fees)
+                %td= number_to_currency(tx.legacy_donee)
+        - if @payment_data.has_key?(partner_id)
+          %table.table.zebra-striped
+            %caption Payments
+            %thead
+              %tr
+                %th Date
+                %th Period 
+                %th Amount
+                %th Status 
+                %th Method
+                %th Check Num
+                %th Batch
+                %th Confirmation
+                %th Comment
+            %tbody
+              - @payment_data[partner_id].each do |payment|
+                %tr
+                  %td= payment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
+                  %td= "#{payment.month}/#{payment.year}"
+                  %td= number_to_currency(payment.amount)
+                  %td= payment.status
+                  %td= payment.payment_method
+                  %td= payment.check_num
+                  %td{:title => payment.batch.description}= payment.batch.name
+                  %td= payment.confirmation
+                  %td= payment.comment
+        - else
+          %h2 No Payments
+        - if @adjustment_data.has_key?(partner_id)
+          %table.table.zebra-striped
+            %caption Adjustments
+            %thead
+              %tr
+                %th Date
+                %th Period 
+                %th Amount
+                %th Batch
+                %th Comment
+            %tbody
+              - @adjustment_data[partner_id].each do |adjustment|
+                %tr
+                  %td= adjustment.date.try(:strftime, ApplicationHelper::DATE_FORMAT)
+                  %td= "#{adjustment.month}/#{adjustment.year}"
+                  %td= number_to_currency(adjustment.amount)
+                  %td{:title => adjustment.batch.description}= adjustment.batch.name
+                  %td= adjustment.comment
+        - else
+          %h2 No Adjustments
+        - transactions = @original_tx[partner_id]
+        %table.table.zebra-striped
+          %caption Original Transactions
+          %thead
+            %tr
+              %th Date
+              %th User
+              %th City 
+              %th Region
+              %th Country 
+              %th Postal Code
+              %th Amount
+          %tbody
+            - transactions.each do |tx|
+              %tr
+                %td= Date.parse(tx['created']).try(:strftime, ApplicationHelper::DATE_FORMAT)
+                %td== #{tx['first_name']} #{tx['last_name']}
+                %td= tx['city']
+                %td= tx['region']
+                %td= tx['country']
+                %td= tx['postal_code']
+                %td= number_to_currency(tx['amount'].to_f)
 %br
 %br
 = link_to 'Back', causes_path
+= javascript_include_tag 'causes.js' 
+  

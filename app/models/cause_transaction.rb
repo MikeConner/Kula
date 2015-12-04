@@ -32,6 +32,21 @@ class CauseTransaction < ActiveRecord::Base
   validates_numericality_of :gross_amount, :legacy_net, :legacy_donee, :legacy_discounts, :legacy_fees, :donee_amount, :greater_than_or_equal_to => 0
   validates_numericality_of :calc_kula_fee, :calc_foundation_fee, :calc_distributor_fee, :calc_credit_card_fee, :greater_than_or_equal_to => 0
 
+  def quarter_display
+    case month 
+    when 1..3
+      q = "1"
+    when 4..6
+      q = "2"
+    when 7..9
+      q = "3"
+    else
+      q = "4"
+    end
+    
+    "#{self.year - 2000}-Q#{q}"
+  end
+  
   def self.query_current_date
     'SELECT DISTINCT created FROM replicated_balance_transactions ORDER BY created LIMIT 1'
   end
