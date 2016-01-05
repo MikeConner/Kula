@@ -3,7 +3,7 @@
 - else
   %h1
     = @cause.nil? ? nil : @cause.org_name
-    - if 1 == @cause.has_ach_info
+    - if 1 == @cause.has_eft_bank_info
       (ACH)
   - @partner_balances.each do |partner_id, balance_data|
     - name = Partner.find_by_partner_identifier(partner_id).name

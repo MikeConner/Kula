@@ -118,7 +118,7 @@ describe Cause do
     expect(cause).to respond_to(:unenhanced_cause_id)
     expect(cause).to respond_to(:tax_id)
     expect(cause).to respond_to(:cause_type)
-    expect(cause).to respond_to(:has_ach_info)
+    expect(cause).to respond_to(:has_eft_bank_info)
     expect(cause).to respond_to(:k8)
     expect(cause).to respond_to(:org_name)
     expect(cause).to respond_to(:old_org_name)
@@ -225,8 +225,8 @@ describe Cause do
     it { should_not be_valid }
   end
   
-  describe "Missing has_ach_info" do
-    before { cause.has_ach_info = ' ' }
+  describe "Missing has_eft_bank_info" do
+    before { cause.has_eft_bank_info = ' ' }
     
     it { should_not be_valid }
   end
@@ -292,7 +292,7 @@ describe Cause do
   end
   
   describe "Invalid ach info" do
-    before { cause.has_ach_info = 6 }
+    before { cause.has_eft_bank_info = 6 }
     
     it { should_not be_valid }
   end

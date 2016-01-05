@@ -119,9 +119,9 @@ class Cause < ActiveRecord::Base
   has_many :adjustments, :dependent => :restrict_with_exception
   
   validates_presence_of :org_name, :cause_type, :country, :cause_identifier, :language, :source_id, :created,
-                        :views, :donations, :comment_count, :favorite_count, :share_count, :has_ach_info
+                        :views, :donations, :comment_count, :favorite_count, :share_count, :has_eft_bank_info
   
-  validates_inclusion_of :has_ach_info, :in => [0, 1]
+  validates_inclusion_of :has_eft_bank_info, :in => [0, 1]
   validates_inclusion_of :cause_type, :in => VALID_TYPES
   validates :country, :length => { :maximum => MAX_COUNTRY_LEN }
   

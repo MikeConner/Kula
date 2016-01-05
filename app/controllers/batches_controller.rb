@@ -195,7 +195,7 @@ class BatchesController < ApplicationController
       csv_data += "#{payment.month},#{payment.year},#{payment.check_num},#{payment.payment_method},#{csv_sanitize(payment.address)},#{payment.confirmation},"
       cause = payment.cause
       csv_data += "#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
-      csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_ach_info?},#{csv_sanitize(payment.comment)}\n"
+      csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_eft_bank_info?},#{csv_sanitize(payment.comment)}\n"
     end
 
     adjustments.each do |adjustment|
@@ -203,7 +203,7 @@ class BatchesController < ApplicationController
       csv_data += "#{adjustment.month},#{adjustment.year},,,,,"
       cause = adjustment.cause
       csv_data += "#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
-      csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_ach_info?},#{csv_sanitize(adjustment.comment)}\n"
+      csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_eft_bank_info?},#{csv_sanitize(adjustment.comment)}\n"
     end
     
     send_data csv_data, :filename => "batch-#{batch.id}.csv"

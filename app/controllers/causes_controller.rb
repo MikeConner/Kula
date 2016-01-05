@@ -23,7 +23,7 @@ class CausesController < ApplicationController
     end
         
     if 1 == @has_ach
-      sql.gsub!('##ACH_FILTER', ' AND c.has_ach_info = 1')
+      sql.gsub!('##ACH_FILTER', ' AND c.has_eft_bank_info = 1')
     else
       sql.gsub!('##ACH_FILTER', '')
     end

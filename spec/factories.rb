@@ -151,7 +151,7 @@ FactoryGirl.define do
     longitude { generate(:random_longitude) }
     mission { generate(:random_sentences) }
     language { ['en', 'fr', 'de'].sample }
-    has_ach_info { [0, 1].sample }
+    has_eft_bank_info { [0, 1].sample }
     source_id { Random.rand(100) }
     created { Date.today - 6.months }
     

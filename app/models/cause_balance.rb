@@ -57,7 +57,7 @@ class CauseBalance < ActiveRecord::Base
   
   def self.generate_payment_batch(user_id, partner, month, year, has_ach, minimum_due = 10)
     # Get the ids of those with ACH info; this should be smaller
-    ach_causes = Cause.where(:has_ach_info => true).map(&:cause_identifier)
+    ach_causes = Cause.where(:has_eft_bank_info => true).map(&:cause_identifier)
     sum_clause = get_sum_clause(month)
     payment_method = has_ach ? Payment::ACH : Payment::CHECK
     
@@ -273,7 +273,7 @@ private
         SUM(dec) AS dec_sum
       FROM cause_balances b
       INNER JOIN causes c ON b.cause_id = c.cause_identifier 
-      WHERE year = ##YEAR AND partner_id = ##PARTNER_ID AND c.has_ach_info = 1 AND balance_type IN ('Donee Amount','Payment','Adjustment') 
+      WHERE year = ##YEAR AND partner_id = ##PARTNER_ID AND c.has_eft_bank_info = 1 AND balance_type IN ('Donee Amount','Payment','Adjustment') 
       GROUP BY b.cause_id
     EOT
   end

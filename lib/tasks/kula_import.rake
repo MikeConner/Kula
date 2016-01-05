@@ -303,7 +303,7 @@ namespace :db do
           if fee.nil?
              puts "Could not find fee for cause #{cause_id} P=#{partner_id} D=#{distributor_id}, Date:#{month}/#{year}"
           else                        
-            distributor_fee = (fee.distributor_rate * tx['amount'].to_f).round(2)
+            distributor_fee = (fee.distributor_rate * existing_tx.gross_amount).round(2)
             
             unless 0 == distributor_fee
               ActiveRecord::Base.transaction do

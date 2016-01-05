@@ -140,7 +140,7 @@ $90,$91,$92,$93,$94,$95, $96)')
       row[:unenhanced_cause_id],
       row[:tax_id],
       row[:cause_type],
-      row[:has_ach_info],
+      row[:has_eft_bank_info],
       row[:k8],
       row[:org_name],
       row[:old_org_name],
