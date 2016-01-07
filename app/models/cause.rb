@@ -10,7 +10,7 @@
 #  unenhanced_cause_id          :string(64)
 #  tax_id                       :string(64)
 #  cause_type                   :integer          default(1), not null
-#  has_ach_info                 :integer          default(0), not null
+#  has_eft_bank_info            :integer          default(0), not null
 #  k8                           :integer          default(0), not null
 #  org_name                     :string(255)      not null
 #  old_org_name                 :string(255)

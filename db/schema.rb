@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151123042429) do
+ActiveRecord::Schema.define(version: 20160105235134) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -99,7 +99,7 @@ ActiveRecord::Schema.define(version: 20151123042429) do
     t.string   "unenhanced_cause_id",          limit: 64
     t.string   "tax_id",                       limit: 64
     t.integer  "cause_type",                               default: 1, null: false
-    t.integer  "has_ach_info",                             default: 0, null: false
+    t.integer  "has_eft_bank_info",                        default: 0, null: false
     t.integer  "k8",                                       default: 0, null: false
     t.string   "org_name",                     limit: 255,             null: false
     t.string   "old_org_name",                 limit: 255

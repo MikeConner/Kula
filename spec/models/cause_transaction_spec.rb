@@ -18,7 +18,7 @@
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  calc_credit_card_fee :decimal(8, 2)    default(0.0)
-#  donee_amount         :decimal(8, 2)    default(0.0)
+#  donee_amount         :decimal(8, 2)
 #
 
 describe CauseTransaction do
