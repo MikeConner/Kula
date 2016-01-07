@@ -11,7 +11,7 @@ class CauseDestination
     #TODO - Insert Cause Statement
     @conn.prepare('insert_user_stmt', 'INSERT INTO causes(
             cause_id, source_id, source_cause_id, mcr_school_id, enhanced_date,
-            unenhanced_cause_id, tax_id, cause_type, has_ach_info, k8, org_name,
+            unenhanced_cause_id, tax_id, cause_type, has_eft_bank_info, k8, org_name,
             old_org_name, org_contact_first_name, old_org_contact_first_name,
             org_contact_last_name, old_org_contact_last_name, org_contact_email,
             old_org_contact_email, mcr_role, mcr_user_level, org_email, org_phone,
