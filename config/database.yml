@@ -11,13 +11,7 @@ default: &default
 development:
   <<: *default
 
-
-# This is region west version of the same db... this will go away soon
-test_dev:
-  <<: *default
-  host: kulaopsdevdb.cy81pqkhj2kc.us-east-1.rds.amazonaws.com
-  database: kula_pg_dev
-
+  
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
@@ -38,9 +32,4 @@ replica:
 
 production:
   <<: *default
-  adapter: postgresql
-  username: captain
-  password: AiHEp7kER5SY
-  host: kulaoperationsprod.cx7mhivmut45.us-east-1.rds.amazonaws.com
-  port: 5432
-  database: kula_prod
+  host: kulaopsprod.cy81pqkhj2kc.us-east-1.rds.amazonaws.com:5432
