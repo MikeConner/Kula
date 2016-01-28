@@ -71,8 +71,10 @@ namespace :db do
     #   Or a year and a month
     #   Or neither
 
-    year_param = args[:year].to_i
-    month_param = args[:month].to_i
+    # TEMPORARILY DISABLE INCREMENTAL FUNCTIONALITY, BECAUSE IT DOESN'T WORK WITH STEP 3
+    # REFACTOR AFTER RECONCILIATION
+    year_param = 0 #args[:year].to_i
+    month_param = 0 #args[:month].to_i
 
     # Cause transactions have dates; CauseBalances only months/years
     # When we're calling this, we need to clear corresponding CauseBalances, and it's going to be one of three cases:
