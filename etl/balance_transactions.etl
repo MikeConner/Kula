@@ -22,7 +22,7 @@ start_time = Time.now
 pre_process do
   puts "*** START BALANCES TRANSACTION REPLICATION #{start_time}***"
 
- 
+
 
   puts "--------------------------------------------"
 
@@ -49,6 +49,8 @@ transform do |row|
   newrow[:session_uuid] = row[:session_uuid]
   newrow[:updated] = row[:updated]
   newrow[:created] = row[:created]
+  newrow[:year] = row[:year]
+  newrow[:month] = row[:month]
 
 
 

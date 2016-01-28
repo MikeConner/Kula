@@ -13,7 +13,7 @@ class BalanceTransactionSource
   end
 
   def each
-    query = "select * from balance_transactions "
+    query = "select *, extract(month from created) as month, extract(year from created) as year from balance_transactions "
     unless @last_txn_id.nil?
       query += " WHERE transaction_id > #{@last_txn_id}"
     end
