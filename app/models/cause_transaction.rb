@@ -129,8 +129,6 @@ class CauseTransaction < ActiveRecord::Base
                     WHERE earn_balance_transaction_id IN 
                         (SELECT transaction_id FROM replicated_balance_transactions WHERE partner_id = 13)
                  ) AND partner_id = ##PARTNER_ID
-                 ##YEAR_CLAUSE
-                 ##MONTH_CLAUSE
     EOT
   end
 end

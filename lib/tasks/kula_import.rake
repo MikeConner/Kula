@@ -70,6 +70,7 @@ namespace :db do
     # Can be given a year but no month
     #   Or a year and a month
     #   Or neither
+
     year_param = args[:year].to_i
     month_param = args[:month].to_i
 
@@ -373,25 +374,14 @@ namespace :db do
       partner = Partner.find_by_name("My Coke Rewards")
       sql.gsub!('##PARTNER_ID', partner.id.to_s)
 
-      if 0 == year_param
-        sql.gsub!('##YEAR_CLAUSE', '')
-      else
-        sql.gsub!('##YEAR_CLAUSE', " AND EXTRACT(year FROM created) = #{year_param}")
-      end
-
-      if 0 == month_param
-        sql.gsub!('##MONTH_CLAUSE', '')
-      else
-        sql.gsub!('##MONTH_CLAUSE', " AND EXTRACT(month FROM created) = #{month_param}")
-      end
-      
       rate = partner.current_kula_rate.mcr_cc_rate || 0.0
 
       transactions = ActiveRecord::Base.connection.execute(sql)
       puts "Read #{transactions.count} credit card transactions"
 
       transactions.each do |tx|
-        next if tx['NonCCAmountEarn'].blank?
+        puts tx.inspect
+        next if tx['nonccamountearn'].blank?
 
         month = tx['month'].to_i
         year = tx['year'].to_i
@@ -403,7 +393,7 @@ namespace :db do
                 :balance_type => CauseBalance::CREDIT_CARD_FEE}
         balance = CauseBalance.where(keys).first || CauseBalance.create!(keys)
 
-        calc_credit_card_fee = (rate * (tx['amount'].to_f - tx['NonCCAmountEarn'].to_f)).round(2)
+        calc_credit_card_fee = (rate * (tx['amount'].to_f - tx['nonccamountearn'].to_f)).round(2)
 
         ct_keys = {:partner_identifier => partner.id,
                    :cause_identifier => cause_id,
@@ -417,13 +407,13 @@ namespace :db do
           old_donee_amount = tx.donee_amount
 
           donee_amount = tx.gross_amount - tx.calc_kula_fee - tx.calc_foundation_fee - tx.calc_distributor_fee - calc_credit_card_fee
-          existing_tx.update_attributes(:calc_credit_card_fee => calc_credit_card_fee,
-                                        :donee_amount => donee_amount)
+          tx.update_attributes(:calc_credit_card_fee => calc_credit_card_fee,
+                               :donee_amount => donee_amount)
 
           # Update credit card CauseBalance
-          update_balance(balance, tx['month'], calculated_fee)
+          balance.update_balance(tx['month'], calc_credit_card_fee)
           balance = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DONEE_AMOUNT)).first
-          update_balance(balance, tx['month'], donee_amount - old_donee_amount)
+          balance.update_balance(tx['month'], donee_amount - old_donee_amount)
         end
       end
     end
