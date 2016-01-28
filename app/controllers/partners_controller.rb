@@ -84,7 +84,11 @@ private
     
   def partner_params
     params.require(:partner).permit(:partner_identifier, :display_name, :domain, :currency, 
-                                    :kula_fees_attributes => [:id, :kula_rate, :discount_rate, :effective_date, :expiration_date,
+                                    :kula_fees_attributes => [:id, :us_school_rate, :us_school_kf_rate, 
+                                                              :us_charity_rate, :us_charity_kf_rate,
+                                                              :intl_charity_rate, :intl_charity_kf_rate, 
+                                                              :mcr_cc_rate, :distributor_identifier, :distributor_rate,
+                                                              :effective_date, :expiration_date,
                                                               :_destroy])    
   end
 end

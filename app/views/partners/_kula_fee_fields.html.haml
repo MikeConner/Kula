@@ -3,25 +3,25 @@
     = f.hidden_field :_destroy
     = content_tag(:a, 'X', :href => '#', :class => "close", :onclick => "if (confirm('Delete this fee?')) remove_kula_fee(this)")
   .field
-    = f.label :us_school_rate
+    = f.label :us_school_rate, "US School Rate (e.g., 3% = 0.03)"
     = f.text_field :us_school_rate
   .field
-    = f.label :us_school_kf_rate, "US School Foundation Rate"
+    = f.label :us_school_kf_rate, "US School Foundation Rate (e.g., 3% = 0.03)"
     = f.text_field :us_school_kf_rate
   .field
-    = f.label :us_charity_rate
+    = f.label :us_charity_rate, "US Charity Rate (e.g., 3% = 0.03)"
     = f.text_field :us_charity_rate
   .field
-    = f.label :us_charity_kf_rate, "US Charity Foundation Rate"
+    = f.label :us_charity_kf_rate, "US Charity Foundation Rate (e.g., 3% = 0.03)"
     = f.text_field :us_charity_kf_rate
   .field
-    = f.label :intl_charity_rate, 'International Charity Rate'
+    = f.label :intl_charity_rate, 'International Charity Rate (e.g., 3% = 0.03)'
     = f.text_field :intl_charity_rate
   .field
-    = f.label :intl_charity_kf_rate, "Intl Charity Foundation Rate"
+    = f.label :intl_charity_kf_rate, "Intl Charity Foundation Rate (e.g., 3% = 0.03)"
     = f.text_field :intl_charity_kf_rate
   .field
-    = f.label :mcr_cc_rate, "Credit Card Rate"
+    = f.label :mcr_cc_rate, "Credit Card Rate (e.g., 3% = 0.03)"
     = f.text_field :mcr_cc_rate
   .field
     = f.label :distributor_identifier
