@@ -259,7 +259,19 @@ namespace :db do
       if 0 == partner_id_param
         sql.gsub!('##PARTNER_CLAUSE', '')
       else
-        sql.gsub!('##PARTNER_CLAUSE', " AND bt.partner_id = #{partner_id_param}")
+        sql.gsub!('##PARTNER_CLAUSE', " AND partner_id = #{partner_id_param}")
+      end
+
+      if 0 == year_param
+        sql.gsub!('##YEAR_CLAUSE', '')
+      else
+        sql.gsub!('##YEAR_CLAUSE', " AND year = #{year_param}")
+      end
+
+      if 0 == month_param
+        sql.gsub!('##MONTH_CLAUSE', '')
+      else
+        sql.gsub!('##MONTH_CLAUSE', " AND month = #{month_param}")
       end
       
       transactions = ActiveRecord::Base.connection.execute(sql)
@@ -360,6 +372,17 @@ namespace :db do
       # Right now this is just for Coke
       partner = Partner.find_by_name("My Coke Rewards")
       sql.gsub!('##PARTNER_ID', partner.id.to_s)
+      if 0 == year_param
+        sql.gsub!('##YEAR_CLAUSE', '')
+      else
+        sql.gsub!('##YEAR_CLAUSE', " AND EXTRACT(year FROM created) = #{year_param}")
+      end
+
+      if 0 == month_param
+        sql.gsub!('##MONTH_CLAUSE', '')
+      else
+        sql.gsub!('##MONTH_CLAUSE', " AND EXTRACT(month FROM created) = #{month_param}")
+      end
       
       rate = partner.current_kula_rate.mcr_cc_rate || 0.0
       
