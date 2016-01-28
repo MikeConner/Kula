@@ -71,10 +71,8 @@ namespace :db do
     #   Or a year and a month
     #   Or neither
 
-    # TEMPORARILY DISABLE INCREMENTAL FUNCTIONALITY, BECAUSE IT DOESN'T WORK WITH STEP 3
-    # REFACTOR AFTER RECONCILIATION
-    year_param = 0 #args[:year].to_i
-    month_param = 0 #args[:month].to_i
+    year_param = args[:year].to_i
+    month_param = args[:month].to_i
 
     # Cause transactions have dates; CauseBalances only months/years
     # When we're calling this, we need to clear corresponding CauseBalances, and it's going to be one of three cases:
@@ -372,6 +370,9 @@ namespace :db do
     unless sql.nil?
       puts "STEP 3"
 
+      CauseBalance.where(:balance_type => CauseBalance::CREDIT_CARD_FEE).delete_all
+      ActiveRecord::Base.connection.execute('UPDATE cause_transactions SET donee_amount = original_donee_amount WHERE original_donee_amount IS NOT NULL')
+
       # Right now this is just for Coke
       partner = Partner.find_by_name("My Coke Rewards")
       sql.gsub!('##PARTNER_ID', partner.id.to_s)
@@ -382,7 +383,6 @@ namespace :db do
       puts "Read #{transactions.count} credit card transactions"
 
       transactions.each do |tx|
-        puts tx.inspect
         next if tx['nonccamountearn'].blank?
 
         month = tx['month'].to_i
@@ -404,18 +404,23 @@ namespace :db do
 
         ActiveRecord::Base.transaction do
           tx = CauseTransaction.where(ct_keys).first
-          raise 'Transaction not found' if tx.nil?
+          if tx.nil?
+            puts "Transaction not found for #{ct_keys.inspect}" 
+            
+            next
+          end
 
           old_donee_amount = tx.donee_amount
 
           donee_amount = tx.gross_amount - tx.calc_kula_fee - tx.calc_foundation_fee - tx.calc_distributor_fee - calc_credit_card_fee
           tx.update_attributes(:calc_credit_card_fee => calc_credit_card_fee,
-                               :donee_amount => donee_amount)
+                               :donee_amount => donee_amount,
+                               :original_donee_amount => old_donee_amount)
 
           # Update credit card CauseBalance
-          balance.update_balance(tx['month'], calc_credit_card_fee)
+          balance.set_balance(tx['month'], calc_credit_card_fee)
           balance = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DONEE_AMOUNT)).first
-          balance.update_balance(tx['month'], donee_amount - old_donee_amount)
+          balance.set_balance(tx['month'], donee_amount)
         end
       end
     end

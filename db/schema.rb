@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160105235134) do
+ActiveRecord::Schema.define(version: 20160128210324) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,22 +68,23 @@ ActiveRecord::Schema.define(version: 20160105235134) do
   add_index "cause_balances", ["partner_id", "cause_id", "year", "balance_type"], name: "cause_balances_primary_key", unique: true, using: :btree
 
   create_table "cause_transactions", force: :cascade do |t|
-    t.integer  "partner_identifier",                                         null: false
-    t.integer  "cause_identifier",                                           null: false
-    t.integer  "month",                                                      null: false
-    t.integer  "year",                                                       null: false
-    t.decimal  "gross_amount",         precision: 8, scale: 2, default: 0.0
-    t.decimal  "legacy_net",           precision: 8, scale: 2, default: 0.0
-    t.decimal  "legacy_donee",         precision: 8, scale: 2, default: 0.0
-    t.decimal  "legacy_discounts",     precision: 8, scale: 2, default: 0.0
-    t.decimal  "legacy_fees",          precision: 8, scale: 2, default: 0.0
-    t.decimal  "calc_kula_fee",        precision: 8, scale: 2, default: 0.0
-    t.decimal  "calc_foundation_fee",  precision: 8, scale: 2, default: 0.0
-    t.decimal  "calc_distributor_fee", precision: 8, scale: 2, default: 0.0
-    t.datetime "created_at",                                                 null: false
-    t.datetime "updated_at",                                                 null: false
-    t.decimal  "calc_credit_card_fee", precision: 8, scale: 2, default: 0.0
-    t.decimal  "donee_amount",         precision: 8, scale: 2
+    t.integer  "partner_identifier",                                          null: false
+    t.integer  "cause_identifier",                                            null: false
+    t.integer  "month",                                                       null: false
+    t.integer  "year",                                                        null: false
+    t.decimal  "gross_amount",          precision: 8, scale: 2, default: 0.0
+    t.decimal  "legacy_net",            precision: 8, scale: 2, default: 0.0
+    t.decimal  "legacy_donee",          precision: 8, scale: 2, default: 0.0
+    t.decimal  "legacy_discounts",      precision: 8, scale: 2, default: 0.0
+    t.decimal  "legacy_fees",           precision: 8, scale: 2, default: 0.0
+    t.decimal  "calc_kula_fee",         precision: 8, scale: 2, default: 0.0
+    t.decimal  "calc_foundation_fee",   precision: 8, scale: 2, default: 0.0
+    t.decimal  "calc_distributor_fee",  precision: 8, scale: 2, default: 0.0
+    t.datetime "created_at",                                                  null: false
+    t.datetime "updated_at",                                                  null: false
+    t.decimal  "calc_credit_card_fee",  precision: 8, scale: 2, default: 0.0
+    t.decimal  "donee_amount",          precision: 8, scale: 2
+    t.decimal  "original_donee_amount", precision: 8, scale: 2
   end
 
   add_index "cause_transactions", ["cause_identifier"], name: "index_cause_transactions_on_cause_identifier", using: :btree
