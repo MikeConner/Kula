@@ -383,8 +383,6 @@ namespace :db do
       puts "Read #{transactions.count} credit card transactions"
 
       transactions.each do |tx|
-        next if tx['nonccamountearn'].blank?
-
         month = tx['month'].to_i
         year = tx['year'].to_i
         cause_id = tx['cause_id'].to_i
