@@ -31,7 +31,7 @@
     = f.text_field :distributor_rate
   .field
     = f.label :effective_date
-    = f.date_select :effective_date
+    = f.text_field :effective_date, :class => 'jquery-ui-date'
   .field
     = f.label :expiration_date
-    = f.date_select :expiration_date
+    = f.text_field :expiration_date, :class => 'jquery-ui-date'

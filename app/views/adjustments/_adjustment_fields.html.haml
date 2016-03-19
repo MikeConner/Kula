@@ -1,9 +1,9 @@
 .field
-  = f.label :cause_id
+  = f.label :cause
   = text_field_tag :cause, cause, :class => 'autocompleted_cause', :title => I18n.t('autocomplete_field')
 .field
   = f.label :date, 'Date adjusted'
-  = f.date_select :date
+  = f.text_field :date, :class => 'jquery-ui-date'
 .field
   = f.label :month, 'Month of period to apply this adjustment to'
   = f.date_select :month, :add_month_numbers => true, :discard_day => true, :discard_year => true
@@ -16,3 +16,4 @@
 .field 
   = f.label :comment
   = f.text_area :comment, :size => '40x3', :maxlength => 255
+= javascript_include_tag 'date_processing.js'

@@ -4,7 +4,13 @@
   = select_tag 'partner', options_from_collection_for_select(Partner.order(:display_name), 'partner_identifier', 'display_name', partner_name), :prompt => 'Select a Partner'
   = submit_tag 'Show Payments', :class => "btn btn-large btn-primary"
 - unless @partner.nil?
+  -#
+    .center
+      = will_paginate @payments
   = render :partial => 'payments', :locals => { :partner => @partner, :payments => @payments }
+  -#
+    .center
+      = will_paginate @payments
   = form_tag new_batch_path, :class => 'button_to', :method => :get do
     = hidden_field_tag :partner, @partner.partner_identifier
     = submit_tag 'New Payment/Adjustment'

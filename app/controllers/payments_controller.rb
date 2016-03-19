@@ -4,7 +4,7 @@ class PaymentsController < ApplicationController
   
   def index
     @partner = Partner.find_by_partner_identifier(params[:partner])
-    @payments = @partner.nil? ? nil : @partner.payments.order(:batch_id, :date).includes(:cause)
+    @payments = @partner.nil? ? nil : @partner.payments.order(:batch_id, :date).includes(:cause)#.paginate(:page => params[:page], :per_page => Payments.per_page)
         
     render :layout => 'admin'
   end

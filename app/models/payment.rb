@@ -40,6 +40,9 @@ class Payment < ActiveRecord::Base
   belongs_to :batch
   belongs_to :cause
   has_one :partner, :through => :batch
+
+  # For pagination
+  self.per_page = 100
   
   validates_inclusion_of :status, :in => VALID_CHECK_STATUSES + [DELETED], :if => :check_payment?
   validates_inclusion_of :status, :in => VALID_ACH_STATUSES + [DELETED], :if => :ach_payment?

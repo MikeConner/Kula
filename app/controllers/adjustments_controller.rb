@@ -6,14 +6,17 @@ class AdjustmentsController < ApplicationController
     @cause = current_user.cause.nil? ? '' : current_user.cause.org_name      
   end
   
-  def create
+  def create  
     @adjustment = Adjustment.new(adjustment_params)
+    @adjustment.date = Date.strptime(adjustment_params["date"], "%m/%d/%Y")
+    @adjustment.month = adjustment_params["month(2i)"].to_i
+    @adjustment.year = adjustment_params["year(1i)"].to_i
     
     if @adjustment.valid?
       ActiveRecord::Base.transaction do
       begin
-        if params[:adjustment].has_key?(:cause)  
-          @adjustment.cause_id = Cause.find_by_org_name(params[:adjustment][:cause]).first
+        if params.has_key?(:cause)  
+          @adjustment.cause_id = Cause.find_by_org_name(params['cause']).id
         else
           @adjustment.cause_id = nil     
         end
@@ -41,6 +44,6 @@ class AdjustmentsController < ApplicationController
   
 private
   def adjustment_params
-    params.require(:adjustment).permit(:batch_id, :cause_id, :amount, :date, :comment)
+    params.require(:adjustment).permit(:batch_id, :cause, :amount, :date, :month, :year, :comment)
   end
 end

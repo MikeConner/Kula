@@ -15,6 +15,27 @@ class PartnersController < ApplicationController
   
   def update
     @partner = Partner.find_by_partner_identifier(params[:id])
+
+    # Parse out datepicker dates properly
+    idx = 0
+    while params["partner"]["kula_fees_attributes"].has_key?(idx.to_s) do
+      effective = params["partner"]["kula_fees_attributes"][idx.to_s]["effective_date"]
+      expiration = params["partner"]["kula_fees_attributes"][idx.to_s]["expiration_date"]
+      
+      unless effective.blank?
+        ed = Date.strptime(effective, "%m/%d/%Y")
+        params["partner"]["kula_fees_attributes"][idx.to_s]["effective_date"] = ed.strftime("%d/%m/%Y")
+      end
+
+      unless expiration.blank?
+        ed = Date.strptime(expiration, "%m/%d/%Y")
+        params["partner"]["kula_fees_attributes"][idx.to_s]["expiration_date"] = ed.strftime("%d/%m/%Y")
+      end
+      
+      idx += 1
+    end    
+params["partner"]["kula_fees_attributes"]["0"]
+    
     if @partner.update_attributes(partner_params)      
       redirect_to partners_path, notice: 'Partner was successfully updated.'
     else
