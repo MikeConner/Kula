@@ -95,7 +95,6 @@ class CausesController < ApplicationController
       case balance.balance_type
       when CauseBalance::PAYMENT
         @partner_balances[current_partner][balance.year][:payments] += balance.total
-        # Payments should be negative, so it's just addition
         @partner_balances[current_partner][balance.year][:amount_due] += balance.total
       when CauseBalance::GROSS
         @partner_balances[current_partner][balance.year][:gross] += balance.total
@@ -112,7 +111,6 @@ class CausesController < ApplicationController
         @partner_balances[current_partner][balance.year][:amount_due] += balance.total
       when CauseBalance::ADJUSTMENT
         @partner_balances[current_partner][balance.year][:adjustments] += balance.total
-        # Adjustments should be negative, so it's just addition
         @partner_balances[current_partner][balance.year][:amount_due] += balance.total
       else
         raise "Unknown balance type #{balance.balance_type}"

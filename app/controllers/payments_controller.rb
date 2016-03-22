@@ -56,13 +56,18 @@ class PaymentsController < ApplicationController
     payment = Payment.find(params[:id])
     ActiveRecord::Base.transaction do
     begin   
-      payment.batch.adjustments.create!(:amount => -payment.amount, 
-                                        :date => Date.today, 
-                                        :cause_id => payment.cause_id, 
-                                        :month => payment.month, 
-                                        :year => payment.year,
-                                        :comment => "Status change; Deleted payment #{payment.id}")
+      batch = payment.batch
+      batch.adjustments.create!(:amount => payment.amount, 
+                                :date => Date.today, 
+                                :cause_id => payment.cause_id, 
+                                :month => payment.month, 
+                                :year => payment.year,
+                                :comment => "Status change; Deleted payment #{payment.id}")
       payment.update_attribute(:status, Payment::DELETED)
+      balance = CauseBalance.create!(:partner_id => batch.partner_id, :cause_id => payment.cause_id, :year => payment.year, 
+                                     :balance_type => CauseBalance::ADJUSTMENT)
+      balance.set_balance(payment.month, payment.amount)
+      balance.update_attribute(:total, payment.amount)
       
       rescue ActiveRecord::Rollback => ex
         Rails.logger.error ex.message
