@@ -36,7 +36,7 @@
               %th Amount Due
               %th
           %tbody
-            - balance_data.each do |year, balances|
+            - balance_data.sort_by { |b| b[0] }.each do |year, balances|
               %tr
                 %td= year
                 %td= number_to_currency(balances[:payments].abs)
