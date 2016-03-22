@@ -159,7 +159,7 @@ namespace :db do
     sql_base = CauseTransaction.query_step1
     # This can only be nil in testing (done so that we can test steps independently)
     unless sql_base.nil?
-      puts "STEP 2"
+      puts "STEP 1"
       while current_date <= latest_date do
         # This query is on replicated_balance_transactions, and need to have full date ranges
         start_date = current_date.to_s
@@ -355,7 +355,8 @@ namespace :db do
                                            :calc_foundation_fee => fees[:calc_foundation_fee] - step1_fees[:calc_foundation_fee])
 
                   # Already added old fees in; need to subtract what was added before
-                  update_cause_balances(new_tx)
+                  # False says to *set* the CauseBalance values, not add to the previous values
+                  update_cause_balances(new_tx, false)
 
                   puts "Added fee #{distributor_fee} to #{existing_tx.id}"
                 end
@@ -371,7 +372,8 @@ namespace :db do
       puts "STEP 3"
 
       CauseBalance.where(:balance_type => CauseBalance::CREDIT_CARD_FEE).delete_all
-      ActiveRecord::Base.connection.execute('UPDATE cause_transactions SET donee_amount = original_donee_amount WHERE original_donee_amount IS NOT NULL')
+      # Removing original_donee_amount calculation, because it's not sufficient; re-engineer later
+      #ActiveRecord::Base.connection.execute('UPDATE cause_transactions SET donee_amount = original_donee_amount WHERE original_donee_amount IS NOT NULL')
 
       # Right now this is just for Coke
       partner = Partner.find_by_name("My Coke Rewards")
@@ -408,17 +410,19 @@ namespace :db do
             next
           end
 
-          old_donee_amount = tx.donee_amount
+          # Remove old_donee_amount logic for now
+          #old_donee_amount = tx.donee_amount
 
           donee_amount = tx.gross_amount - tx.calc_kula_fee - tx.calc_foundation_fee - tx.calc_distributor_fee - calc_credit_card_fee
-          tx.update_attributes(:calc_credit_card_fee => calc_credit_card_fee,
-                               :donee_amount => donee_amount,
-                               :original_donee_amount => old_donee_amount)
+          # Need to sum in case there is more than one
+          tx.update_attributes(:calc_credit_card_fee => tx.calc_credit_card_fee + calc_credit_card_fee,
+                               :donee_amount => tx.donee_amount + donee_amount)
+                               #:original_donee_amount => old_donee_amount)
 
           # Update credit card CauseBalance
-          balance.set_balance(tx['month'], calc_credit_card_fee)
+          balance.update_balance(tx['month'], calc_credit_card_fee)
           balance = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DONEE_AMOUNT)).first
-          balance.set_balance(tx['month'], donee_amount)
+          balance.update_balance(tx['month'], donee_amount)
         end
       end
     end
@@ -473,7 +477,7 @@ namespace :db do
   end
 end
 
-def update_cause_balances(ct)
+def update_cause_balances(ct, update = true)
   unless 0.0 == ct.gross_amount
     keys = {:partner_id => ct.partner_identifier,
             :cause_id => ct.cause_identifier,
@@ -489,7 +493,7 @@ def update_cause_balances(ct)
                                               :cause_id => ct.cause_identifier,
                                               :year => ct.year,
                                               :balance_type => CauseBalance::DONEE_AMOUNT)
-    balance.update_balance(ct.month, ct.donee_amount)
+    update ? balance.update_balance(ct.month, ct.donee_amount) : balance.set_balance(ct.month, ct.donee_amount)
   end
 
   unless 0.0 == ct.calc_kula_fee
@@ -497,7 +501,7 @@ def update_cause_balances(ct)
                                               :cause_id => ct.cause_identifier,
                                               :year => ct.year,
                                               :balance_type => CauseBalance::KULA_FEE)
-    balance.update_balance(ct.month, ct.calc_kula_fee)
+    update ? balance.update_balance(ct.month, ct.calc_kula_fee) : balance.set_balance(ct.month, ct.calc_kula_fee)
   end
 
   unless 0.0 == ct.calc_foundation_fee
@@ -505,7 +509,7 @@ def update_cause_balances(ct)
                                               :cause_id => ct.cause_identifier,
                                               :year => ct.year,
                                               :balance_type => CauseBalance::FOUNDATION_FEE)
-    balance.update_balance(ct.month, ct.calc_foundation_fee)
+    update ? balance.update_balance(ct.month, ct.calc_foundation_fee) : balance.set_balance(ct.month, ct.calc_foundation_fee)
   end
 
   unless 0.0 == ct.calc_distributor_fee
@@ -513,7 +517,7 @@ def update_cause_balances(ct)
                                               :cause_id => ct.cause_identifier,
                                               :year => ct.year,
                                               :balance_type => CauseBalance::DISTRIBUTOR_FEE)
-    balance.update_balance(ct.month, ct.calc_distributor_fee)
+    update ? balance.update_balance(ct.month, ct.calc_distributor_fee) : balance.set_balance(ct.month, ct.calc_distributor_fee)
   end
 
   unless 0.0 == ct.calc_credit_card_fee
@@ -521,7 +525,7 @@ def update_cause_balances(ct)
                                               :cause_id => ct.cause_identifier,
                                               :year => ct.year,
                                               :balance_type => CauseBalance::CREDIT_CARD_FEE)
-    balance.update_balance(ct.month, ct.calc_credit_card_fee)
+    update ? balance.update_balance(ct.month, ct.calc_credit_card_fee) : balance.set_balance(ct.month, ct.calc_credit_card_fee)
   end
 end
 
