@@ -356,7 +356,7 @@ namespace :db do
 
                   # Already added old fees in; need to subtract what was added before
                   # False says to *set* the CauseBalance values, not add to the previous values
-                  update_cause_balances(new_tx, false)
+                  update_cause_balances(new_tx)
 
                   puts "Added fee #{distributor_fee} to #{existing_tx.id}"
                 end
@@ -420,9 +420,9 @@ namespace :db do
                                #:original_donee_amount => old_donee_amount)
 
           # Update credit card CauseBalance
-          balance.update_balance(tx['month'], calc_credit_card_fee)
+          balance.set_balance(tx['month'], calc_credit_card_fee)
           balance = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DONEE_AMOUNT)).first
-          balance.update_balance(tx['month'], donee_amount)
+          balance.set_balance(tx['month'], donee_amount)
         end
       end
     end
