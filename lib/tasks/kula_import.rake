@@ -384,16 +384,13 @@ namespace :db do
       transactions = ActiveRecord::Base.connection.execute(sql)
       puts "Read #{transactions.count} credit card transactions"
 
-      transactions.each do |tx|
+      aggregate_cc_fees = Hash.new
+      
+      # Update Transactions first
+      transactions.each do |tx|      
         month = tx['month'].to_i
         year = tx['year'].to_i
         cause_id = tx['cause_id'].to_i
-
-        keys = {:partner_id => partner.id,
-                :cause_id => cause_id,
-                :year => year,
-                :balance_type => CauseBalance::CREDIT_CARD_FEE}
-        balance = CauseBalance.where(keys).first || CauseBalance.create!(keys)
 
         calc_credit_card_fee = (rate * (tx['amount'].to_f - tx['nonccamountearn'].to_f)).round(2)
 
@@ -402,29 +399,75 @@ namespace :db do
                    :month => month,
                    :year => year}
 
-        ActiveRecord::Base.transaction do
-          tx = CauseTransaction.where(ct_keys).first
-          if tx.nil?
-            puts "Transaction not found for #{ct_keys.inspect}" 
+        tx = CauseTransaction.where(ct_keys).first
+        if tx.nil?
+          puts "Transaction not found for #{ct_keys.inspect}" 
+          
+          next
+        end
+
+        # Remove old_donee_amount logic for now
+        #old_donee_amount = tx.donee_amount
+
+        #donee_amount = tx.gross_amount - tx.calc_kula_fee - tx.calc_foundation_fee - tx.calc_distributor_fee - calc_credit_card_fee
+        # Need to sum in case there is more than one
+        tx.update_attributes(:calc_credit_card_fee => tx.calc_credit_card_fee + calc_credit_card_fee,
+                             :donee_amount => tx.donee_amount + donee_amount)
+                             #:original_donee_amount => old_donee_amount)
+        
+        # Prepare data for CauseBalance update. Because they're aggregated, can't set them here directly.
+        #   Account for the case when there are multiple CC transactions in the same month by collecting them
+        #   in aggregate_cc_fees - results in a hash of <CauseBalance id> -> { month -> cc_fee }
+        # At the end, iterate through the Cause balances, apply the fee to the appropriate month, and
+        #   recalculate donee amount for each month as well, once all the cc fees are known.
+        keys = {:partner_id => partner.id,
+                :cause_id => cause_id,
+                :year => year,
+                :balance_type => CauseBalance::CREDIT_CARD_FEE}
+        balance = CauseBalance.where(keys).first || CauseBalance.create!(keys)
+        m = tx['month'].to_i
+        
+        aggregate_cc_fees[balance.id] = Hash.new if aggregate_cc_fees[balance.id].nil? 
+        aggregate_cc_fees[balance.id][m] = 0 unless aggregate_cc_fees[balance.id].has_key?(m)
+        aggregate_cc_fees[balance.id][m] += calc_credit_card_fee        
+      end
+      
+      # Now update cause balances (aggregated over months)
+      aggregate_cc_fees.each do |id, cc_fees|
+        cc_balance = CauseBalance.find(id)
+        keys = {:partner_id => partner.id,
+                :cause_id => cc_balance.cause_id,
+                :year => cc_balance.year,
+                :balance_type => CauseBalance::DONEE_AMOUNT}
+        donee_balance = CauseBalance.where(keys).first    
+        gross = CauseBalance.where(keys.merge(:balance_type => CauseBalance::GROSS)).first    
+        kula_fee = CauseBalance.where(keys.merge(:balance_type => CauseBalance::KULA_FEE)).first    
+        foundation_fee = CauseBalance.where(keys.merge(:balance_type => CauseBalance::FOUNDATION_FEE)).first    
+        dist_fee = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DISTRIBUTOR_FEE)).first    
             
-            next
-          end
-
-          # Remove old_donee_amount logic for now
-          #old_donee_amount = tx.donee_amount
-
-          donee_amount = tx.gross_amount - tx.calc_kula_fee - tx.calc_foundation_fee - tx.calc_distributor_fee - calc_credit_card_fee
-          # Need to sum in case there is more than one
-          tx.update_attributes(:calc_credit_card_fee => tx.calc_credit_card_fee + calc_credit_card_fee,
-                               :donee_amount => tx.donee_amount + donee_amount)
-                               #:original_donee_amount => old_donee_amount)
-
-          # Update credit card CauseBalance
-          balance.set_balance(tx['month'], calc_credit_card_fee)
-          balance = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DONEE_AMOUNT)).first
-          balance.set_balance(tx['month'], donee_amount)
+        cc_fees.each do |month, cc_amount|
+          cc_balance.set_balance(month, cc_amount)
+          #puts "#{month} = #{cc_amount}"
+          #puts "Gross=#{gross.get_balance(month)} - #{cc_amount}"
+          #puts "Kula fee=#{kula_fee.get_balance(month)}" unless kula_fee.nil?
+          #puts "Foundation fee=#{foundation_fee.get_balance(month)}" unless foundation_fee.nil?
+          #puts "Dist fee=#{dist_fee.get_balance(month)}" unless dist_fee.nil?
+          
+          db = gross.get_balance(month) - cc_amount
+          db -= kula_fee.get_balance(month) unless kula_fee.nil?
+          db -= foundation_fee.get_balance(month) unless foundation_fee.nil?
+          db -= dist_fee.get_balance(month) unless dist_fee.nil?
+          
+          #puts "Setting donee balance for #{month} to #{db}"
+          
+          donee_balance.set_balance(month, db)
         end
       end
+        
+      # Update credit card CauseBalance
+      #balance.set_balance(tx['month'], calc_credit_card_fee)
+      #balance = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DONEE_AMOUNT)).first
+      #balance.set_balance(tx['month'], donee_amount)     
     end
 
     # Total Cause Balances

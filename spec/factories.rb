@@ -123,6 +123,13 @@ FactoryGirl.define do
         FactoryGirl.create(:unbounded_right_fee, :partner => partner, :effective_date => Date.tomorrow)
       end
     end
+    
+    factory :kula_partner do
+      partner_identifier 12
+      name 'Kula'
+      display_name 'Kula'
+      domain 'Kula.com'
+    end
   end
   
   factory :cause do    

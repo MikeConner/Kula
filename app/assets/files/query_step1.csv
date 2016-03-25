@@ -1,0 +1,256 @@
+"partnerid","month","year","grossamount","discountamount","netamount","kulafees","doneeamount","causeid","causename","country","causetype"
+12,10,2015,25.00,2.50,22.50,3.12,19.38,"928772","Phi Delta Theta Fraternity","US",1
+12,4,2015,100.00,12.50,87.50,12.50,75.00,"439346","Catholic Relief Services, Inc.","US",1
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"927506","Madonna Of The Streets Inc","US",1
+12,5,2015,75.00,7.50,67.50,9.38,58.12,"699047","Feeding America San Diego","US",1
+12,2,2015,50.00,6.25,43.75,6.25,37.50,"438872","MAKE-A-WISH FOUNDATION OF CENTRAL NEW YORK INC                        ","US",1
+12,12,2015,75.00,9.37,65.63,9.37,56.26,"439462","American Red Cross","US",1
+12,4,2015,100.00,10.00,90.00,12.50,77.50,"928047","Project Night Night","US",1
+12,12,2015,25.00,3.12,21.88,3.12,18.76,"928851","Project HOPE - The People-to-People Health Foundation, Inc.","US",1
+12,5,2015,125.00,12.50,112.50,23.12,89.38,"67106","LANGARA COLLEGE","CA",1
+12,5,2015,2075.00,259.37,1815.63,259.38,1556.25,"699052","Cool Spring Baptist Church","US",1
+12,2,2015,3500.00,437.50,3062.50,437.50,2625.00,"699102","Center For Internet Security Inc","US",1
+12,10,2015,30.00,3.12,26.88,3.75,23.13,"698836","Best Friends Animal Society","US",1
+12,12,2015,25.00,2.50,22.50,3.12,19.38,"928887","Care for the Homeless","US",1
+12,5,2015,50.00,5.00,45.00,6.24,38.76,"928545","Institute For Humane Studies","US",1
+12,5,2015,25.00,2.50,22.50,3.12,19.38,"928528","World Food Program USA","US",1
+12,6,2015,10.00,0.00,10.00,1.25,8.75,"698901","Heifer International","US",1
+12,10,2015,100.00,12.50,87.50,12.50,75.00,"928787","American Cancer Society Inc","US",1
+12,2,2015,100.00,10.00,90.00,12.50,77.50,"699111","Second Harvest Food Bank of Santa Clara and San Mateo Counties","US",1
+12,8,2015,35.00,3.75,31.25,4.37,26.88,"439462","American Red Cross","US",1
+12,4,2015,50.00,5.00,45.00,6.25,38.75,"699109","United States Catholic Conference","US",1
+12,1,2015,25.00,2.50,22.50,3.12,19.38,"257","DOCTORS WITHOUT BORDERS USA INC","US",1
+12,5,2015,25.00,2.50,22.50,3.12,19.38,"698898","Action Against Hunger USA","US",1
+12,8,2015,25.00,2.50,22.50,3.12,19.38,"928621","Ohio Federation For Childrens Mental Health Inc","US",1
+12,7,2015,100.00,0,100.00,12.50,87.50,"95","Grassroot Soccer","US",1
+12,10,2015,500.00,62.50,437.50,62.50,375.00,"928780","Aloha Community Library Association Of Washington","US",1
+12,3,2015,25.00,2.50,22.50,3.12,19.38,"221","Sparkrelief Inc","US",1
+12,4,2015,25.00,2.50,22.50,3.12,19.38,"249","Coloradans for Alternatives to the Death Penalty Foundation","US",1
+12,4,2015,125.00,12.50,112.50,15.62,96.88,"439462","American Red Cross","US",1
+12,11,2015,50.00,6.25,43.75,6.25,37.50,"698629","World Vision Canada","US",1
+12,7,2015,25.00,2.50,22.50,3.12,19.38,"142","Zumas Rescue Ranch","US",1
+12,2,2015,25.00,2.50,22.50,3.12,19.38,"927967","Singing River Equine Rescue Inc","US",1
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"927507","Messinger Woods Wildlife Care And Education Center Inc","US",1
+12,6,2015,25.00,2.50,22.50,3.12,19.38,"928555","Feed My Starving Children","US",1
+12,6,2015,25.00,2.50,22.50,3.12,19.38,"928580","Concern Worldwide US, Inc.","US",1
+12,11,2015,25.00,2.50,22.50,3.12,19.38,"928052","Bixby Memorial Free Library","US",1
+12,9,2015,10.00,1.00,9.00,1.25,7.75,"55","Humane Society Silicon Valley","US",1
+12,8,2015,10.00,0,10.00,1.25,8.75,"507983","Highland Elementary School","US",2
+12,10,2015,125.00,12.50,112.50,15.62,96.88,"928766","Tri-County Partners Habitat for Humanity","US",1
+12,8,2015,25.00,2.50,22.50,3.12,19.38,"928618","Philabundance","US",1
+12,12,2015,300.00,0,300.00,37.50,262.50,"698844","The San Diego Humane Society and SPCA","US",1
+12,12,2015,75.00,7.50,67.50,9.38,58.12,"928858","Irish International Immigrant Center Inc","US",1
+12,1,2015,10.00,1.25,8.75,1.25,7.50,"698898","Action Against Hunger USA","US",1
+12,1,2015,50.00,6.25,43.75,6.25,37.50,"568923","Bethany's Gait","US",1
+12,3,2015,50.00,5.00,45.00,6.25,38.75,"178","Chihuahua & Small Dog Rescue Inc","US",1
+12,12,2015,200.00,25.00,175.00,25.00,150.00,"928853","Richland County Habitat for Humanity","US",1
+12,10,2015,100.00,12.50,87.50,12.50,75.00,"928758","The CJ Foundation for SIDS, Inc.","US",1
+12,7,2015,100.00,10.00,90.00,12.48,77.52,"158","Chesapeake Bay Foundation","US",1
+12,9,2015,25.00,3.12,21.88,3.12,18.76,"928640","Partners In Care Inc","US",1
+12,4,2015,25.00,2.50,22.50,3.12,19.38,"179","Need Project Inc","US",1
+12,12,2015,25.00,2.50,22.50,3.12,19.38,"439463","Action for Healthy Kids","US",1
+12,8,2015,50.00,0,50.00,6.25,43.75,"451752","Norte Vista High School","US",2
+12,10,2015,100.00,10.00,90.00,12.50,77.50,"699117","City Dogs Rescue","US",1
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"927512","Sunday Breakfast Mission Inc","US",1
+12,1,2015,10.00,1.25,8.75,1.25,7.50,"74","The Cabbage Patch Settlement House","US",1
+12,5,2015,100.00,10.00,90.00,18.50,71.50,"140142","THE LADY FATEMAH (A.S.) CHARITABLE TRUST","GB",1
+12,9,2015,25.00,2.50,22.50,3.12,19.38,"928745","Samoyed Club of America Education & Research Foundation Inc","US",1
+12,6,2015,50.00,6.25,43.75,6.25,37.50,"928576","New Hope Wesleyan Church","US",1
+12,5,2015,100.00,10.00,90.00,12.48,77.52,"928542","American Civil Liberties Union Foundation of Massachusetts","US",1
+12,12,2015,25.00,2.50,22.50,3.12,19.38,"928886","Coalition for the Homeless, Inc.","US",1
+12,7,2015,75.00,9.37,65.63,9.38,56.25,"928603","Meoowzresq Inc","US",1
+12,9,2015,25.00,2.50,22.50,3.12,19.38,"698775","Childrens Cancer & Blood Foundation","US",1
+12,1,2015,100.00,12.50,87.50,12.50,75.00,"927956","Cache Community Food Pantry Inc","US",1
+12,1,2015,25.00,2.50,22.50,3.12,19.38,"699053","Echoing Green Foundation","US",1
+12,11,2015,100.00,10.00,90.00,12.50,77.50,"928808","Spelman College","US",1
+12,12,2015,10.00,1.00,9.00,1.85,7.15,"182067","LAMBETH MENCAP","GB",1
+12,8,2015,10.00,1.25,8.75,1.25,7.50,"254","American Cancer Society, Inc.","US",1
+12,2,2015,25.00,2.50,22.50,3.12,19.38,"927969","The Food Bank For Central & Northeast Missouri Inc","US",1
+12,5,2015,25.00,3.12,21.88,3.12,18.76,"698541","Save the Children","US",1
+12,7,2015,50.00,5.62,44.38,6.24,38.14,"698436","ASPCA","US",1
+12,5,2015,10.00,0,10.00,1.25,8.75,"927798","Marguerite Kiefer Education Center, Inc.","US",1
+12,9,2015,25.00,2.50,22.50,3.12,19.38,"698436","ASPCA","US",1
+12,9,2015,9300.00,1162.50,8137.50,1162.50,6975.00,"699102","Center For Internet Security Inc","US",1
+12,3,2015,100.00,12.50,87.50,12.50,75.00,"928009","Sacramento Life Center Inc","US",1
+12,4,2015,10.00,0.00,10.00,1.25,8.75,"9","I Have a Dream Foundation of Boulder County","US",1
+12,6,2015,25.00,3.12,21.88,3.12,18.76,"928564","Foundation For Personality And Social Psychology Inc","US",1
+12,8,2015,25.00,2.50,22.50,3.12,19.38,"928622","Arthritis Foundation Inc","US",1
+12,7,2015,17900.00,2237.50,15662.50,2237.50,13425.00,"699102","Center For Internet Security Inc","US",1
+12,12,2015,250.00,25.00,225.00,31.25,193.75,"927784","Shriners Hospitals for Children","US",1
+12,12,2015,75.00,9.37,65.63,9.38,56.25,"928889","Catholic Charities Of Ft Worth Inc","US",1
+12,1,2015,150.00,18.75,131.25,18.75,112.50,"698901","Heifer International","US",1
+12,9,2015,50.00,5.00,45.00,6.24,38.76,"535089","Pinebrook Elementary School","US",2
+12,4,2015,25.00,2.50,22.50,3.12,19.38,"927967","Singing River Equine Rescue Inc","US",1
+12,11,2015,10.00,1.25,8.75,1.25,7.50,"562465","St Joseph School","US",2
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"439364","American Lebanese Syrian Associated Charities, Inc.","US",1
+12,4,2015,25.00,2.50,22.50,3.12,19.38,"698970","Help Me See Inc.","US",1
+12,5,2015,50.00,5.00,45.00,6.24,38.76,"928544","American Forests","US",1
+12,12,2015,100.00,12.50,87.50,12.50,75.00,"698436","ASPCA","US",1
+12,8,2015,25.00,2.50,22.50,4.62,17.88,"182067","LAMBETH MENCAP","GB",1
+12,1,2015,50.00,6.25,43.75,6.25,37.50,"171","Covenant House","US",1
+12,5,2015,100.00,12.50,87.50,12.50,75.00,"928526","Liberty Humane Society Inc","US",1
+12,5,2015,100.00,10.00,90.00,12.48,77.52,"541191","American Civil Liberties Union Inc","US",1
+12,12,2015,50.00,6.25,43.75,6.25,37.50,"439461","Feeding America","US",1
+12,11,2015,25.00,3.12,21.88,3.12,18.76,"928823","Humane Society of Rochester and Monroe County PCA, Inc.","US",1
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"528683","West Seattle Elementary School","US",2
+12,6,2015,25.00,2.50,22.50,3.12,19.38,"928583","Missionary Advancement","US",1
+12,5,2015,50.00,6.25,43.75,6.25,37.50,"928541","American Legion","US",1
+12,9,2015,1400.00,175.00,1225.00,175.00,1050.00,"928716","Feed Lucas County Children","US",1
+12,3,2015,25.00,3.12,21.88,3.12,18.76,"928027","Maker&#39;s Mark Secretariat Center","US",1
+12,3,2015,100.00,10.00,90.00,12.50,77.50,"928039","Stone Garage","US",1
+12,3,2015,100.00,10.00,90.00,12.50,77.50,"928040","Kennett Area Senior Center","US",1
+12,5,2015,10.00,0,10.00,1.25,8.75,"500133","Woodland Elementary School","US",2
+12,8,2015,60.00,6.24,53.76,7.50,46.26,"568911","Alzheimer's Association","US",1
+12,10,2015,125.00,15.62,109.38,15.62,93.76,"928764","American Leprosy Missions, Inc.","US",1
+12,12,2015,100.00,12.50,87.50,12.50,75.00,"928885","Haiti Foundation of Hope","US",1
+12,8,2015,100.00,10.00,90.00,12.50,77.50,"928620","Panthera Corporation","US",1
+12,9,2015,25.00,3.12,21.88,3.12,18.76,"928730","Midwest Horse Welfare Foundation Inc","US",1
+12,8,2015,25.00,3.12,21.88,3.12,18.76,"928629","Nature Conservancy, Inc.","US",1
+12,6,2015,25.00,3.12,21.88,3.12,18.76,"520439","Windom Elementary School","US",2
+12,6,2015,25.00,2.50,22.50,4.62,17.88,"928578","Coast Shelter","AU",1
+12,7,2015,25.00,3.12,21.88,3.12,18.76,"255","Carbonfund.org Foundation","US",1
+12,6,2015,25.00,2.50,22.50,3.12,19.38,"928556","PugHearts, the Houston Pug Rescue","US",1
+12,1,2015,15.00,1.88,13.12,1.88,11.24,"699010","Not Another Child, Inc ","US",1
+12,12,2015,50.00,5.00,45.00,6.25,38.75,"928845","Putnam County Humane Society Inc","US",1
+12,12,2015,35.00,0,35.00,4.38,30.62,"488167","Jessie F George Elem School","US",2
+12,7,2015,100.00,10.00,90.00,12.48,77.52,"1","Kiva Microfunds","US",1
+12,8,2015,75.00,7.50,67.50,9.37,58.13,"928617","Maya's Hope Foundation Inc","US",1
+12,1,2015,40.00,4.00,36.00,7.40,28.60,"927513","Australian Red Cross","AU",1
+12,12,2015,100.00,12.50,87.50,12.50,75.00,"699146","Mid-Ohio Foodbank","US",1
+12,4,2015,50.00,5.00,45.00,6.25,38.75,"928063","Huntington Chapel","US",1
+12,5,2015,25.00,2.50,22.50,3.12,19.38,"928527","Society For The Prevention Of Cruelty To Animals Wake County Inc","US",1
+12,5,2015,25.00,2.50,22.50,3.12,19.38,"177","Family Emergency Shelter Coalition","US",1
+12,2,2015,100.00,10.00,90.00,12.50,77.50,"927963","Mercy For Animals","US",1
+12,7,2015,25.00,2.50,22.50,3.12,19.38,"928592","Western Connecticut State University Foundation Inc","US",1
+12,12,2015,50.00,6.25,43.75,6.25,37.50,"699055","FINCA International, Inc.","US",1
+12,4,2015,100.00,10.00,90.00,12.50,77.50,"518598","Tremont Montessori School","US",2
+12,9,2015,50.00,5.00,45.00,6.25,38.75,"928660","Iraqi Christian Relief Council","US",1
+12,12,2015,25.00,2.50,22.50,3.12,19.38,"928849","Eynon Sturges Volunteer Hose Co 3","US",1
+12,10,2015,25.00,3.12,21.88,3.12,18.76,"928639","Manlius Senior Centre Inc","US",1
+12,9,2015,100.00,10.00,90.00,12.50,77.50,"928746","Ancient Accepted Scottish Rite Of Free Masonry Nmj","US",1
+12,9,2015,50.00,5.00,45.00,6.25,38.75,"928658","Quincy Detoxification Center Inc","US",1
+12,6,2015,10.00,1.25,8.75,1.25,7.50,"438789","Discover The Journey","US",1
+12,12,2015,25.00,3.12,21.88,3.12,18.76,"698913","The Wounded Warrior Project","US",1
+12,5,2015,25.00,3.12,21.88,3.12,18.76,"439462","American Red Cross","US",1
+12,8,2015,100.00,12.50,87.50,12.50,75.00,"568923","Bethany's Gait","US",1
+12,12,2015,700.00,87.50,612.50,87.50,525.00,"928890","Last Chance For Animals","US",1
+12,6,2015,25.00,2.50,22.50,3.12,19.38,"568898","Birds of Vermont Museum","US",1
+12,8,2015,25.00,3.12,21.88,3.12,18.76,"928639","Manlius Senior Centre Inc","US",1
+12,8,2015,8000.00,1000.00,7000.00,1000.00,6000.00,"699052","Cool Spring Baptist Church","US",1
+12,10,2015,50.00,6.25,43.75,6.25,37.50,"568923","Bethany's Gait","US",1
+12,12,2015,100.00,12.50,87.50,12.50,75.00,"699145","Lifecare Alliance","US",1
+12,3,2015,25.00,2.50,22.50,3.12,19.38,"171","Covenant House","US",1
+12,9,2015,25.00,2.50,22.50,3.12,19.38,"568918","The Companion Animal Protection Society (CAPS)","US",1
+12,4,2015,10.00,0.00,10.00,1.25,8.75,"559082","Sacred Heart School","US",2
+12,4,2015,100.00,10.00,90.00,12.50,77.50,"108","Swan Center Outreach Inc","US",1
+12,7,2015,25.00,2.50,22.50,3.12,19.38,"698620","Archdiocese for the Military Services USA","US",1
+12,7,2015,25.00,3.12,21.88,3.12,18.76,"151","Children Of The Night","US",1
+12,9,2015,50.00,6.25,43.75,6.25,37.50,"698913","The Wounded Warrior Project","US",1
+12,10,2015,50.00,6.25,43.75,6.25,37.50,"928769","Rio Americano Band Boosters","US",1
+12,5,2015,150.00,15.00,135.00,18.75,116.25,"928546","Back On My Feet","US",1
+12,12,2015,125.00,15.00,110.00,15.62,94.38,"257","DOCTORS WITHOUT BORDERS USA INC","US",1
+12,10,2015,25.00,3.12,21.88,3.12,18.76,"928768","Little Sisters of the Poor in Richmond","US",1
+12,12,2015,50.00,5.00,45.00,6.24,38.76,"928063","Huntington Chapel","US",1
+12,6,2015,100.00,12.50,87.50,12.50,75.00,"698627","Samaritans Purse","US",1
+12,2,2015,25.00,3.12,21.88,3.12,18.76,"927961","Friends Of Night People Inc","US",1
+12,6,2015,50.00,5.00,45.00,6.25,38.75,"698436","ASPCA","US",1
+12,12,2015,25.00,3.12,21.88,3.12,18.76,"928769","Rio Americano Band Boosters","US",1
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"568899","Family Services Incorporated","US",1
+12,4,2015,100.00,10.00,90.00,12.50,77.50,"928064","United Friends Of The Children","US",1
+12,3,2015,100.00,10.00,90.00,12.50,77.50,"927963","Mercy For Animals","US",1
+12,11,2015,25.00,2.50,22.50,3.12,19.38,"928841","Plymouth Taskforce For The Homeless","US",1
+12,12,2015,25.00,2.50,22.50,3.12,19.38,"928883","Lake County Crisis Center for the Prevention & Treatment of Domestic Violence, Inc.","US",1
+12,4,2015,50.00,5.00,45.00,6.25,38.75,"698620","Archdiocese for the Military Services USA","US",1
+12,5,2015,50.00,0,50.00,6.25,43.75,"928529","The Arc of Monmouth, Inc.","US",1
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"927508","Catskill Area Hospice And Palliativ E Care Foundation Inc","US",1
+12,1,2015,20.00,2.00,18.00,2.50,15.50,"699134","National Public Radio, Inc.","US",1
+12,3,2015,25.00,2.50,22.50,3.12,19.38,"439280","A Hat for Harold, Inc.","US",1
+12,3,2015,100.00,12.50,87.50,12.50,75.00,"104","Gardens for Health International","US",1
+12,8,2015,200.00,25.00,175.00,25.00,150.00,"928636","St Joseph County United Fund","US",1
+12,5,2015,25.00,3.12,21.88,3.12,18.76,"699059","Elijahs Promise","US",1
+12,7,2015,50.00,5.00,45.00,6.25,38.75,"439447","Autism Speaks","US",1
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"927505","Ferst Foundation For Childhood Literacy, Inc.","US",1
+12,7,2015,100.00,12.50,87.50,12.50,75.00,"257","DOCTORS WITHOUT BORDERS USA INC","US",1
+12,9,2015,50.00,6.25,43.75,6.25,37.50,"238","Global Action","US",1
+12,9,2015,25.00,2.50,22.50,3.13,19.37,"439352","JANE GOODALL INSTITUTE FOR WILDLIFE RESEARCH EDUCATION & CONSERVATION ","US",1
+12,1,2015,10.00,0,10.00,1.25,8.75,"927957","Environmental Defense Fund Incorporated","US",1
+12,8,2015,100.00,10.00,90.00,12.50,77.50,"257","DOCTORS WITHOUT BORDERS USA INC","US",1
+12,12,2015,50.00,6.25,43.75,6.25,37.50,"116","Farm Aid","US",1
+12,1,2015,50.00,6.25,43.75,6.25,37.50,"439462","American Red Cross","US",1
+12,12,2015,100.00,10.00,90.00,12.50,77.50,"928850","The Tibet Fund","US",1
+12,5,2015,50.00,5.00,45.00,6.24,38.76,"235","Global Greengrants Fund Inc","US",1
+12,2,2015,50.00,6.24,43.76,6.25,37.51,"927962","Zero-The End Of Prostate Cancer","US",1
+12,12,2015,10.00,1.00,9.00,1.85,7.15,"181711","AGE CONCERN LAMBETH","GB",1
+12,2,2015,25.00,2.50,22.50,3.12,19.38,"928008","Child Mind Institute Inc","US",1
+12,4,2015,25.00,2.50,22.50,3.12,19.38,"699100","Spiritt Family Services","US",1
+12,4,2015,25.00,2.50,22.50,3.12,19.38,"928052","Bixby Memorial Free Library","US",1
+12,12,2015,100.00,10.00,90.00,12.48,77.52,"928888","Unity House of Troy, Inc.","US",1
+12,9,2015,200.00,25.00,175.00,25.00,150.00,"928665","Civic Music Association","US",1
+12,3,2015,300.00,30.00,270.00,37.50,232.50,"928038","Saint Rocco Parish","US",1
+12,7,2015,100.00,12.50,87.50,12.50,75.00,"928593","Soldiers Heart Inc","US",1
+12,9,2015,25.00,2.50,22.50,3.12,19.38,"927963","Mercy For Animals","US",1
+12,4,2015,25.00,2.50,22.50,4.62,17.88,"170284","HOSTELS FOR THE HOMELESS","GB",1
+12,2,2015,875.00,109.37,765.63,109.37,656.26,"927959","Thornwell Home For Children","US",1
+12,7,2015,25.00,2.50,22.50,4.62,17.88,"182111","MACMILLAN CANCER SUPPORT","GB",1
+12,4,2015,125.00,12.50,112.50,15.62,96.88,"928054","Thru The Bible Radio Network","US",1
+12,1,2015,250.00,25.00,225.00,31.25,193.75,"826513","Operation Smile, Inc.","US",1
+12,5,2015,25.00,3.12,21.88,3.12,18.76,"79","Food for Orphans","US",1
+12,12,2015,50.00,6.25,43.75,6.25,37.50,"438873","United States Fund for UNICEF","US",1
+12,5,2015,75.00,7.50,67.50,9.36,58.14,"698436","ASPCA","US",1
+12,1,2015,50.00,0.00,50.00,6.25,43.75,"568907","Grand Teton National Park Foundation","US",1
+12,7,2015,100.00,0,100.00,12.50,87.50,"928571","Steele Cooperative Preschool","US",1
+12,1,2015,25.00,3.12,21.88,3.12,18.76,"698571","Build Change","US",1
+12,7,2015,100.00,10.00,90.00,12.50,77.50,"928594","Love Inc Lake County Southwest","US",1
+12,1,2015,50.00,6.25,43.75,6.25,37.50,"529096","Howard El","US",2
+12,2,2015,25.00,3.12,21.88,3.12,18.76,"699108","Christ In Action Ministries Inc","US",1
+12,12,2015,100.00,12.50,87.50,12.50,75.00,"438856","OXFAM-AMERICA INC","US",1
+12,7,2015,175.00,21.25,153.75,21.87,131.88,"439189","St. Jude Children's Research Hospital","US",1
+12,9,2015,100.00,10.00,90.00,12.49,77.51,"928662","San Jorge Childrens Foundation Inc","US",1
+12,9,2015,200.00,20.00,180.00,25.00,155.00,"439189","St. Jude Children's Research Hospital","US",1
+12,7,2015,25.00,2.50,22.50,3.12,19.38,"140","Hospice Of Metro Denver Incorporated Dba The Denver Hospice","US",1
+12,9,2015,25.00,2.50,22.50,3.12,19.38,"928642","Soi Dog Foundation Usa","US",1
+12,10,2015,50.00,5.00,45.00,6.25,38.75,"698618","The Ocean Foundation","US",1
+12,2,2015,2500.00,312.50,2187.50,312.50,1875.00,"698619","Christian Brothers High School Of Sacramento Inc","US",1
+12,2,2015,100.00,10.00,90.00,12.50,77.50,"698620","Archdiocese for the Military Services USA","US",1
+12,10,2015,150.00,15.00,135.00,18.75,116.25,"439442","SANKARA EYE FOUNDATION USA","US",1
+12,9,2015,25.00,2.50,22.50,3.12,19.38,"928666","The Shriners Hospital For Children","US",1
+12,5,2015,50.00,5.00,45.00,6.24,38.76,"439381","ANIMAL RESCUE LEAGUE OF BOSTON                                        ","US",1
+12,7,2015,25.00,0.00,25.00,3.12,21.88,"16","Snow Leopard Trust","US",1
+12,11,2015,25.00,3.12,21.88,3.12,18.76,"698775","Childrens Cancer & Blood Foundation","US",1
+12,12,2015,25.00,3.12,21.88,3.12,18.76,"454767","Santa Teresa Elementary School","US",2
+12,1,2015,3900.00,487.50,3412.50,487.50,2925.00,"699102","Center For Internet Security Inc","US",1
+12,3,2015,25.00,3.12,21.88,3.12,18.76,"928037","National Center for Missing and Exploited Children","US",1
+12,6,2015,25.00,2.50,22.50,3.12,19.38,"524095","Clarendon Ave Elem School","US",2
+12,12,2015,25.00,3.12,21.88,3.12,18.76,"439201","American Heart Association, Inc.","US",1
+12,12,2015,50.00,6.25,43.75,6.25,37.50,"171","Covenant House","US",1
+12,1,2015,15.00,1.88,13.12,1.88,11.24,"698436","ASPCA","US",1
+12,2,2015,50.00,6.25,43.75,6.25,37.50,"927970","Stevens-Swan-Humane-Society","US",1
+12,3,2015,25.00,3.12,21.88,3.12,18.76,"471346","North Gwinnett High School","US",2
+12,4,2015,25.00,3.12,21.88,3.12,18.76,"698541","Save the Children","US",1
+12,5,2015,100.00,10.00,90.00,12.48,77.52,"928543","Action for Boston Community Development","US",1
+12,2,2015,100.00,10.00,90.00,12.48,77.52,"124","Jonathan's Place","US",1
+12,6,2015,125.00,12.50,112.50,23.12,89.38,"928577","Fred Hollows Foundation The","AU",1
+12,4,2015,25.00,2.50,22.50,3.12,19.38,"927799","Lupus Foundation of America, Inc.","US",1
+12,8,2015,25.00,3.13,21.87,3.13,18.74,"928623","New Alternatives For Lgbt Homeless Youth Inc","US",1
+12,3,2015,25.00,3.12,21.88,3.12,18.76,"928028","Midatlantic Horse Rescue Inc","US",1
+12,6,2015,100.00,10.00,90.00,12.48,77.52,"928581","United Muslim Relief Umr","US",1
+12,3,2015,150.00,17.50,132.50,18.75,113.75,"568923","Bethany's Gait","US",1
+12,1,2015,100.00,12.50,87.50,12.50,75.00,"21","Wildearth Guardians","US",1
+12,9,2015,25.00,3.12,21.88,3.12,18.76,"143","Church Health Center","US",1
+12,5,2015,25.00,3.12,21.88,3.12,18.76,"928531","Southern Scholarship Foundation, Inc.","US",1
+12,6,2015,65.00,6.50,58.50,8.12,50.38,"699134","National Public Radio, Inc.","US",1
+12,5,2015,50.00,5.00,45.00,6.24,38.76,"439282","SPCA of Tennessee","US",1
+12,11,2015,250.00,25.00,225.00,31.25,193.75,"928818","Krishnamurti Foundation Of America","US",1
+12,9,2015,25.00,2.50,22.50,3.12,19.38,"171","Covenant House","US",1
+12,6,2015,50.00,5.00,45.00,6.25,38.75,"928527","Society For The Prevention Of Cruelty To Animals Wake County Inc","US",1
+12,12,2015,25.00,3.12,21.88,3.12,18.76,"234","Tlc Meals On Wheels","US",1
+12,9,2015,50.00,5.00,45.00,6.25,38.75,"699051","New Hampshire Conference of the United Church of Christ","US",1
+12,7,2015,25.00,3.12,21.88,3.12,18.76,"171","Covenant House","US",1
+12,8,2015,200.00,20.00,180.00,25.00,155.00,"928616","Partners in Health a Nonprofit Corporation","US",1
+12,10,2015,400.00,50.00,350.00,50.00,300.00,"172","Africaid Inc","US",1
+12,4,2015,25.00,3.12,21.88,3.12,18.76,"525188","Denny Intl Middle School","US",2
+12,5,2015,25.00,3.12,21.88,3.12,18.76,"928553","Idaho Zoological Society","US",1
+12,6,2015,25.00,2.50,22.50,3.12,19.38,"928568","Vine Life Ministries Inc","US",1
+12,7,2015,50.00,6.25,43.75,6.25,37.50,"698901","Heifer International","US",1
+12,8,2015,25.00,2.50,22.50,3.12,19.38,"72","Neighborhood Centers Inc","US",1
+12,9,2015,25.00,3.12,21.88,3.12,18.76,"928731","Three Gaits Inc","US",1

@@ -172,6 +172,37 @@ class CauseBalance < ActiveRecord::Base
     end                          
   end
 
+  def get_balance(month)
+    case month
+    when 1
+      self.jan
+    when 2
+      self.feb
+    when 3
+      self.mar
+    when 4
+      self.apr
+    when 5
+      self.may
+    when 6
+      self.jun
+    when 7
+      self.jul
+    when 8
+      self.aug
+    when 9
+      self.sep
+    when 10
+      self.oct
+    when 11
+      self.nov
+    when 12
+      self.dec
+    else
+      raise "Invalid month #{month}"
+    end                          
+  end
+
   def set_balance(month, amount)
     case month
     when 1
