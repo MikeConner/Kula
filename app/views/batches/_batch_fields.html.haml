@@ -10,9 +10,9 @@
   = f.label :description
   = f.text_area :description, :size => '40x3', :maxlength => 255
 = f.fields_for :payments do |payment_form|
-  = render :partial => 'payment', :locals => { :f => payment_form, :cause => cause }
-= add_payment(@batch, f, cause)
+  = render :partial => 'payment', :locals => { :f => payment_form, :cause => cause, :cause_id => cause_id }
+= add_payment(@batch, f, cause, cause_id)
 %br
 = f.fields_for :adjustments do |adjustment_form|
-  = render :partial => 'adjustment', :locals => { :f => adjustment_form, :cause => cause }
-= add_adjustment(@batch, f, cause)
+  = render :partial => 'adjustment', :locals => { :f => adjustment_form, :cause => cause, :cause_id => cause_id }
+= add_adjustment(@batch, f, cause, cause_id)

@@ -23,6 +23,7 @@ class BatchesController < ApplicationController
     @partner = Partner.find_by_partner_identifier(params[:partner])
     @batch = @partner.batches.build(:user => current_user)
     @cause = current_user.cause.nil? ? '' : current_user.cause.org_name  
+    @cause_id = current_user.cause.nil? ? '' : current_user.cause.id
         
     render :layout => 'admin'
   end
@@ -33,7 +34,7 @@ class BatchesController < ApplicationController
     # Convert before passing to batch creation
     if params[:batch].has_key?(:payments_attributes)
       params[:batch][:payments_attributes].each do |k, v|
-        v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier rescue nil
+        #v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier rescue nil
         v[:year] = v['year(1i)']
         v[:month] = v['month(2i)']
         # Extra fields are confusing the nested attributes
@@ -48,7 +49,7 @@ class BatchesController < ApplicationController
     
     if params[:batch].has_key?(:adjustments_attributes)
       params[:batch][:adjustments_attributes].each do |k, v|
-        v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier rescue nil
+        #v[:cause_id] = Cause.find_by_org_name(v[:cause_id]).cause_identifier rescue nil
         v[:year] = v['year(1i)']
         v[:month] = v['month(2i)']
         # Extra fields are confusing the nested attributes
@@ -189,12 +190,12 @@ class BatchesController < ApplicationController
     payments = batch.payments.group('payments.id', :cause_id, :status).order('amount DESC').includes(:cause)
     adjustments = batch.adjustments.group('adjustments.id', :cause_id).order('amount DESC').includes(:cause)
     
-    csv_data = "Type,amount,status,date,month,year,check_num,payment_method,address,confirmation,org_name,org_email,org_phone,org_fax,address1,address2,address3,school?,international?,has_ach?,comment\n"
+    csv_data = "Type,amount,status,date,month,year,payment_id,payment_method,address,confirmation,cause_id,org_name,org_email,org_phone,org_fax,address1,address2,address3,school?,international?,has_ach?,comment\n"
     payments.each do |payment|
       csv_data += "Payment,#{payment.amount},#{payment.status},#{payment.date.try(:strftime, ApplicationHelper::CSV_DATE_FORMAT)},"
       csv_data += "#{payment.month},#{payment.year},#{payment.check_num},#{payment.payment_method},#{csv_sanitize(payment.address)},#{payment.confirmation},"
       cause = payment.cause
-      csv_data += "#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
+      csv_data += "#{cause.cause_identifier},#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
       csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_eft_bank_info?},#{csv_sanitize(payment.comment)}\n"
     end
 
@@ -202,7 +203,7 @@ class BatchesController < ApplicationController
       csv_data += "Adjustment,#{adjustment.amount},,#{adjustment.date.try(:strftime, ApplicationHelper::CSV_DATE_FORMAT)},"
       csv_data += "#{adjustment.month},#{adjustment.year},,,,,"
       cause = adjustment.cause
-      csv_data += "#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
+      csv_data += "#{cause.cause_identifier},#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
       csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_eft_bank_info?},#{csv_sanitize(adjustment.comment)}\n"
     end
     

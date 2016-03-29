@@ -5,7 +5,7 @@
     = label_tag 'Payment'
   .large-2.columns
     = f.label :cause_id
-    = f.text_field :cause_id, :value => cause, :class => 'autocompleted_cause', :title => I18n.t('autocomplete_field')
+    = f.text_field :cause_id, :value => cause_id, :title => cause
   .large-2.columns
     = f.label :date, 'Date of Payment'
     = f.date_select :date

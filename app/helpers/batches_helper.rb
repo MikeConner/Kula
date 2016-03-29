@@ -1,5 +1,5 @@
 module BatchesHelper
-  def add_payment(batch, form_builder, cause)
+  def add_payment(batch, form_builder, cause, cause_id)
     # Precompute the html for a new content block by calling render on the same partial used for display
     # The index is just "NEW_RECORD", since it doesn't exist yet; it will be replaced later
     # Add a link with the text "Add Payment" and the id "add_payment"
@@ -8,14 +8,14 @@ module BatchesHelper
     # Use #license elements as the unique key instead of "new Date().getTime()" so that I can predict it with RSpec
     #  
     form_builder.fields_for :payments, batch.payments.build, :child_index => 'NEW_RECORD' do |payment_form|
-      html = render(:partial => 'payment', :locals => { :f => payment_form, :cause => cause })
+      html = render(:partial => 'payment', :locals => { :f => payment_form, :cause => cause, :cause_id => cause_id })
       onclick = "$('#{escape_javascript(html)}'.replace(/NEW_RECORD/g, $('.payment').length)).insertBefore('#add_payment'); $('.autocompleted_cause').autocomplete({source: '/causes/autocomplete.json', minLength: 3}); return false;"
       
       content_tag(:a, 'Add Payment', :href => '#', :onclick => onclick, :id => 'add_payment')
     end
   end    
 
-  def add_adjustment(batch, form_builder, cause)
+  def add_adjustment(batch, form_builder, cause, cause_id)
     # Precompute the html for a new content block by calling render on the same partial used for display
     # The index is just "NEW_RECORD", since it doesn't exist yet; it will be replaced later
     # Add a link with the text "Add Payment" and the id "add_payment"
@@ -24,7 +24,7 @@ module BatchesHelper
     # Use #license elements as the unique key instead of "new Date().getTime()" so that I can predict it with RSpec
     #  
     form_builder.fields_for :adjustments, batch.adjustments.build, :child_index => 'NEW_RECORD' do |adjustment_form|
-      html = render(:partial => 'adjustment', :locals => { :f => adjustment_form, :cause => cause })
+      html = render(:partial => 'adjustment', :locals => { :f => adjustment_form, :cause => cause, :cause_id => cause_id  })
       onclick = "$('#{escape_javascript(html)}'.replace(/NEW_RECORD/g, $('.adjustment').length)).insertBefore('#add_adjustment'); $('.autocompleted_cause').autocomplete({source: '/causes/autocomplete.json', minLength: 3}); return false;"
       
       content_tag(:a, 'Add Adjustment', :href => '#', :onclick => onclick, :id => 'add_adjustment')

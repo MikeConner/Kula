@@ -90,7 +90,8 @@ class DelayedRake < ActiveRecord::Base
       Rake::Task[self.name].invoke
     else
       options = YAML::load(self.params)
-      Rake::Task[self.name].invoke(options.values.to_s.gsub(' ','').gsub('[','').gsub(']',''))
+
+      Rake::Task[self.name].invoke(*options.values)
     end
     Rake::Task[self.name].reenable
   end

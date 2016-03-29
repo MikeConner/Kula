@@ -12,6 +12,6 @@
           .row
             .span6
               = form_for @batch do |f|
-                = render :partial => 'batch_fields', :locals => { :f => f, :cause => @cause }
+                = render :partial => 'batch_fields', :locals => { :f => f, :cause => @cause, :cause_id => @cause_id }
                 .actions
                   = f.submit 'Create Batch'
