@@ -190,10 +190,10 @@ class BatchesController < ApplicationController
     payments = batch.payments.group('payments.id', :cause_id, :status).order('amount DESC').includes(:cause)
     adjustments = batch.adjustments.group('adjustments.id', :cause_id).order('amount DESC').includes(:cause)
     
-    csv_data = "Type,amount,status,date,month,year,payment_id,payment_method,address,confirmation,cause_id,org_name,org_email,org_phone,org_fax,address1,address2,address3,school?,international?,has_ach?,comment\n"
+    csv_data = "Type,amount,status,date,month,year,payment_id,check_num,payment_method,address,confirmation,cause_id,org_name,org_email,org_phone,org_fax,address1,address2,address3,school?,international?,has_ach?,comment\n"
     payments.each do |payment|
       csv_data += "Payment,#{payment.amount},#{payment.status},#{payment.date.try(:strftime, ApplicationHelper::CSV_DATE_FORMAT)},"
-      csv_data += "#{payment.month},#{payment.year},#{payment.check_num},#{payment.payment_method},#{csv_sanitize(payment.address)},#{payment.confirmation},"
+      csv_data += "#{payment.month},#{payment.year},#{payment.id},#{payment.check_num},#{payment.payment_method},#{csv_sanitize(payment.address)},#{payment.confirmation},"
       cause = payment.cause
       csv_data += "#{cause.cause_identifier},#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
       csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_eft_bank_info?},#{csv_sanitize(payment.comment)}\n"
@@ -201,7 +201,7 @@ class BatchesController < ApplicationController
 
     adjustments.each do |adjustment|
       csv_data += "Adjustment,#{adjustment.amount},,#{adjustment.date.try(:strftime, ApplicationHelper::CSV_DATE_FORMAT)},"
-      csv_data += "#{adjustment.month},#{adjustment.year},,,,,"
+      csv_data += "#{adjustment.month},#{adjustment.year},,,,,,"
       cause = adjustment.cause
       csv_data += "#{cause.cause_identifier},#{csv_sanitize(cause.org_name)},#{cause.org_email},#{cause.org_phone},#{cause.org_fax},#{csv_sanitize(cause.address1)},"
       csv_data += "#{csv_sanitize(cause.address2)},#{csv_sanitize(cause.address3)},#{cause.school?}, #{cause.international?},#{cause.has_eft_bank_info?},#{csv_sanitize(adjustment.comment)}\n"
