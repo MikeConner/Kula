@@ -573,7 +573,7 @@ namespace :db do
                 if existing_tx.nil?
                   puts "Could not find CauseTransaction: #{tx.inspect} - Creating!"
                 else
-                  existing_tx.update_attributes(:calc_distributor_fee => existing_tx.distributor_fee + distributor_fee,
+                  existing_tx.update_attributes(:calc_distributor_fee => existing_tx.calc_distributor_fee + distributor_fee,
                                                 :donee_amount => existing_tx.donee_amount - distributor_fee)
 
                   update_cause_balances(CauseTransaction.new(:partner_identifier => existing_tx.partner_identifier,
