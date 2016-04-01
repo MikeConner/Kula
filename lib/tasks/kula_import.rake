@@ -137,18 +137,31 @@ namespace :db do
           else
             # Important to use the Amount from the step 2 query transaction, not our CauseTransaction
             #   CauseTransaction is aggregate by month; we need to calculate the contribution of each distributor to the fee
-            #   You can have multiple transaction from the same month, with different distributors            
-            distributor_fee = (fee.distributor_rate * tx['amount'].to_f).round(2)
+            #   You can have multiple transaction from the same month, with different distributors    
+            amount = tx['amount'].to_f
+                    
+            distributor_fee = (fee.distributor_rate * amount).round(2)
 
             unless 0 == distributor_fee
               ActiveRecord::Base.transaction do
                 if existing_tx.nil?
                   puts "Could not find CauseTransaction: #{tx.inspect} - Creating!"
                 else
-                  #cause = Cause.find(existing_tx.cause_identifier)
-                  #usa = 'US' == cause.country.strip
-                  #cause_type = cause.cause_type
+                  cause = Cause.find(existing_tx.cause_identifier)
+                  usa = 'US' == cause.country.strip
+                  cause_type = cause.cause_type
                   #gross = existing_tx.gross_amount
+
+# Amount = $400
+# Dist_fee = $14
+
+# without dist
+# Foundation fees = $10
+# Kula fees = $40
+
+# with dist
+# Foundation fees = $6
+# Kula fees = $30
 
                   # In step 1, we calculated fees ignoring the distributor_id (for performance reasons)
                   # Now in step 2, we realize there's a distributor, and need to add in that fee *plus*
@@ -158,18 +171,26 @@ namespace :db do
                   #   getting the original step 1 fee (no distributor), then get the new fee, and
                   #   adjust CauseBalance with the difference
                   #
-                  #step1_fee = partner.current_kula_rate(nil, Date.parse("#{year}-#{month}-01"))
-                  #step1_fees = calculate_fees(step1_fee, cause_type, gross, usa)
+                  fees_with_distributor = calculate_fees(fee, cause_type, amount, usa)
+
+                  fee_obj_without_distributor = partner.current_kula_rate(nil, Date.parse("#{year}-#{month}-01"))
+                  fees_without_distributor = calculate_fees(fee_obj_without_distributor, cause_type, amount, usa)
+                  
+                  delta_foundation_fee = fees_with_distributor[:calc_foundation_fee] - fees_without_distributor[:calc_foundation_fee] # -4
+                  delta_kula_fee = fees_with_distributor[:calc_kula_fee] - fees_without_distributor[:calc_kula_fee] # -10
+                  delta_donee =  -distributor_fee - delta_foundation_fee - delta_kula_fee # 0
+                  
                   #step1_donee_amount = gross - step1_fees[:calc_kula_fee] - step1_fees[:calc_foundation_fee]
 
-                  #fees = calculate_fees(fee, cause_type, gross, usa)
                   #donee_amount = gross - fees[:calc_kula_fee] - fees[:calc_foundation_fee] - distributor_fee
 
                   # Overwrite with current values
                   #existing_tx.update_attributes(fees.merge(:calc_distributor_fee => distributor_fee,
                   #                                         :donee_amount => existing_tx.donee_amount - distributor_fee))
                   existing_tx.update_attributes(:calc_distributor_fee => existing_tx.calc_distributor_fee + distributor_fee,
-                                                :donee_amount => existing_tx.donee_amount - distributor_fee)
+                                                :donee_amount => existing_tx.donee_amount + delta_donee,
+                                                :calc_foundation_fee => existing_tx.calc_foundation_fee + delta_foundation_fee,
+                                                :calc_kula_fee => existing_tx.calc_kula_fee + delta_kula_fee)
 
                   # new_tx is just a temporary object so that I can call update_cause_balances
                   #   with modified values, without affecting the real transaction
@@ -185,7 +206,9 @@ namespace :db do
                                                              :year => existing_tx.year,
                                                              :month => existing_tx.month,
                                                              :calc_distributor_fee => distributor_fee,
-                                                             :donee_amount => -distributor_fee))
+                                                             :donee_amount => delta_donee,
+                                                             :calc_foundation_fee => delta_foundation_fee,
+                                                             :calc_kula_fee => delta_kula_fee))
 
                   puts "Added fee #{distributor_fee} to #{existing_tx.id}"
                 end
@@ -320,7 +343,7 @@ namespace :db do
 
     year_param = args[:year].to_i
     month_param = args[:month].to_i
-
+=begin
     # Cause transactions have dates; CauseBalances only months/years
     # When we're calling this, we need to clear corresponding CauseBalances, and it's going to be one of three cases:
     # All time, in which case we just blow everything away so there's nothing to calculate
@@ -499,7 +522,7 @@ namespace :db do
         current_date += 1.month
       end
     end
-
+=end
     sql = CauseTransaction.query_step2
     unless sql.nil?
       puts "STEP 2"
@@ -565,23 +588,50 @@ namespace :db do
           else
             # Important to use the Amount from the step 2 query transaction, not our CauseTransaction
             #   CauseTransaction is aggregate by month; we need to calculate the contribution of each distributor to the fee
-            #   You can have multiple transaction from the same month, with different distributors            
-            distributor_fee = (fee.distributor_rate * tx['amount'].to_f).round(2)
+            #   You can have multiple transaction from the same month, with different distributors    
+            amount = tx['amount'].to_f
+                    
+            distributor_fee = (fee.distributor_rate * amount).round(2)
 
             unless 0 == distributor_fee
               ActiveRecord::Base.transaction do
                 if existing_tx.nil?
                   puts "Could not find CauseTransaction: #{tx.inspect} - Creating!"
                 else
+                  cause = Cause.find(existing_tx.cause_identifier)
+                  usa = 'US' == cause.country.strip
+                  cause_type = cause.cause_type
+
+                  # In step 1, we calculated fees ignoring the distributor_id (for performance reasons)
+                  # Now in step 2, we realize there's a distributor, and need to add in that fee *plus*
+                  #   recalculate and overwrite the old fees.
+                  # This is easy in CauseTransaction, but CauseBalance is trickier because we've already
+                  #   added the "old" fees in. So, for kula and foundation fees, we need to duplicate
+                  #   getting the original step 1 fee (no distributor), then get the new fee, and
+                  #   adjust CauseBalance with the difference
+                  #
+                  fees_with_distributor = calculate_fees(fee, cause_type, amount, usa)
+
+                  fee_obj_without_distributor = partner.current_kula_rate(nil, Date.parse("#{year}-#{month}-01"))
+                  fees_without_distributor = calculate_fees(fee_obj_without_distributor, cause_type, amount, usa)
+                  
+                  delta_foundation_fee = fees_with_distributor[:calc_foundation_fee] - fees_without_distributor[:calc_foundation_fee]
+                  delta_kula_fee = fees_with_distributor[:calc_kula_fee] - fees_without_distributor[:calc_kula_fee]
+                  delta_donee =  -distributor_fee - delta_foundation_fee - delta_kula_fee
+                  
                   existing_tx.update_attributes(:calc_distributor_fee => existing_tx.calc_distributor_fee + distributor_fee,
-                                                :donee_amount => existing_tx.donee_amount - distributor_fee)
+                                                :donee_amount => existing_tx.donee_amount + delta_donee,
+                                                :calc_foundation_fee => existing_tx.calc_foundation_fee + delta_foundation_fee,
+                                                :calc_kula_fee => existing_tx.calc_kula_fee + delta_kula_fee)
 
                   update_cause_balances(CauseTransaction.new(:partner_identifier => existing_tx.partner_identifier,
                                                              :cause_identifier => existing_tx.cause_identifier,
                                                              :year => existing_tx.year,
                                                              :month => existing_tx.month,
                                                              :calc_distributor_fee => distributor_fee,
-                                                             :donee_amount => -distributor_fee))
+                                                             :donee_amount => delta_donee,
+                                                             :calc_foundation_fee => delta_foundation_fee,
+                                                             :calc_kula_fee => delta_kula_fee))
 
                   puts "Added fee #{distributor_fee} to #{existing_tx.id}"
                 end
@@ -672,27 +722,15 @@ namespace :db do
             
         cc_fees.each do |month, cc_amount|
           cc_balance.set_balance(month, cc_amount)
-          #puts "#{month} = #{cc_amount}"
-          #puts "Gross=#{gross.get_balance(month)} - #{cc_amount}"
-          #puts "Kula fee=#{kula_fee.get_balance(month)}" unless kula_fee.nil?
-          #puts "Foundation fee=#{foundation_fee.get_balance(month)}" unless foundation_fee.nil?
-          #puts "Dist fee=#{dist_fee.get_balance(month)}" unless dist_fee.nil?
           
           db = gross.get_balance(month) - cc_amount
           db -= kula_fee.get_balance(month) unless kula_fee.nil?
           db -= foundation_fee.get_balance(month) unless foundation_fee.nil?
           db -= dist_fee.get_balance(month) unless dist_fee.nil?
           
-          #puts "Setting donee balance for #{month} to #{db}"
-          
           donee_balance.set_balance(month, db)
         end
       end
-        
-      # Update credit card CauseBalance
-      #balance.set_balance(tx['month'], calc_credit_card_fee)
-      #balance = CauseBalance.where(keys.merge(:balance_type => CauseBalance::DONEE_AMOUNT)).first
-      #balance.set_balance(tx['month'], donee_amount)     
     end
 
     # Total Cause Balances
